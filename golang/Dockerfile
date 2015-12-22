@@ -4,7 +4,7 @@ MAINTAINER Core Services <coreservices@namely.com>
 # Install protoc go generator
 ###################################
 
-RUN apk add go git
+RUN apt-get install -y golang
 
 RUN mkdir -p /opt/go/
 ENV GOPATH "/opt/go"
