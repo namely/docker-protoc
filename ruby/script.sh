@@ -16,6 +16,6 @@ done
 echo 
 
 echo "Building..."
-protoc -I /defs /defs/*.proto --ruby_out=./ --grpc_out=./ --plugin=protoc-gen-grpc=/opt/namely/grpc_ruby_plugin
+protoc -I /defs /defs/*.proto --ruby_out=./ruby --grpc_out=./ruby --plugin=protoc-gen-grpc=/opt/namely/grpc_ruby_plugin
 
 echo "Done"
