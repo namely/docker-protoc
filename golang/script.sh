@@ -16,5 +16,5 @@ done
 echo 
 
 echo "Building Go source..."
-protoc -I /defs /defs/*.proto --go_out=plugins=grpc:.
+protoc -I /defs /defs/*.proto --go_out=plugins=grpc:./go
 echo "Done!"

@@ -9,6 +9,7 @@ BASE_IMAGE='protoc'
 GOLANG_IMAGE='protoc-golang'
 RUBY_IMAGE='protoc-ruby'
 TAG=$(git rev-parse --short HEAD)
+TAG='latest'
 
 buildAll () {
   docker build -t $REGISTRY/$BASE_IMAGE:$TAG .
