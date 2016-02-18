@@ -1,8 +1,7 @@
 FROM registry.namely.tech/namely/protoc
-#FROM pb2
 MAINTAINER Core Services <coreservices@namely.com>
 
-ENV GRPC_RELEASE release-0_11
+ENV GRPC_RELEASE release-0_13
 
 # Install protoc ruby generator
 ###################################
