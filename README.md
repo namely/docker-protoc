@@ -39,7 +39,7 @@ If you make changes, or add a container for another language compiler, this repo
 has simple scripts that can build projects. You can run:
 
 ```sh
-$ ./build.sh
+$ ./build.sh [-t <tag name>]
 ```
 
 This will build all of the known containers.
