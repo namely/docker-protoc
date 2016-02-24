@@ -1,11 +1,13 @@
-#FROM gliderlabs/alpine
-FROM alpine:latest
+FROM gliderlabs/alpine:latest
+#FROM alpine:latest
 MAINTAINER Core Services <coreservices@namely.com>
 
 # Install Protoc
 ################
 RUN set -ex \
-	&& apk --update --no-cache add --virtual .pb-build \
+	&& apk --update --no-cache add \
+  bash \
+	&& apk --no-cache add --virtual .pb-build \
   make \
 	cmake \
   autoconf \
