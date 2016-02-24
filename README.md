@@ -19,6 +19,7 @@ $ docker pull registry.namely.tech/namely/protoc-golang
 
 After that, travel to the directory that contains your `.proto` definition files.
 
+
 So if you have a directory: `/Users/me/project/protobufs/` that has:
 `myproto.proto`, you'd want to do this:
 
@@ -26,6 +27,9 @@ So if you have a directory: `/Users/me/project/protobufs/` that has:
 cd /Users/me/project/protobufs
 docker run -v `pwd`:/defs registry.namely.tech/namely/protoc-ruby
 ```
+
+The container automatically puts the compiled files into directories for each language. So
+for Golang, the files go into a directory "pb-go"; For ruby the directory is "ruby".
 
 If you run `ls -l` you should see the generated protocol buffer files.
 
