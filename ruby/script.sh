@@ -11,16 +11,15 @@ if [ ${#pf[*]} -eq 0 ]; then
 fi
 
 echo "Found Proto definitions:"
-for p in ${pf[@]}
-do
-  echo -e "\t+$p"
-done
+printf "\t+%s\n" "${pf[@]}"
+
+echo
 
 if [ ! -d "$TARGET_DIR" ]; then
   mkdir $TARGET_DIR
 fi
 
 echo "Building Ruby..."
-protoc -I /defs /defs/*.proto --ruby_out=./$TARGET_DIR --grpc_out=./$TARGET_DIR --plugin=protoc-gen-grpc=/opt/namely/grpc_ruby_plugin
-
+#protoc -I /defs /defs/*.proto --ruby_out=./$TARGET_DIR --grpc_out=./$TARGET_DIR --plugin=protoc-gen-grpc=/opt/namely/grpc_ruby_plugin
+protoc -I . ${pf[@]} --ruby_out=./$TARGET_DIR --grpc_out=./$TARGET_DIR --plugin=protoc-gen-grpc=/opt/namely/grpc_ruby_plugin
 echo "Done"
