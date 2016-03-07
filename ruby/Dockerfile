@@ -1,4 +1,4 @@
-FROM registry.namely.tech/namely/protoc
+FROM namely/protoc
 MAINTAINER Core Services <coreservices@namely.com>
 
 ENV GRPC_RELEASE release-0_13

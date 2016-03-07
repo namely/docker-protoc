@@ -10,11 +10,11 @@ and it will take care of the rest.
 Pull the container for the language you want to compile:
 
 ```sh
-$ docker pull registry.namely.tech/namely/protoc-ruby
+$ docker pull namely/protoc-ruby
 
 # OR
 
-$ docker pull registry.namely.tech/namely/protoc-golang
+$ docker pull namely/protoc-go
 ```
 
 After that, travel to the directory that contains your `.proto` definition files.

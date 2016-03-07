@@ -1,10 +1,9 @@
-FROM registry.namely.tech/namely/protoc
-#FROM pb2
+FROM namely/protoc
 MAINTAINER Core Services <coreservices@namely.com>
 
-ENV GO_VERSION 1.5.2
+ENV GO_VERSION 1.6
 ENV GO_SRC_URL https://golang.org/dl/go$GO_VERSION.src.tar.gz
-ENV GO_SRC_SHA1 c7d78ba4df574b5f9a9bb5d17505f40c4d89b81c
+ENV GO_SRC_SHA1 a96cce8ce43a9bf9b2a4c7d470bc7ee0cb00410da815980681c8353218dcf146 
 
 ENV GO_BOOTSTRAP_VERSION 1.4.3
 ENV GO_BOOTSTRAP_URL https://golang.org/dl/go$GO_BOOTSTRAP_VERSION.src.tar.gz
@@ -15,14 +14,11 @@ ENV GO_BOOTSTRAP_SHA1 486db10dc571a55c8d795365070f66d343458c48
 RUN mkdir -p /go
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
-#ENV PATH "$PATH:/opt/go/bin"
 
 RUN set -ex \
 	&& apk --no-cache add --virtual .scm \
   bash \
-  #ca-certificates \
   musl-dev \
-  #openssl \
   git \
 	gcc \
 	&& mkdir -p /usr/local/bootstrap \
@@ -35,7 +31,7 @@ RUN set -ex \
 	&& export GOROOT_BOOTSTRAP=/usr/local/bootstrap/go \
 	\
 	&& wget -q "$GO_SRC_URL" -O golang.tar.gz \
-	&& echo "$GO_SRC_SHA1  golang.tar.gz" | sha1sum -c - \
+	&& echo "$GO_SRC_SHA1  golang.tar.gz" | sha256sum -c - \
 	&& tar -C /usr/local -xzf golang.tar.gz \
 	&& rm golang.tar.gz \
 	&& cd /usr/local/go/src \

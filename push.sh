@@ -1,6 +1,7 @@
-./build.sh
+. ./build.sh
 
-echo "Pushing Docker containers"
-docker push registry.namely.tech/namely/protoc
-docker push registry.namely.tech/namely/protoc-golang
-docker push registry.namely.tech/namely/protoc-ruby
+echo "Pushing Docker Images"
+docker push $REGISTRY/$BASE_IMAGE:$TAG
+docker push $REGISTRY/$RUBY_IMAGE:$TAG
+docker push $REGISTRY/$GOLANG_IMAGE:$TAG
+echo "Done"
