@@ -1,4 +1,4 @@
-# Protocol Buffer Generation Containers
+# Protocol Buffer Compiler Containers
 
 This repository contains Dockerfile's that build protocol buffer generation
 scripts for Go and Ruby. Removing the need to setup Protoc (v3 beta) on your
