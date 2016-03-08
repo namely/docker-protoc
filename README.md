@@ -10,11 +10,11 @@ and it will take care of the rest.
 Pull the container for the language you want to compile:
 
 ```sh
-$ docker pull registry.namely.tech/namely/protoc-ruby
+$ docker pull namely/protoc-ruby
 
 # OR
 
-$ docker pull registry.namely.tech/namely/protoc-golang
+$ docker pull namely/protoc-go
 ```
 
 After that, travel to the directory that contains your `.proto` definition files.
@@ -25,7 +25,7 @@ So if you have a directory: `/Users/me/project/protobufs/` that has:
 
 ```sh
 cd /Users/me/project/protobufs
-docker run -v `pwd`:/defs registry.namely.tech/namely/protoc-ruby
+docker run -v `pwd`:/defs namely/protoc-ruby
 ```
 
 The container automatically puts the compiled files into directories for each language. So

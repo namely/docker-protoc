@@ -4,9 +4,9 @@ set -e
 
 echo "Building Docker containers"
 
-REGISTRY='registry.namely.tech/namely'
+REGISTRY='namely'
 BASE_IMAGE='protoc'
-GOLANG_IMAGE='protoc-golang'
+GOLANG_IMAGE='protoc-go'
 RUBY_IMAGE='protoc-ruby'
 TAG=$(git rev-parse --short HEAD)
 TAG='latest'
