@@ -25,7 +25,7 @@ So if you have a directory: `/Users/me/project/protobufs/` that has:
 
 ```sh
 cd /Users/me/project/protobufs
-docker run -v `pwd`:/defs registry.namely.tech/namely/protoc-ruby
+docker run -v `pwd`:/defs namely/protoc-ruby
 ```
 
 The container automatically puts the compiled files into directories for each language. So
