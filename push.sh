@@ -1,7 +1,10 @@
 . ./build.sh
 
+set -e
+
 echo "Pushing Docker Images"
-docker push $REGISTRY/$BASE_IMAGE:$TAG
-docker push $REGISTRY/$RUBY_IMAGE:$TAG
-docker push $REGISTRY/$GOLANG_IMAGE:$TAG
+for img in ${IMAGES[@]};
+do
+  docker push $img
+done
 echo "Done"
