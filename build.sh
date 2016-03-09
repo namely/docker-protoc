@@ -4,12 +4,8 @@ set -e
 
 echo "Building Docker containers"
 
-declare -a DIRS=( 'golang' 'ruby' 'python' )
-declare -a IMAGES=( 'protoc-go' 'protoc-ruby' 'protoc-python' )
-
-GOLANG_IMAGE='protoc-go'
-RUBY_IMAGE='protoc-ruby'
-PYTHON_IMAGE='protoc-python'
+declare -a IMAGES
+DIRS=( $(basename $(find . ! -path . -type d -not -path '*/\.*')) )
 
 REGISTRY='namely'
 BASE_IMAGE='protoc'
@@ -18,11 +14,13 @@ TAG='latest'
 
 buildAll () {
   docker build -t $REGISTRY/$BASE_IMAGE:$TAG .
-  for i in ${!IMAGES[@]};
+  for i in ${!DIRS[@]};
   do
     echo
-    echo "Building ${IMAGES[$i]}... "
-    docker build -t $REGISTRY/${IMAGES[$i]}:$TAG ./${DIRS[$i]}
+    echo "Building ${DIRS[$i]}... "
+    IMAGE=$REGISTRY/$BASE_IMAGE-${DIRS[$i]}:$TAG
+    docker build -t $IMAGE ./${DIRS[$i]}
+    IMAGES+=( $IMAGE )
   done
 }
 
