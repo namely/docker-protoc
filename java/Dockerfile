@@ -15,6 +15,7 @@ ENV GRADLE_VERSION 2.11
 
 RUN set -ex \
 	&& apk --no-cache --update add --virtual .java-builder \
+  bash \
   alpine-sdk \
   musl-dev \
   g++ \
@@ -36,8 +37,8 @@ RUN mkdir -p /usr/local/grpc \
   && git checkout $GRPC_RELEASE \
   && git submodule update --init
 
-  RUN cd /usr/local/grpc \
-  && ./gradlew java_pluginExecutable \
+  RUN cd /usr/local/grpc/compiler \
+  && ../gradlew java_pluginExecutable \
   \
   && mkdir -p /opt/namely \
   && cp /usr/local/grpc/bins/opt/grpc_java_plugin /opt/namely \
