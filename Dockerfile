@@ -29,9 +29,9 @@ RUN set -ex \
 	&& make install \
   && cd \
 	&& rm -rf /tmp/protobufs/ \
-	&& apk --no-cache add libstdc++ \
+  && rm -rf /tmp/protobufs.tar.gz \
+	&& apk --no-cache add libstdc++ \ 
 	&& apk del .pb-build \
-  #&& rm -rf /usr/local/include \
 	&& rm -rf /var/cache/apk/* \
 	&& mkdir /defs
 

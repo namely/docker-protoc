@@ -3,11 +3,11 @@ MAINTAINER Core Services <coreservices@namely.com>
 
 ENV GRPC_RELEASE release-0_13
 
-# Install protoc python generator
+# Install protoc objc generator
 ###################################
 
 RUN set -ex \
-	&& apk --no-cache --update add --virtual .python-builder \
+	&& apk --no-cache --update add --virtual .objc-builder \
   git \
   gcc \
   g++ \
@@ -26,11 +26,11 @@ RUN set -ex \
   && git submodule update --init \
   \
   && cd /usr/local/grpc \
-  && make grpc_python_plugin \
+  && make grpc_objective_c_plugin \
   \
   && mkdir -p /opt/namely \
-  && cp /usr/local/grpc/bins/opt/grpc_python_plugin /opt/namely \
-  && apk del .python-builder \
+  && cp /usr/local/grpc/bins/opt/grpc_objective_c_plugin /opt/namely \
+  && apk del .objc-builder \
 	&& rm -rf /var/cache/apk/* \
   && rm -rf /usr/local/grpc \
   && rm -rf /usr/local/include
