@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET_DIR="java"
+TARGET_DIR="pb-java"
 
 pf=(`find . -maxdepth 1 -name "*.proto"`)
 if [ ${#pf[*]} -eq 0 ]; then
