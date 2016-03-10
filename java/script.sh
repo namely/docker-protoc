@@ -20,7 +20,6 @@ if [ ! -d "$TARGET_DIR" ]; then
 fi
 
 echo "Building java..."
-#protoc -I . ${pf[@]} --java_out=./$TARGET_DIR --grpc_out=./$TARGET_DIR --plugin=protoc-gen-grpc=/opt/namely/grpc_java_plugin
 protoc --plugin=protoc-gen-grpc-java=/opt/namely/protoc-gen-grpc-java \
     --grpc-java_out=./$TARGET_DIR --proto_path=. ${pf[@]}
 echo "Done"
