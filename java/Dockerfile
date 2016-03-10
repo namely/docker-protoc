@@ -13,6 +13,9 @@ ENV GRADLE_HOME /opt/gradle
 ENV PATH $PATH:$GRADLE_HOME/bin
 ENV GRADLE_VERSION 2.11
 
+ENV CXXFLAGS="-I usr/local/include"
+ENV LDFLAGS="-L/usr/local/lib"
+
 RUN set -ex \
 	&& apk --no-cache --update add --virtual .java-builder \
   bash \
@@ -23,12 +26,12 @@ RUN set -ex \
   git \
   openjdk8-jre
 
-RUN curl -Lks https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-all.zip -o /root/gradle.zip \
-  && mkdir -p /opt/ \
-  && cd /opt/ \
-  && unzip /root/gradle.zip \
-  && ln -s gradle-${GRADLE_VERSION} gradle \
-  && rm -rf /root/gradle.zip
+#RUN curl -Lks https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-all.zip -o /root/gradle.zip \
+#  && mkdir -p /opt/ \
+#  && cd /opt/ \
+#  && unzip /root/gradle.zip \
+#  && ln -s gradle-${GRADLE_VERSION} gradle \
+#  && rm -rf /root/gradle.zip
 
 RUN mkdir -p /usr/local/grpc \
   && git clone https://github.com/grpc/grpc-java.git /usr/local/grpc \
@@ -37,11 +40,14 @@ RUN mkdir -p /usr/local/grpc \
   && git checkout $GRPC_RELEASE \
   && git submodule update --init
 
-  RUN cd /usr/local/grpc/compiler \
+RUN sh -c 'echo /usr/local/lib >> /etc/ld.so.conf'
+  #&& ldconfig
+
+RUN cd /usr/local/grpc/compiler \
   && ../gradlew java_pluginExecutable \
   \
   && mkdir -p /opt/namely \
-  && cp /usr/local/grpc/bins/opt/grpc_java_plugin /opt/namely \
+  && cp /usr/local/grpc/compiler/build/exe/java_plugin/protoc-gen-grpc-java /opt/namely \
   && apk del .java-builder \
 	&& rm -rf /var/cache/apk/* \
   && rm -rf /usr/local/grpc \
