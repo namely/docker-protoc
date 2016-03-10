@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET_DIR="python"
+TARGET_DIR="pb-python"
 
 pf=(`find . -maxdepth 1 -name "*.proto"`)
 if [ ${#pf[*]} -eq 0 ]; then
