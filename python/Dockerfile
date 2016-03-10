@@ -8,7 +8,6 @@ ENV GRPC_RELEASE release-0_13
 
 RUN set -ex \
 	&& apk --no-cache --update add --virtual .python-builder \
-  make \
   git \
   gcc \
   g++ \
