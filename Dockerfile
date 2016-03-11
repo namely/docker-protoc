@@ -24,7 +24,7 @@ RUN set -ex \
 	&& tar -zxvf protobufs.tar.gz -C /tmp/protobufs/protobuf --strip-components=1 \
 	&& cd protobuf \
 	&& ./autogen.sh \
-	&& ./configure \
+	&& ./configure --prefix=/usr \
 	&& make \
 	&& make install \
   && cd \
