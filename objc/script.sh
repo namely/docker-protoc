@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET_DIR="objectivec"
+TARGET_DIR="pb-objc"
 
 pf=(`find . -maxdepth 1 -name "*.proto"`)
 if [ ${#pf[*]} -eq 0 ]; then

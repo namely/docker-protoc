@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET_DIR="csharp"
+TARGET_DIR="pb-csharp"
 
 pf=(`find . -maxdepth 1 -name "*.proto"`)
 if [ ${#pf[*]} -eq 0 ]; then

@@ -20,7 +20,5 @@ if [ ! -d "$TARGET_DIR" ]; then
 fi
 
 echo "Building Go source..."
-#protoc -I /defs /defs/*.proto --go_out=plugins=grpc:./$TARGET_DIR
-#protoc -I . ./*.proto --go_out=plugins=grpc:./$TARGET_DIR
 protoc -I . ${pf[@]} --go_out=plugins=grpc:./$TARGET_DIR
 echo "Done!"

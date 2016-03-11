@@ -24,14 +24,19 @@ So if you have a directory: `/Users/me/project/protobufs/` that has:
 `myproto.proto`, you'd want to do this:
 
 ```sh
-cd /Users/me/project/protobufs
+cd ~/my_project/protobufs
 docker run -v `pwd`:/defs namely/protoc-ruby
 ```
 
 The container automatically puts the compiled files into directories for each language. So
-for Golang, the files go into a directory "pb-go"; For ruby the directory is "ruby".
+for Golang, the files go into a directory "pb-go"; For ruby the directory is "pb-ruby".
 
-If you run `ls -l` you should see the generated protocol buffer files.
+### Supported Plugins
+- [x] Ruby
+- [x] Go
+- [x] Objective-C
+- [x] C#
+- [x] Java
 
 ### Profit.
 

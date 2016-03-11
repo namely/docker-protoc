@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET_DIR="ruby"
+TARGET_DIR="pb-ruby"
 
 pf=(`find . -maxdepth 1 -name "*.proto"`)
 if [ ${#pf[*]} -eq 0 ]; then
@@ -20,6 +20,5 @@ if [ ! -d "$TARGET_DIR" ]; then
 fi
 
 echo "Building Ruby..."
-#protoc -I /defs /defs/*.proto --ruby_out=./$TARGET_DIR --grpc_out=./$TARGET_DIR --plugin=protoc-gen-grpc=/opt/namely/grpc_ruby_plugin
 protoc -I . ${pf[@]} --ruby_out=./$TARGET_DIR --grpc_out=./$TARGET_DIR --plugin=protoc-gen-grpc=/opt/namely/grpc_ruby_plugin
 echo "Done"
