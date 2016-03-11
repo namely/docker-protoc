@@ -31,7 +31,7 @@ docker run -v `pwd`:/defs namely/protoc-ruby
 The container automatically puts the compiled files into directories for each language. So
 for Golang, the files go into a directory "pb-go"; For ruby the directory is "pb-ruby".
 
-### Supported Plugins
+### Supported GRPC Plugins
 - [x] Ruby
 - [x] Go
 - [x] Objective-C
