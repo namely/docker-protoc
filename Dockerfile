@@ -19,7 +19,7 @@ RUN set -ex \
   \
 	&& mkdir -p /tmp/protobufs \
 	&& cd /tmp/protobufs \
-	&& curl -o protobufs.tar.gz -L https://github.com/google/protobuf/releases/download/v3.0.0-beta-2/protobuf-cpp-3.0.0-beta-2.tar.gz \
+	&& curl -o protobufs.tar.gz -L https://github.com/google/protobuf/releases/download/v3.0.0-beta-3/protobuf-cpp-3.0.0-beta-3.tar.gz \
 	&& mkdir -p protobuf \
 	&& tar -zxvf protobufs.tar.gz -C /tmp/protobufs/protobuf --strip-components=1 \
 	&& cd protobuf \
