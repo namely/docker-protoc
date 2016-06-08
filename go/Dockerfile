@@ -1,9 +1,9 @@
 FROM namely/protoc
 MAINTAINER Core Services <coreservices@namely.com>
 
-ENV GO_VERSION 1.6
+ENV GO_VERSION 1.6.2
 ENV GO_SRC_URL https://golang.org/dl/go$GO_VERSION.src.tar.gz
-ENV GO_SRC_SHA1 a96cce8ce43a9bf9b2a4c7d470bc7ee0cb00410da815980681c8353218dcf146 
+ENV GO_SRC_SHA1 787b0b750d037016a30c6ed05a8a70a91b2e9db4bd9b1a2453aa502a63f1bccc
 
 ENV GO_BOOTSTRAP_VERSION 1.4.3
 ENV GO_BOOTSTRAP_URL https://golang.org/dl/go$GO_BOOTSTRAP_VERSION.src.tar.gz
