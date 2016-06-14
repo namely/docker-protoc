@@ -1,5 +1,4 @@
-FROM gliderlabs/alpine:latest
-#FROM alpine:latest
+FROM alpine:3.4
 MAINTAINER Core Services <coreservices@namely.com>
 
 # Install Protoc

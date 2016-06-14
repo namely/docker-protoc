@@ -1,7 +1,7 @@
 FROM namely/protoc
 MAINTAINER Core Services <coreservices@namely.com>
 
-ENV GRPC_RELEASE release-0_13
+ENV GRPC_RELEASE release-0_14_1
 
 # Install protoc ruby generator
 ###################################
