@@ -1,7 +1,7 @@
 FROM namely/protoc
 MAINTAINER Core Services <coreservices@namely.com>
 
-ENV GRPC_RELEASE release-0_13
+ENV GRPC_RELEASE v1.0.x
 
 # Install protoc python generator
 ###################################
