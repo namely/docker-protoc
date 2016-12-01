@@ -37,6 +37,7 @@ for Golang, the files go into a directory "pb-go"; For ruby the directory is "pb
 - [x] Objective-C
 - [x] C#
 - [x] Java
+- [x] Php
 
 ### Profit.
 

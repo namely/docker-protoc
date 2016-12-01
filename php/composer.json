@@ -1,0 +1,5 @@
+{
+    "require": {
+        "protocolbuffers/protoc-gen-php": "dev-master"
+    }
+}
