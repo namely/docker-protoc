@@ -26,6 +26,7 @@ RUN set -ex \
   && git submodule update --init \
   \
   && cd /usr/local/grpc \
+  && sed -i 's/PROTOC ?= protoc/PROTOC = protoc/' Makefile \
   && make grpc_csharp_plugin \
   \
   && mkdir -p /opt/namely \
