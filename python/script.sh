@@ -20,5 +20,5 @@ if [ ! -d "$TARGET_DIR" ]; then
 fi
 
 echo "Building Python..."
-protoc -I . ${pf[@]} --python_out=./$TARGET_DIR --grpc_out=./$TARGET_DIR --plugin=protoc-gen-grpc=/opt/namely/grpc_python_plugin
+python -m grpc.tools.protoc -I . --python_out=./$TARGET_DIR --grpc_python_out=./$TARGET_DIR ${pf[@]}
 echo "Done"
