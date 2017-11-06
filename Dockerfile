@@ -18,7 +18,7 @@ RUN set -ex \
   \
 	&& mkdir -p /tmp/protobufs \
 	&& cd /tmp/protobufs \
-	&& curl -o protobufs.tar.gz -L https://github.com/google/protobuf/releases/download/v3.0.0/protobuf-cpp-3.0.0.tar.gz \
+	&& curl -o protobufs.tar.gz -L https://github.com/google/protobuf/releases/download/v3.4.1/protobuf-cpp-3.4.1.tar.gz \
 	&& mkdir -p protobuf \
 	&& tar -zxvf protobufs.tar.gz -C /tmp/protobufs/protobuf --strip-components=1 \
 	&& cd protobuf \
@@ -29,10 +29,18 @@ RUN set -ex \
   && cd \
 	&& rm -rf /tmp/protobufs/ \
   && rm -rf /tmp/protobufs.tar.gz \
-	&& apk --no-cache add libstdc++ \ 
+	&& apk --no-cache add libstdc++ \
 	&& apk del .pb-build \
 	&& rm -rf /var/cache/apk/* \
 	&& mkdir /defs
 
-# Setup directories for the volumes that should be used
+RUN apk add --update git
+
+# Clone in additional google API's protocol buffer definitions
+# so every project can use definitions such as google.rpc.Status
+WORKDIR /usr/include
+RUN git clone https://github.com/googleapis/googleapis.git
+
+# Change the working directory to where all definitions are expected to
+# be mounted into
 WORKDIR /defs
