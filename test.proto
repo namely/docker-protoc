@@ -1,6 +1,17 @@
 syntax = "proto3";
 
-message TestMessage {
+package Messages;
+
+service Message {
+  rpc GetMessage (GetMessageRequest) returns (GetMessageResponse){}
+}
+
+message GetMessageRequest {
+  string input = 1;
+}
+
+message GetMessageResponse {
   string hello = 1;
   string world = 2;
 }
+

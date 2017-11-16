@@ -1,20 +1,17 @@
 # Protocol Buffer Compiler Containers
 
-This repository contains Dockerfiles that build protocol buffer generation
-scripts for Go and Ruby. Removing the need to setup Protoc (v3) on your
-local machine. It relies on setting a simple volume to the docker container,
-and it will take care of the rest.
+This repository contains the Dockerfile for generating gRPC and protobuf
+code for various languages, removing the need to setup protoc and the
+various gRPC plugins lcoally. It relies on setting a simple volume to the 
+docker container, usually mapping the current directory to `/defs`,
+and specifying the file and language you want to generate. 
 
 ## Usage
 
-Pull the container for the language you want to compile:
+Pull the container:
 
 ```sh
-$ docker pull namely/protoc-ruby
-
-# OR
-
-$ docker pull namely/protoc-go
+$ docker pull namely/protoc-all
 ```
 
 After that, travel to the directory that contains your `.proto` definition files.
@@ -25,22 +22,11 @@ So if you have a directory: `/Users/me/project/protobufs/` that has:
 
 ```sh
 cd ~/my_project/protobufs
-docker run -v `pwd`:/defs namely/protoc-ruby
+docker run -v `pwd`:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
-The container automatically puts the compiled files into directories for each language. So
-for Golang, the files go into a directory "pb-go"; For ruby the directory is "pb-ruby".
-
-### Supported GRPC Plugins
-- [x] Ruby
-- [x] Go
-- [x] Objective-C
-- [x] C#
-- [x] Java
-
-### Profit.
-
-That's it.
+The container automatically puts the compiled files into a `gen` directory with language-specific sub-directories. So
+for Golang, the files go into a directory `./gen/pb-go`; For ruby the directory is `./gen/pb-ruby`.
 
 ## Contributing
 
