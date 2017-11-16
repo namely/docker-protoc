@@ -1,5 +1,7 @@
 ARG alpine=3.6
-FROM golang:1.9.2-alpine$alpine AS build
+ARG go=1.9.2
+
+FROM golang:$go-alpine$alpine AS build
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -20,7 +22,7 @@ RUN chmod +x /tmp/install-protobuf.sh
 RUN /tmp/install-protobuf.sh
 RUN git clone https://github.com/googleapis/googleapis
 
-FROM golang:1.9.2-alpine$alpine
+FROM golang:$go-alpine$alpine
 
 RUN set -ex && apk --update --no-cache add \
     bash \
