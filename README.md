@@ -28,6 +28,22 @@ docker run -v `pwd`:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csh
 The container automatically puts the compiled files into a `gen` directory with language-specific sub-directories. So
 for Golang, the files go into a directory `./gen/pb-go`; For ruby the directory is `./gen/pb-ruby`.
 
+## Options
+
+You can use the `-o` flag to specify an output directory. This will automatically be created. For example, add `-o my-gen` to
+add all fileoutput to the `my-gen` directory. In this case, `pb-*` subdirectories will not be created.
+
+You can also use `-i` to add extra include directories. This can be helpful to *lift* protofiles up a directory when generating.
+As an example, say you have a file `protorepo/catalog/catalog.proto`. This will by default output to `gen/pb-go/protorepo/catalog/` because `protorepo` is part of the file path input. To remove the `protorepo` you need to add an
+include and change the import:
+
+```
+$ docker run ... namely/protoc-all -i protorepo -f catalog/catalog.proto -l go
+# instead of
+$ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
+# which will generate files in a `protorepo` directory.
+```
+
 ## gRPC Gateway (Experimental)
 
 You can optionally specify `--with-gateway` to generate [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) support with
