@@ -11,7 +11,7 @@ printUsage() {
     echo " -h, --help           show help"
     echo " -f FILE              the proto source file to generate"
     echo " -l LANGUAGE          the language to generate (${SUPPORTED_LANGUAGES[@]})"
-    #echo " --with-gateway       generate grpc-gateway sidecar"
+    echo " --with-gateway       generate grpc-gateway files (experimental)"
 }
 
 GEN_GATEWAY=false
@@ -53,11 +53,14 @@ while test $# -gt 0; do
     esac
 done
 
-echo "Generting $GEN_LANG files for $FILE"
-
 if [ -z $FILE ]; then
     echo "Error: You must specify a proto file"
     printUsage
+    exit 1
+fi
+
+if [ ! -e $FILE ]; then
+    echo "Error: specified file $FILE does not exist"
     exit 1
 fi
 
@@ -71,6 +74,8 @@ if [[ ! ${SUPPORTED_LANGUAGES[*]} =~ "$GEN_LANG" ]]; then
     echo "Language $GEN_LANG is not supported. Please specify one of: ${SUPPORTED_LANGUAGES[@]}"
     exit 1
 fi
+
+echo "Generting $GEN_LANG files for $FILE"
 
 if [ $GEN_LANG == 'objc' ] ; then
     GEN_LANG='objective_c'
@@ -93,7 +98,20 @@ case $GEN_LANG in
         ;;
 esac
 
-protoc -I . \
+PROTO_INCLUDE="-I . \
     -I /usr/include/ \
+    -I /usr/local/include/"
+
+protoc $PROTO_INCLUDE \
     $GEN_STRING \
     $FILE
+
+if [ $GEN_GATEWAY = true ]; then
+    mkdir -p ${GEN_DIR}/pb-go
+    protoc $PROTO_INCLUDE \
+		--grpc-gateway_out=logtostderr=true:${GEN_DIR}/pb-go \
+        $FILE
+	protoc $PROTO_INCLUDE  \
+		--swagger_out=logtostderr=true:${GEN_DIR}/pb-go \
+        $FILE 
+fi

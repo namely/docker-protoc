@@ -2,16 +2,21 @@ syntax = "proto3";
 
 package Messages;
 
+import "google/api/annotations.proto";
+
 service Message {
-  rpc GetMessage (GetMessageRequest) returns (GetMessageResponse){}
+  rpc ListMessage (ListMessageRequest) returns (ListMessageResponse) {
+    option (google.api.http) = {
+      get: "/messages"
+    };
+  }
 }
 
-message GetMessageRequest {
-  string input = 1;
+message ListMessageRequest {
+  string query = 1;
 }
 
-message GetMessageResponse {
-  string hello = 1;
-  string world = 2;
+message ListMessageResponse {
+  repeated string messages = 1;
 }
 

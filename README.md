@@ -28,6 +28,12 @@ docker run -v `pwd`:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csh
 The container automatically puts the compiled files into a `gen` directory with language-specific sub-directories. So
 for Golang, the files go into a directory `./gen/pb-go`; For ruby the directory is `./gen/pb-ruby`.
 
+## gRPC Gateway (Experimental)
+
+You can optionally specify `--with-gateway` to generate [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) support with
+swagger. Ideally this will generate a ready-to-go containerized app, but for now you can access the generated
+gateway code and swagger definition.
+
 ## Contributing
 
 If you make changes, or add a container for another language compiler, this repo
