@@ -16,4 +16,3 @@ service Message {
 message ListMessageRequest {
   string query = 1;
 }
-
