@@ -3,6 +3,7 @@ syntax = "proto3";
 package Messages;
 
 import "google/api/annotations.proto";
+import "include.proto";
 
 service Message {
   rpc ListMessage (ListMessageRequest) returns (ListMessageResponse) {
@@ -14,9 +15,5 @@ service Message {
 
 message ListMessageRequest {
   string query = 1;
-}
-
-message ListMessageResponse {
-  repeated string messages = 1;
 }
 

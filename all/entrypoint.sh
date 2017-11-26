@@ -10,6 +10,7 @@ printUsage() {
     echo "options:"
     echo " -h, --help           Show help"
     echo " -f FILE              The proto source file to generate"
+    echo " -d DIR               Scans the given directory for all proto files"
     echo " -l LANGUAGE          The language to generate (${SUPPORTED_LANGUAGES[@]})"
     echo " -o DIRECTORY         The output directory for generated files. Will be automatically created."
     echo " -i includes          Extra includes"
@@ -35,6 +36,16 @@ while test $# -gt 0; do
                 FILE=$1
             else
                 echo "no input file specified"
+                exit 1
+            fi
+            shift
+            ;;
+        -d)
+            shift
+            if test $# -gt 0; then
+                PROTO_DIR=$1
+            else
+                echo "no directory specified"
                 exit 1
             fi
             shift
@@ -67,8 +78,14 @@ while test $# -gt 0; do
     esac
 done
 
-if [ -z $FILE ]; then
-    echo "Error: You must specify a proto file"
+if [[ -z $FILE && -z $PROTO_DIR ]]; then
+    echo "Error: You must specify a proto file or proto directory"
+    printUsage
+    exit 1
+fi
+
+if [[ ! -z $FILE && ! -z $PROTO_DIR ]]; then
+    echo "Error: You may specifiy a proto file or directory but not both"
     printUsage
     exit 1
 fi
@@ -93,7 +110,7 @@ if [[ $OUT_DIR == '' ]]; then
     OUT_DIR="${GEN_DIR}/pb-$GEN_LANG"
 fi
 
-echo "Generting $GEN_LANG files for $FILE in $OUT_DIR"
+echo "Generting $GEN_LANG files for ${FILE}${PROTO_DIR} in $OUT_DIR"
 
 if [[ ! -d $OUT_DIR ]]; then
   mkdir -p $OUT_DIR
@@ -117,16 +134,29 @@ PROTO_INCLUDE="-I . \
     -I /usr/local/include/ \
     $EXTRA_INCLUDES"
 
-protoc $PROTO_INCLUDE \
+if [ ! -z $PROTO_DIR ]; then
+    PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
+    find $PROTO_DIR | grep \.proto$ | xargs -I{} protoc $PROTO_INCLUDE $GEN_STRING {}
+else 
+    protoc $PROTO_INCLUDE \
     $GEN_STRING \
     $FILE
+fi
 
 if [ $GEN_GATEWAY = true ]; then
-    mkdir -p ${GEN_DIR}/pb-go
-    protoc $PROTO_INCLUDE \
-		--grpc-gateway_out=logtostderr=true:$OUT_DIR \
-        $FILE
-	protoc $PROTO_INCLUDE  \
-		--swagger_out=logtostderr=true:$OUT_DIR \
-        $FILE 
+    SWAGGER_DIR=${OUT_DIR}/pb-go
+    mkdir -p ${SWAGGER_DIR}
+
+    GATEWAY_CMD="protoc $PROTO_INCLUDE \
+		--grpc-gateway_out=logtostderr=true:$SWAGGER_DIR"
+    SWAGGER_CMD="protoc $PROTO_INCLUDE  \
+		--swagger_out=logtostderr=true:$SWAGGER_DIR"
+    
+    if [ ! -z $PROTO_DIR ]; then
+        find $PROTO_DIR | grep \.proto$ | xargs -I{} $GATEWAY_CMD {}
+        find $PROTO_DIR | grep \.proto$ | xargs -I{} $SWAGGER_CMD {}
+    else
+        $GATEWAY_CMD $FILE
+        $SWAGGER_CMD $FILE
+    fi
 fi
