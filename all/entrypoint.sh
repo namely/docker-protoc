@@ -129,34 +129,28 @@ case $GEN_LANG in
         ;;
 esac
 
-PROTO_INCLUDE="-I . \
-    -I /usr/include/ \
+PROTO_INCLUDE="-I /usr/include/ \
     -I /usr/local/include/ \
     $EXTRA_INCLUDES"
 
 if [ ! -z $PROTO_DIR ]; then
     PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
-    find $PROTO_DIR | grep \.proto$ | xargs -I{} protoc $PROTO_INCLUDE $GEN_STRING {}
+    PROTO_FILES=(`find ${PROTO_DIR} -maxdepth 1 -name "*.proto"`)
 else 
-    protoc $PROTO_INCLUDE \
-    $GEN_STRING \
-    $FILE
+    PROTO_INCLUDE="-I . $PROTO_INCLUDE"
+    PROTO_FILES=($FILE)
 fi
 
-if [ $GEN_GATEWAY = true ]; then
-    SWAGGER_DIR=${OUT_DIR}/pb-go
-    mkdir -p ${SWAGGER_DIR}
+protoc $PROTO_INCLUDE \
+    $GEN_STRING \
+    ${PROTO_FILES[@]}
 
-    GATEWAY_CMD="protoc $PROTO_INCLUDE \
-		--grpc-gateway_out=logtostderr=true:$SWAGGER_DIR"
-    SWAGGER_CMD="protoc $PROTO_INCLUDE  \
-		--swagger_out=logtostderr=true:$SWAGGER_DIR"
-    
-    if [ ! -z $PROTO_DIR ]; then
-        find $PROTO_DIR | grep \.proto$ | xargs -I{} $GATEWAY_CMD {}
-        find $PROTO_DIR | grep \.proto$ | xargs -I{} $SWAGGER_CMD {}
-    else
-        $GATEWAY_CMD $FILE
-        $SWAGGER_CMD $FILE
-    fi
+if [ $GEN_GATEWAY = true ]; then
+    GATEWAY_DIR=${OUT_DIR}/gateway
+    mkdir -p ${GATEWAY_DIR}
+
+    protoc $PROTO_INCLUDE \
+		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+    protoc $PROTO_INCLUDE  \
+		--swagger_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
 fi
