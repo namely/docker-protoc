@@ -101,6 +101,11 @@ if [[ ! ${SUPPORTED_LANGUAGES[*]} =~ "$GEN_LANG" ]]; then
     exit 1
 fi
 
+if [[ "$GEN_GATEWAY" == true && "$GEN_LANG" != "go" ]]; then
+	echo "Generating grpc-gateway is Go specific."
+	exit 1
+fi
+
 PLUGIN_LANG=$GEN_LANG
 if [ $PLUGIN_LANG == 'objc' ] ; then
     PLUGIN_LANG='objective_c'
@@ -146,7 +151,7 @@ protoc $PROTO_INCLUDE \
     ${PROTO_FILES[@]}
 
 if [ $GEN_GATEWAY = true ]; then
-    GATEWAY_DIR=${OUT_DIR}/gateway
+    GATEWAY_DIR=${OUT_DIR}
     mkdir -p ${GATEWAY_DIR}
 
     protoc $PROTO_INCLUDE \

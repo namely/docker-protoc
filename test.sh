@@ -8,7 +8,10 @@ docker build -t namely/test-protoc-all ./all
 for lang in ${LANGS[@]}; do
     echo "Testing language $lang"
     docker run --rm -v=`pwd`:/defs namely/test-protoc-all -f test/test.proto -l $lang -i test
-    docker run --rm -v=`pwd`:/defs namely/test-protoc-all -d test -l $lang -o gen/dir/$lang --with-gateway
+		if [[ "$lang" == "go" ]]; then
+    	docker run --rm -v=`pwd`:/defs namely/test-protoc-all -d test -l $lang -o gen/dir/$lang --with-gateway
+		fi
+
     if [[ ! -d gen/pb-$lang ]]; then
         echo "generated directory does not exist"
         exit 1
