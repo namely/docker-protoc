@@ -115,7 +115,7 @@ if [[ $OUT_DIR == '' ]]; then
     OUT_DIR="${GEN_DIR}/pb-$GEN_LANG"
 fi
 
-echo "Generting $GEN_LANG files for ${FILE}${PROTO_DIR} in $OUT_DIR"
+echo "Generating $GEN_LANG files for ${FILE}${PROTO_DIR} in $OUT_DIR"
 
 if [[ ! -d $OUT_DIR ]]; then
   mkdir -p $OUT_DIR
