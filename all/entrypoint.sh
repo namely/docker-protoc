@@ -102,8 +102,8 @@ if [[ ! ${SUPPORTED_LANGUAGES[*]} =~ "$GEN_LANG" ]]; then
 fi
 
 if [[ "$GEN_GATEWAY" == true && "$GEN_LANG" != "go" ]]; then
-	echo "Generating grpc-gateway is Go specific."
-	exit 1
+  echo "Generating grpc-gateway is Go specific."
+  exit 1
 fi
 
 PLUGIN_LANG=$GEN_LANG
