@@ -20,7 +20,7 @@ printUsage() {
   echo "-a, --address ADDRESS      The DNS address of the gRPC service."
   echo "-p, --port PORT            The port the gRPC service is listening on."
   echo "-c, --container CONTAINER  The name of the docker container to generate."
-  echo "-i EXTRA_INCLUDES                Extra proto includes."
+  echo "-i EXTRA_INCLUDES          Extra proto includes."
 }
 
 #### PARSE ARGUMENTS ####
@@ -110,33 +110,33 @@ done
 
 #### VALIDATE INPUT ####
 if [[ -z $FILE ]]; then
-    echo "Error: You must specify the proto file name"
-    printUsage
-    exit 1
+  echo "Error: You must specify the proto file name"
+  printUsage
+  exit 1
 fi
 
 if [[ -z $SERVICE ]]; then
-    echo "Error: You must specify the proto service name"
-    printUsage
-    exit 1
+  echo "Error: You must specify the proto service name"
+  printUsage
+  exit 1
 fi
 
 if [[ -z $CONTAINER ]]; then
-    echo "Error: You must specify the Docker container name"
-    printUsage
-    exit 1
+  echo "Error: You must specify the Docker container name"
+  printUsage
+  exit 1
 fi
 
 if [[ -z $GRPC_SERVICE_HOST ]]; then
-    echo "Error: You must specify the hostname of the gRPC service to proxy."
-    printUsage
-    exit 1
+  echo "Error: You must specify the hostname of the gRPC service to proxy."
+  printUsage
+  exit 1
 fi
 
 if [[ -z $GRPC_SERVICE_PORT ]]; then
-    echo "Error: You must specify the port of the gRPC service to proxy."
-    printUsage
-    exit 1
+  echo "Error: You must specify the port of the gRPC service to proxy."
+  printUsage
+  exit 1
 fi
 
 #### BUILD GATEWAY PROJECT ####
