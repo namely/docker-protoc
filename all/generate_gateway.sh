@@ -5,7 +5,7 @@ set -e
 HTTP_PORT=8080
 
 printUsage() {
-	echo "Generates a docker image of a grpc-gateway server for a given service proto."	
+  echo "Generates a docker image of a grpc-gateway server for a given service proto."  
   echo
   echo "The container will listen on port ${HTTP_PORT} for HTTP traffic, and proxy requests"
   echo "to the gRPC service. In addition, it will serve a Swagger definition of its API at"
@@ -37,75 +37,75 @@ GRPC_SERVICE_PORT=""
 EXTRA_INCLUDES=""
 
 while test $# -gt 0; do
-	case "$1" in
-		-h|--help)
-			printUsage
-			exit 0
-			;;
-		-f|--file)
-			shift
-			if test $# -gt 0; then
-				FILE=$1
-			else
-				printUsage
-				exit 1
-			fi
-			shift
-			;;
-		-s|--service)
-			shift
-			if test $# -gt 0; then
-				SERVICE=$1
-			else
-				printUsage
-				exit 1
-			fi
-			shift
-			;;
-		-c|--container)
-			shift
-			if test $# -gt 0; then
-				CONTAINER=$1
-			else
-				printUsage
-				exit 1
-			fi
-			shift
-			;;
-		-a|--address)
-			shift
-			if test $# -gt 0; then
-				GRPC_SERVICE_HOST=$1
-			else
-				printUsage
-				exit 1
-			fi
-			shift
-			;;
+  case "$1" in
+    -h|--help)
+      printUsage
+      exit 0
+      ;;
+    -f|--file)
+      shift
+      if test $# -gt 0; then
+        FILE=$1
+      else
+        printUsage
+        exit 1
+      fi
+      shift
+      ;;
+    -s|--service)
+      shift
+      if test $# -gt 0; then
+        SERVICE=$1
+      else
+        printUsage
+        exit 1
+      fi
+      shift
+      ;;
+    -c|--container)
+      shift
+      if test $# -gt 0; then
+        CONTAINER=$1
+      else
+        printUsage
+        exit 1
+      fi
+      shift
+      ;;
+    -a|--address)
+      shift
+      if test $# -gt 0; then
+        GRPC_SERVICE_HOST=$1
+      else
+        printUsage
+        exit 1
+      fi
+      shift
+      ;;
     -p|--port)
-			shift
-			if test $# -gt 0; then
+      shift
+      if test $# -gt 0; then
         GRPC_SERVICE_PORT=$1
-			else
-				printUsage
-				exit 1
-			fi
-			shift
-			;;
+      else
+        printUsage
+        exit 1
+      fi
+      shift
+      ;;
     -i)
-			if test $# -gt 0; then
+      if test $# -gt 0; then
         EXTRA_INCLUDES=$1
-			else
-				printUsage
-				exit 1
-			fi
-			shift
-			;;
-		*)
-			printUsage
-			exit 1
-			;;
-	esac
+      else
+        printUsage
+        exit 1
+      fi
+      shift
+      ;;
+    *)
+      printUsage
+      exit 1
+      ;;
+  esac
 done
 
 #### VALIDATE INPUT ####
@@ -182,45 +182,45 @@ cat << ENTRYPOINT >> $TMPDIR/src/pkg/main/main.go
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
+  "fmt"
+  "log"
+  "net/http"
   "os"
   "os/signal"
   "strings"
-	"time"
+  "time"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+  "github.com/grpc-ecosystem/grpc-gateway/runtime"
   "github.com/spf13/viper"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
+  "golang.org/x/net/context"
+  "google.golang.org/grpc"
 
-	gw "gen/pb-go/proto"
+  gw "gen/pb-go/proto"
 )
 
 type proxyConfig struct {
-	host    string
-	port    int
-	swagger string
+  host    string
+  port    int
+  swagger string
 }
 
 func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
-	mux := http.NewServeMux()
+  mux := http.NewServeMux()
 
-	mux.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, cfg.swagger)
-	})
+  mux.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, cfg.swagger)
+  })
 
-	opts := []grpc.DialOption{grpc.WithInsecure()}
-	gwmux := runtime.NewServeMux()
-	endpoint := fmt.Sprintf("%v:%v", cfg.host, cfg.port)
-	err := gw.Register${SERVICE}HandlerFromEndpoint(ctx, gwmux, endpoint, opts)
-	if err != nil {
-		log.Fatalf("Could not register gateway: %v", err)
-	}
-	mux.Handle("/", gwmux)
+  opts := []grpc.DialOption{grpc.WithInsecure()}
+  gwmux := runtime.NewServeMux()
+  endpoint := fmt.Sprintf("%v:%v", cfg.host, cfg.port)
+  err := gw.Register${SERVICE}HandlerFromEndpoint(ctx, gwmux, endpoint, opts)
+  if err != nil {
+    log.Fatalf("Could not register gateway: %v", err)
+  }
+  mux.Handle("/", gwmux)
 
-	return mux
+  return mux
 }
 
 // SetupViper returns a viper configuration object
@@ -258,31 +258,31 @@ func SignalRunner(runner, stopper func()) {
 
 func main() {
 
-	cfg := SetupViper()
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+  cfg := SetupViper()
+  ctx := context.Background()
+  ctx, cancel := context.WithCancel(ctx)
+  defer cancel()
 
-	mux := SetupMux(ctx, proxyConfig{
-		host:    cfg.GetString("grpc_service_host"),
-		port:    cfg.GetInt("grpc_service_port"),
-		swagger: cfg.GetString("swagger.file"),
-	})
+  mux := SetupMux(ctx, proxyConfig{
+    host:    cfg.GetString("grpc_service_host"),
+    port:    cfg.GetInt("grpc_service_port"),
+    swagger: cfg.GetString("swagger.file"),
+  })
 
-	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
-	server := &http.Server{Addr: addr, Handler: mux}
+  addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
+  server := &http.Server{Addr: addr, Handler: mux}
 
-	SignalRunner(
-		func() {
-			fmt.Printf("launching http server on %v\n", server.Addr)
-			if err := server.ListenAndServe(); err != nil {
-				log.Fatalf("Could not start http server: %v", err)
-			}
-		},
-		func() {
-			shutdown, _ := context.WithTimeout(ctx, 10*time.Second)
-			server.Shutdown(shutdown)
-		})
+  SignalRunner(
+    func() {
+      fmt.Printf("launching http server on %v\n", server.Addr)
+      if err := server.ListenAndServe(); err != nil {
+        log.Fatalf("Could not start http server: %v", err)
+      }
+    },
+    func() {
+      shutdown, _ := context.WithTimeout(ctx, 10*time.Second)
+      server.Shutdown(shutdown)
+    })
 }
 ENTRYPOINT
 
