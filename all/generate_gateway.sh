@@ -11,8 +11,10 @@ printUsage() {
   echo "to the gRPC service. In addition, it will serve a Swagger definition of its API at"
   echo "/swagger.json"
   echo
-  echo "When using this container, pass in -backend as an argument, pointing to the gRPC"
+  echo "When using this container, pass in --backend as an argument, pointing to the gRPC"
   echo "service backend that is being proxied."
+  echo
+  echo "For example: docker run my-container --backend=grpc-service:50051"
   echo
   echo "Options:"
   echo "-h, --help                 Show this message."
@@ -106,6 +108,7 @@ cat << ENTRYPOINT >> $TMPDIR/src/pkg/main/main.go
 package main
 
 import (
+  "flag"
   "fmt"
   "log"
   "net/http"
@@ -115,6 +118,7 @@ import (
   "time"
 
   "github.com/grpc-ecosystem/grpc-gateway/runtime"
+  "github.com/spf13/pflag"
   "github.com/spf13/viper"
   "golang.org/x/net/context"
   "google.golang.org/grpc"
@@ -136,6 +140,8 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 
   opts := []grpc.DialOption{grpc.WithInsecure()}
   gwmux := runtime.NewServeMux()
+  fmt.Printf("Proxying requests to gRPC service at '%s'\n", cfg.backend)
+  
   err := gw.Register${SERVICE}HandlerFromEndpoint(ctx, gwmux, cfg.backend, opts)
   if err != nil {
     log.Fatalf("Could not register gateway: %v", err)
@@ -152,6 +158,12 @@ func SetupViper() *viper.Viper {
   viper.SetEnvPrefix("${SERVICE}")
   viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
   viper.AutomaticEnv()
+
+  flag.String("backend", "", "The gRPC backend service to proxy.")
+
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
 
   err := viper.ReadInConfig()
   if err != nil {
@@ -244,7 +256,7 @@ COPY --from=build /app/config.yaml /app/
 COPY --from=build /app/src/gen/pb-go/$SWAGGER_FILE_NAME /app/
 
 EXPOSE ${HTTP_PORT}
-ENTRYPOINT /app/grpc_gateway
+ENTRYPOINT ["/app/grpc_gateway"]
 DOCKERFILE
 
 # Build the docker file
