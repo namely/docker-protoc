@@ -11,8 +11,8 @@ printUsage() {
   echo "to the gRPC service. In addition, it will serve a Swagger definition of its API at"
   echo "/swagger.json"
   echo
-  echo "When using this container, pass in -backend.host and -backend.port as arguments, pointing"
-  echo "to the gRPC service backend that is being proxied."
+  echo "When using this container, pass in -backend as an argument, pointing to the gRPC"
+  echo "service backend that is being proxied."
   echo
   echo "Options:"
   echo "-h, --help                 Show this message."
@@ -123,8 +123,7 @@ import (
 )
 
 type proxyConfig struct {
-  host    string
-  port    int
+  backend string
   swagger string
 }
 
@@ -137,8 +136,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 
   opts := []grpc.DialOption{grpc.WithInsecure()}
   gwmux := runtime.NewServeMux()
-  endpoint := fmt.Sprintf("%v:%v", cfg.host, cfg.port)
-  err := gw.Register${SERVICE}HandlerFromEndpoint(ctx, gwmux, endpoint, opts)
+  err := gw.Register${SERVICE}HandlerFromEndpoint(ctx, gwmux, cfg.backend, opts)
   if err != nil {
     log.Fatalf("Could not register gateway: %v", err)
   }
@@ -188,8 +186,7 @@ func main() {
   defer cancel()
 
   mux := SetupMux(ctx, proxyConfig{
-    host:    cfg.GetString("backend.host"),
-    port:    cfg.GetInt("backend.port"),
+    backend: cfg.GetString("backend"),
     swagger: cfg.GetString("swagger.file"),
   })
 
@@ -213,8 +210,6 @@ ENTRYPOINT
 # Generate a service config file.
 cat << VIPER >> $TMPDIR/config.yaml
 backend:
-  host:
-  port:
 proxy:
   port: ${HTTP_PORT}
 swagger:
