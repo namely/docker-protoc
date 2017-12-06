@@ -2,7 +2,7 @@
 
 set -e
 
-HTTP_PORT=8080
+HTTP_PORT=80
 
 printUsage() {
   echo "Generates a docker image of a grpc-gateway server for a given service proto."  
@@ -11,12 +11,13 @@ printUsage() {
   echo "to the gRPC service. In addition, it will serve a Swagger definition of its API at"
   echo "/swagger.json"
   echo
+  echo "When using this container, pass in -backend.host and -backend.port as arguments, pointing"
+  echo "to the gRPC service backend that is being proxied."
+  echo
   echo "Options:"
   echo "-h, --help                 Show this message."
   echo "-f, --file FILE            The proto file to generate a gateway for."
   echo "-s, --service SERVICE      The name of the gRPC service."
-  echo "-a, --address ADDRESS      The DNS address of the gRPC service."
-  echo "-p, --port PORT            The port the gRPC service is listening on."
   echo "-c, --container CONTAINER  The name of the docker container to generate."
 }
 
@@ -27,9 +28,6 @@ FILE=""
 SERVICE=""
 # Name of the container
 CONTAINER=""
-# Address of the gRPC service
-GRPC_SERVICE_HOST=""
-GRPC_SERVICE_PORT=""
 
 while test $# -gt 0; do
   case "$1" in
@@ -67,26 +65,6 @@ while test $# -gt 0; do
       fi
       shift
       ;;
-    -a|--address)
-      shift
-      if test $# -gt 0; then
-        GRPC_SERVICE_HOST=$1
-      else
-        printUsage
-        exit 1
-      fi
-      shift
-      ;;
-    -p|--port)
-      shift
-      if test $# -gt 0; then
-        GRPC_SERVICE_PORT=$1
-      else
-        printUsage
-        exit 1
-      fi
-      shift
-      ;;
     *)
       printUsage
       exit 1
@@ -103,18 +81,6 @@ fi
 
 if [[ -z $CONTAINER ]]; then
   echo "Error: You must specify the Docker container name"
-  printUsage
-  exit 1
-fi
-
-if [[ -z $GRPC_SERVICE_HOST ]]; then
-  echo "Error: You must specify the hostname of the gRPC service to proxy."
-  printUsage
-  exit 1
-fi
-
-if [[ -z $GRPC_SERVICE_PORT ]]; then
-  echo "Error: You must specify the port of the gRPC service to proxy."
   printUsage
   exit 1
 fi
@@ -222,8 +188,8 @@ func main() {
   defer cancel()
 
   mux := SetupMux(ctx, proxyConfig{
-    host:    cfg.GetString("grpc_service_host"),
-    port:    cfg.GetInt("grpc_service_port"),
+    host:    cfg.GetString("backend.host"),
+    port:    cfg.GetInt("backend.port"),
     swagger: cfg.GetString("swagger.file"),
   })
 
@@ -246,10 +212,13 @@ ENTRYPOINT
 
 # Generate a service config file.
 cat << VIPER >> $TMPDIR/config.yaml
-grpc_service_port: ${GRPC_SERVICE_PORT}
-grpc_service_host: ${GRPC_SERVICE_HOST}
-proxy.port: ${HTTP_PORT}
-swagger.file: "${SWAGGER_FILE_NAME}"
+backend:
+  host:
+  port:
+proxy:
+  port: ${HTTP_PORT}
+swagger:
+  file: "${SWAGGER_FILE_NAME}"
 VIPER
 
 # Generate the docker file.
