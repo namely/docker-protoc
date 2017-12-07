@@ -21,6 +21,7 @@ COPY install-protobuf.sh /tmp
 RUN chmod +x /tmp/install-protobuf.sh
 RUN /tmp/install-protobuf.sh
 RUN git clone https://github.com/googleapis/googleapis
+RUN git clone https://github.com/grpc-ecosystem/grpc-gateway
 
 FROM golang:$go-alpine$alpine
 
@@ -39,6 +40,7 @@ COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
 COPY --from=build /tmp/grpc/libs/opt/ /usr/local/lib/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /tmp/googleapis/google /usr/include/google
+COPY --from=build /tmp/grpc-gateway /usr/include/grpc-gateway
 COPY --from=build /usr/local/include/google /usr/local/include/google
 
 ADD entrypoint.sh /usr/local/bin
