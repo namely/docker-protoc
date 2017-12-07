@@ -129,6 +129,16 @@ import (
 type proxyConfig struct {
   backend string
   swagger string
+  corsAllowOrigin      string
+  corsAllowCredentials string
+}
+
+func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
+  return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", cfg.corsAllowOrigin)
+    w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
+    handler.ServeHTTP(w, req)
+  })
 }
 
 func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
@@ -146,8 +156,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
   if err != nil {
     log.Fatalf("Could not register gateway: %v", err)
   }
-  mux.Handle("/", gwmux)
-
+  mux.Handle("/", allowCors(cfg, gwmux))
   return mux
 }
 
@@ -161,9 +170,9 @@ func SetupViper() *viper.Viper {
 
   flag.String("backend", "", "The gRPC backend service to proxy.")
 
-	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
-	pflag.Parse()
-	viper.BindPFlags(pflag.CommandLine)
+  pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+  pflag.Parse()
+  viper.BindPFlags(pflag.CommandLine)
 
   err := viper.ReadInConfig()
   if err != nil {
@@ -200,6 +209,8 @@ func main() {
   mux := SetupMux(ctx, proxyConfig{
     backend: cfg.GetString("backend"),
     swagger: cfg.GetString("swagger.file"),
+    corsAllowOrigin:      cfg.GetString("cors.allow-origin"),
+    corsAllowCredentials: cfg.GetString("cors.allow-credentials"),
   })
 
   addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
@@ -222,6 +233,9 @@ ENTRYPOINT
 # Generate a service config file.
 cat << VIPER >> $TMPDIR/config.yaml
 backend:
+cors:
+  allow-origin:
+  allow-credentials:
 proxy:
   port: ${HTTP_PORT}
 swagger:
