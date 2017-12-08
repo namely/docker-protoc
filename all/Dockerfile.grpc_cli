@@ -1,0 +1,5 @@
+FROM namely/protoc-all
+
+WORKDIR /usr/include
+RUN ln -s /usr/local/include/google/protobuf /usr/include/google/protobuf
+ENTRYPOINT  [ "grpc_cli" ]
