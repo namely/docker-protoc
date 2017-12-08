@@ -136,6 +136,7 @@ esac
 
 PROTO_INCLUDE="-I /usr/include/ \
     -I /usr/local/include/ \
+    -I /go/src/github.com/grpc-ecosystem/grpc-gateway/ \
     $EXTRA_INCLUDES"
 
 if [ ! -z $PROTO_DIR ]; then
