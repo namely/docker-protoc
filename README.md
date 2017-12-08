@@ -65,14 +65,15 @@ If you make changes, or add a container for another language compiler, this repo
 has simple scripts that can build projects. You can run:
 
 ```sh
-$ ./build.sh [-t <tag name>]
+$ make build
 ```
 
 This will build all of the known containers.
 
 ```sh
-$ ./push.sh
+$ make push
 ```
 
 This will build and push the containers to the Namely registry located on
-[DockerHub](https://hub.docker.com/u/namely/).
+[DockerHub](https://hub.docker.com/u/namely/). You must be authorized to push to
+this repo.

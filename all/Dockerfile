@@ -36,6 +36,7 @@ RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
+COPY --from=build /tmp/grpc/bins/opt/grpc_cli /usr/local/bin/
 COPY --from=build /tmp/grpc/libs/opt/ /usr/local/lib/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /tmp/googleapis/google /usr/include/google
