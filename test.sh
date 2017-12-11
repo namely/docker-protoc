@@ -36,3 +36,7 @@ testGeneration go --with-gateway
 for lang in ${LANGS[@]}; do
     testGeneration "$lang"
 done
+
+# Test grpc-gateway Docker generation
+bash all/generate_gateway.sh -f test/test.proto -s Message -c test-gateway-image
+
