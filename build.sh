@@ -5,7 +5,7 @@ set -e
 echo "Building Docker containers"
 
 declare -a IMAGES
-DIRS=( $(basename $(find . ! -path . -type d -not -path '*/\.*')) )
+DIRS=("go" "ruby" "csharp" "java" "python" "objc")
 
 REGISTRY='namely'
 BASE_IMAGE='protoc'

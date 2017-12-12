@@ -1,7 +1,7 @@
 FROM namely/protoc
 MAINTAINER Core Services <coreservices@namely.com>
 
-ENV GRPC_RELEASE v0.13.x 
+ENV GRPC_RELEASE v1.8.x 
 
 # Install protoc java generator
 ###################################
