@@ -71,6 +71,12 @@ $ make build
 This will build all of the known containers.
 
 ```sh
+$ make test
+```
+
+This will run tests that containers can build for each language.
+
+```sh
 $ make push
 ```
 
