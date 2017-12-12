@@ -2,6 +2,11 @@
 
 LANGS=("go" "ruby" "csharp" "java" "python" "objc")
 
+NAMESPACE=namely
+NAME=protoc-all
+TAG=latest
+CONTAINER=$NAMESPACE/$NAME:$TAG
+
 # Checks that directories were appropriately created, and deletes the generated directory.
 testGeneration() {
   lang=$1
@@ -9,7 +14,7 @@ testGeneration() {
   echo "Testing language $lang $extra_arg"
 
   # Test calling a file directly.
-  docker run --rm -v=`pwd`:/defs namely/test-protoc-all -f test/test.proto -l $lang -i test $extra_arg
+  docker run --rm -v=`pwd`:/defs $CONTAINER -f test/test.proto -l $lang -i test $extra_arg
   if [[ ! -d "gen/pb-$lang" ]]; then
       echo "generated directory does not exist"
       exit 1
@@ -17,7 +22,7 @@ testGeneration() {
   rm -rf gen/
 
   # Test scanning a dir.
-  docker run --rm -v=`pwd`:/defs namely/test-protoc-all -d test -l $lang -o gen/dir/$lang $extra_arg
+  docker run --rm -v=`pwd`:/defs $CONTAINER -d test -l $lang -o gen/dir/$lang $extra_arg
   if [[ ! -d gen/dir/$lang ]]; then
     echo "generated directory for all-file include method does not exist"
     exit 1
