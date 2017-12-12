@@ -27,8 +27,6 @@ testGeneration() {
   echo "Passed!"
 }
 
-docker build -t namely/test-protoc-all ./all
-
 # Test grpc-gateway generation.
 testGeneration go --with-gateway
 

@@ -8,6 +8,10 @@ CONTAINER=$(NAMESPACE)/$(NAME):$(TAG)
 build:
 	docker build -t $(CONTAINER) ./all
 
+.PHONY: test
+test: build
+	bash test.sh
+
 .PHONY: push
-push:
+push: build test
 	docker push $(CONTAINER)
