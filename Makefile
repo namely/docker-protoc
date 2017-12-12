@@ -10,7 +10,7 @@ build:
 
 .PHONY: test
 test: build
-	bash test.sh
+	bash test.sh $(CONTAINER)
 
 .PHONY: push
 push: build test

@@ -2,10 +2,7 @@
 
 LANGS=("go" "ruby" "csharp" "java" "python" "objc")
 
-NAMESPACE=namely
-NAME=protoc-all
-TAG=latest
-CONTAINER=$NAMESPACE/$NAME:$TAG
+CONTAINER=$1
 
 # Checks that directories were appropriately created, and deletes the generated directory.
 testGeneration() {
