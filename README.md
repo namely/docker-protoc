@@ -95,7 +95,8 @@ grpc_cli call docker.for.mac.localhost:50051 LinkShortener.ResolveShortLink "sho
 ## Contributing
 
 If you make changes, or add a container for another language compiler, this repo
-has simple scripts that can build projects. You can run:
+has simple scripts that can build projects. You can run the following within the
+all/ folder:
 
 ```sh
 $ make build
