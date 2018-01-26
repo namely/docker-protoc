@@ -76,6 +76,10 @@ docker run -v `pwd`:/defs --rm -it namely/grpc-cli call docker.for.mac.localhost
    LinkShortener.ResolveShortLink "short_link:'asdf'" --protofiles=link_shortener.proto
 ```
 
+You can pass multiple files to --protofiles by separating them with commas, for example
+`--protofiles=link_shortener.proto,foo/bar/baz.proto,biz.proto`. All of the protofiles
+must be relative to pwd, since pwd is mounted into the container.
+
 See the [grpc\_cli documentation](https://github.com/grpc/grpc/blob/master/doc/command_line_tool.md)
 for more information. You may find it useful to bind this to an alias:
 
