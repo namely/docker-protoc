@@ -12,7 +12,7 @@
 #
 # The user should mount their `pwd` to /defs.
 
-from debian AS build
+from debian:stretch-slim AS build
 
 RUN apt-get update
 RUN apt-get install -y git libgflags-dev build-essential automake autoconf libtool shtool curl unzip
@@ -38,11 +38,15 @@ RUN git clone https://github.com/grpc-ecosystem/grpc-gateway
 
 
 # Build release image
-FROM debian
+FROM debian:stretch-slim
 RUN apt-get update
 
 # grpc_cli requires libgflags-dev
 RUN apt-get install -y libgflags-dev
+RUN apt-get clean
+# Remove cached lists
+RUN rm -rf /var/lib/apt/lists/*
+
 # Copy grpc_cli binary
 COPY --from=build /tmp/grpc/bins/opt/grpc_cli /bin/grpc_cli
 
