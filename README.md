@@ -54,15 +54,53 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 
 ## gRPC Gateway (Experimental)
 
-You can optionally specify `--with-gateway` to generate
-[grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) support with
-swagger. Ideally this will generate a ready-to-go containerized app, but for now
-you can access the generated gateway code and swagger definition.
+This repo also provides a script `all/generate_gateway.sh` that will generate an
+Docker image of a [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway)
+for your proto. Run it locally, specifying your proto file, the name of your
+gRPC service (we could figure it out by parsing the proto file, but for now this
+is easier), and the name of the Docker container to generate.
+
+The container is a stand-alone app that acts as an HTTP server and a gRPC client
+for your service. Run it with "docker run my-container --backend=grpc-service:50051",
+where --backend refers to your actual gRPC server's address.
+
+
+## grpc\_cli
+
+This repo also contains a Dockerfile for building a grpc\_cli. 
+
+Run it with
+
+```sh
+docker run -v `pwd`:/defs --rm -it namely/grpc-cli call docker.for.mac.localhost:50051 \\
+   LinkShortener.ResolveShortLink "short_link:'asdf'" --protofiles=link_shortener.proto
+```
+
+You can pass multiple files to --protofiles by separating them with commas, for example
+`--protofiles=link_shortener.proto,foo/bar/baz.proto,biz.proto`. All of the protofiles
+must be relative to pwd, since pwd is mounted into the container.
+
+See the [grpc\_cli documentation](https://github.com/grpc/grpc/blob/master/doc/command_line_tool.md)
+for more information. You may find it useful to bind this to an alias:
+
+```sh
+alias grpc_cli='docker run -v `pwd`:/defs --rm -it namely/grpc-cli'
+```
+
+Note the use of single quotes in the alias, which avoids expanding the `pwd` parameter when the alias
+is created.
+
+Now you can call it with
+
+```sh
+grpc_cli call docker.for.mac.localhost:50051 LinkShortener.ResolveShortLink "short_link:'asdf'" --protofiles=link_shortener.proto
+```
 
 ## Contributing
 
 If you make changes, or add a container for another language compiler, this repo
-has simple scripts that can build projects. You can run:
+has simple scripts that can build projects. You can run the following within the
+all/ folder:
 
 ```sh
 $ make build

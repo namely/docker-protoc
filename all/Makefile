@@ -6,7 +6,7 @@ CONTAINER=$(NAMESPACE)/$(NAME):$(TAG)
 
 .PHONY: build
 build:
-	docker build -t $(CONTAINER) ./all
+	docker build -t $(CONTAINER) .
 
 .PHONY: test
 test: build
