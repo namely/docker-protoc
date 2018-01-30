@@ -112,13 +112,27 @@ if [ $PLUGIN_LANG == 'objc' ] ; then
 fi
 
 if [[ $OUT_DIR == '' ]]; then
-    OUT_DIR="${GEN_DIR}/pb-$GEN_LANG"
+    if [[ $GEN_LANG == "python" ]]; then
+        # Python needs underscores to read the directory name.
+        OUT_DIR="${GEN_DIR}/pb_$GEN_LANG"
+    else
+        OUT_DIR="${GEN_DIR}/pb-$GEN_LANG"
+    fi
 fi
 
 echo "Generating $GEN_LANG files for ${FILE}${PROTO_DIR} in $OUT_DIR"
 
 if [[ ! -d $OUT_DIR ]]; then
   mkdir -p $OUT_DIR
+fi
+
+# Python also needs __init__.py files in each directory to import.
+# If __init__.py files are needed at higher level directories (i.e.
+# if $OUT_DIR is a longer path), it's the caller's responsibility
+# to create them.
+if [[ $GEN_LANG == "python" ]]; then
+    touch $OUT_DIR/__init__.py
+    touch $GEN_DIR/__init__.py
 fi
 
 GEN_STRING=''
