@@ -11,7 +11,7 @@ language you want to generate.
 Pull the container:
 
 ```sh
-$ docker pull namely/protoc-all
+$ docker pull namely/protoc-all:1.9
 ```
 
 After that, travel to the directory that contains your `.proto` definition
@@ -22,7 +22,7 @@ So if you have a directory: `/Users/me/project/protobufs/` that has:
 
 ```sh
 cd ~/my_project/protobufs
-docker run -v `pwd`:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csharp, etc
+docker run -v `pwd`:/defs namely/protoc-all:1.9 -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 The container automatically puts the compiled files into a `gen` directory with
@@ -46,9 +46,9 @@ input. To remove the `protorepo` you need to add an include and change the
 import:
 
 ```
-$ docker run ... namely/protoc-all -i protorepo -f catalog/catalog.proto -l go
+$ docker run ... namely/protoc-all:1.9 -i protorepo -f catalog/catalog.proto -l go
 # instead of
-$ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
+$ docker run ... namely/protoc-all:1.9 -f protorepo/catalog/catalog.proto -l go
 # which will generate files in a `protorepo` directory.
 ```
 
