@@ -59,7 +59,7 @@ generates a gRPC gateway. After running this image, it will create a folder with
 simple go [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server. By
 default, this goes in the `gen/grpc-gateway` folder.
 
-This directory includes a Dockerfile, to build into a Docker image, simply run
+This directory includes a Dockerfile. To build into a Docker image simply run
 `docker build -t my-container gen/grpc-gateway/`.
 
 The container is a stand-alone app that acts as an HTTP server and a gRPC client
