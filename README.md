@@ -54,16 +54,18 @@ $ docker run ... namely/protoc-all:1.9 -f protorepo/catalog/catalog.proto -l go
 
 ## gRPC Gateway (Experimental)
 
-This repo also provides a script `all/generate_gateway.sh` that will generate an
-Docker image of a [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway)
-for your proto. Run it locally, specifying your proto file, the name of your
-gRPC service (we could figure it out by parsing the proto file, but for now this
-is easier), and the name of the Docker container to generate.
+This repo also provides a docker images `namely/gen-grpc-gateway` that
+generates a gRPC gateway. After running this image, it will create a folder with a
+simple go [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server. By
+default, this goes in the `gen/grpc-gateway` folder.
+
+This directory includes a Dockerfile. To build into a Docker image simply run
+`docker build -t my-container gen/grpc-gateway/`.
 
 The container is a stand-alone app that acts as an HTTP server and a gRPC client
 for your service. Run it with "docker run my-container --backend=grpc-service:50051",
-where --backend refers to your actual gRPC server's address.
-
+where --backend refers to your actual gRPC server's address. It listens on port 80
+for HTTP traffic.
 
 ## grpc\_cli
 

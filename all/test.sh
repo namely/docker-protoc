@@ -45,6 +45,4 @@ for lang in ${LANGS[@]}; do
     testGeneration "$lang"
 done
 
-# Test grpc-gateway Docker generation
-bash generate_gateway.sh -f test/test.proto -s Message -c test-gateway-image
 

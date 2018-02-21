@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package Messages;
+
+message ListMessageResponse {
+    repeated string messages = 1;
+}
+
+  
