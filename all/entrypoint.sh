@@ -131,7 +131,7 @@ fi
 # directories above $OUT_DIR), it's the caller's responsibility to
 # create them.
 if [[ $GEN_LANG == "python" ]]; then
-    touch $OUT_DIR/__init__.py
+    touch $GEN_DIR/__init__.py
     find $OUT_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
 fi
 
