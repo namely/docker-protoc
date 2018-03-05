@@ -19,7 +19,7 @@ printUsage() {
 }
 
 GEN_GATEWAY=false
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "php")
 GEN_DIR="./gen"
 EXTRA_INCLUDES=""
 OUT_DIR=""
