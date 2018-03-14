@@ -24,6 +24,10 @@ GEN_DIR="./gen"
 EXTRA_INCLUDES=""
 OUT_DIR=""
 
+DOCS_TYPE=""
+DOCS_DIR="./docs"
+DOCS="--doc_out=$DOCS_DIR"
+
 while test $# -gt 0; do
     case "$1" in
         -h|--help)
@@ -72,6 +76,12 @@ while test $# -gt 0; do
             GEN_GATEWAY=true
             shift
             ;;
+        -m|--with-docs)
+            shift
+            DOCS_TYPE=$1
+            DOCS="$DOCS --doc_opt=$1,docs"
+            shift
+            ;;
         *)
             break
             ;;
@@ -106,6 +116,15 @@ if [[ "$GEN_GATEWAY" == true && "$GEN_LANG" != "go" ]]; then
   exit 1
 fi
 
+case $DOCS_TYPE in
+    "markdown")
+        DOCS="$DOCS.md"
+        ;;
+    *)
+        DOCS="$DOCS.$DOCS_TYPE"
+        ;;
+esac
+
 PLUGIN_LANG=$GEN_LANG
 if [ $PLUGIN_LANG == 'objc' ] ; then
     PLUGIN_LANG='objective_c'
@@ -124,6 +143,10 @@ echo "Generating $GEN_LANG files for ${FILE}${PROTO_DIR} in $OUT_DIR"
 
 if [[ ! -d $OUT_DIR ]]; then
   mkdir -p $OUT_DIR
+fi
+
+if [[ ! -d $DOCS_DIR ]]; then
+  mkdir -p $DOCS_DIR
 fi
 
 # Python also needs __init__.py files in each directory to import.
@@ -163,6 +186,7 @@ fi
 
 protoc $PROTO_INCLUDE \
     $GEN_STRING \
+    $DOCS \
     ${PROTO_FILES[@]}
 
 if [ $GEN_GATEWAY = true ]; then
