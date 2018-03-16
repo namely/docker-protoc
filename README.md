@@ -8,7 +8,7 @@ language you want to generate (see [Docker troubleshooting](#docker-troubleshoot
 
 > Note - throughout this document, commands for bash are prefixed with `$` and commands
 > for PowerShell on Windows are prefixed with `PS>`.  It is not required to use "Windows
-> Services for Linux" (WSL)
+> Subsystem for Linux" (WSL)
 
 ## Usage
 
