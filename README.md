@@ -4,7 +4,7 @@ This repository contains the Dockerfile for generating gRPC and protobuf code
 for various languages, removing the need to setup protoc and the various gRPC
 plugins lcoally. It relies on setting a simple volume to the docker container,
 usually mapping the current directory to `/defs`, and specifying the file and
-language you want to generate.
+language you want to generate (see [Docker troubleshooting](#dockertroubleshooting) below).
 
 ## Usage
 
@@ -17,12 +17,17 @@ $ docker pull namely/protoc-all:1.9
 After that, travel to the directory that contains your `.proto` definition
 files.
 
-So if you have a directory: `/Users/me/project/protobufs/` that has:
+So if you have a directory: `~/my_project/protobufs/` that has:
 `myproto.proto`, you'd want to do this:
 
 ```sh
-cd ~/my_project/protobufs
-docker run -v `pwd`:/defs namely/protoc-all:1.9 -f myproto.proto -l ruby #or go, csharp, etc
+$ cd ~/my_project/protobufs
+$ docker run -v `pwd`:/defs namely/protoc-all:1.9 -f myproto.proto -l ruby #or go, csharp, etc
+```
+
+```powershell
+PS> cd ~/my_project/protobufs
+PS> docker run -v ${pwd}:/defs namely/protoc-all:1.9 -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 The container automatically puts the compiled files into a `gen` directory with
@@ -123,3 +128,9 @@ $ make push
 This will build and push the containers to the Namely registry located on
 [DockerHub](https://hub.docker.com/u/namely/). You must be authorized to push to
 this repo.
+
+
+## Docker Troubleshooting
+
+You must have a volume created called `defs`.  To check this, run `docker volume ls` and ensure there is a volume there named `defs` using the `local` driver.  If not, run `docker volume create defs`.
+If on Windows, you must have your C: drive shared with Docker.  Open the Docker settings (right-click Docker icon in notification area) and pick the Shared Drives tab.  Ensure C is listed and the box is checked.  If you are still experiencing trouble, click "Reset credentials..." on that tab and re-enter your local Windows username and password.
