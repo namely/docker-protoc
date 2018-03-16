@@ -4,7 +4,7 @@ This repository contains the Dockerfile for generating gRPC and protobuf code
 for various languages, removing the need to setup protoc and the various gRPC
 plugins lcoally. It relies on setting a simple volume to the docker container,
 usually mapping the current directory to `/defs`, and specifying the file and
-language you want to generate (see [Docker troubleshooting](#dockertroubleshooting) below).
+language you want to generate (see [Docker troubleshooting](#docker-troubleshooting) below).
 
 ## Usage
 
