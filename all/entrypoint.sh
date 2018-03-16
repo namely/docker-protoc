@@ -20,7 +20,6 @@ printUsage() {
 
 GEN_GATEWAY=false
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc")
-GEN_DIR="./gen"
 EXTRA_INCLUDES=""
 OUT_DIR=""
 
@@ -112,6 +111,7 @@ if [ $PLUGIN_LANG == 'objc' ] ; then
 fi
 
 if [[ $OUT_DIR == '' ]]; then
+    GEN_DIR="gen"
     if [[ $GEN_LANG == "python" ]]; then
         # Python needs underscores to read the directory name.
         OUT_DIR="${GEN_DIR}/pb_$GEN_LANG"
@@ -131,8 +131,8 @@ fi
 # directories above $OUT_DIR), it's the caller's responsibility to
 # create them.
 if [[ $GEN_LANG == "python" ]]; then
-    touch $GEN_DIR/__init__.py
-    find $OUT_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
+    BASE_DIR=$(echo "$OUT_DIR" | cut -d "/" -f1)
+    find $BASE_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
 fi
 
 GEN_STRING=''
