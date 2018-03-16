@@ -6,6 +6,10 @@ plugins lcoally. It relies on setting a simple volume to the docker container,
 usually mapping the current directory to `/defs`, and specifying the file and
 language you want to generate (see [Docker troubleshooting](#docker-troubleshooting) below).
 
+> Note - throughout this document, commands for bash are prefixed with `$` and commands
+> for PowerShell on Windows are prefixed with `PS>`.  It is not required to use "Windows
+> Services for Linux" (WSL)
+
 ## Usage
 
 Pull the container:
@@ -18,7 +22,7 @@ After that, travel to the directory that contains your `.proto` definition
 files.
 
 So if you have a directory: `~/my_project/protobufs/` that has:
-`myproto.proto`, you'd want to do this:
+`myproto.proto`, you'd want to run this:
 
 ```sh
 $ cd ~/my_project/protobufs
@@ -133,5 +137,7 @@ this repo.
 ## Docker Troubleshooting
 
 You must have a volume created called `defs`.  To check this, run `docker volume ls` and ensure there is a volume there named `defs` using the `local` driver.  If not, run `docker volume create defs`.
+
+Docker must be configured to use Linux containers.
 
 If on Windows, you must have your C: drive shared with Docker.  Open the Docker settings (right-click Docker icon in notification area) and pick the Shared Drives tab.  Ensure C is listed and the box is checked.  If you are still experiencing trouble, click "Reset credentials..." on that tab and re-enter your local Windows username and password.
