@@ -133,4 +133,5 @@ this repo.
 ## Docker Troubleshooting
 
 You must have a volume created called `defs`.  To check this, run `docker volume ls` and ensure there is a volume there named `defs` using the `local` driver.  If not, run `docker volume create defs`.
+
 If on Windows, you must have your C: drive shared with Docker.  Open the Docker settings (right-click Docker icon in notification area) and pick the Shared Drives tab.  Ensure C is listed and the box is checked.  If you are still experiencing trouble, click "Reset credentials..." on that tab and re-enter your local Windows username and password.
