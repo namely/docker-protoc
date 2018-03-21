@@ -1,8 +1,9 @@
 
-NAMESPACE=namely
-NAME=protoc-all
-TAG=latest
-CONTAINER=$(NAMESPACE)/$(NAME):$(TAG)
+DOCKER_REPO ?=
+NAMESPACE ?= namely
+NAME ?= protoc-all
+TAG ?= latest
+CONTAINER = $(DOCKER_REPO)$(NAMESPACE)/$(NAME):$(TAG)
 
 .PHONY: build
 build:
