@@ -19,7 +19,7 @@ printUsage() {
 }
 
 GEN_GATEWAY=false
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "js")
 EXTRA_INCLUDES=""
 OUT_DIR=""
 
@@ -143,6 +143,11 @@ case $GEN_LANG in
     "java")
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which protoc-gen-grpc-java`"
         ;;
+    "js")
+        SERVICE_NAME=$(basename $PROTO_DIR)
+        echo "using service name $SERVICE_NAME"
+        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=library=$SERVICE_NAME,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin`"
+        ;;
     *)
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
@@ -156,14 +161,20 @@ PROTO_INCLUDE="-I /usr/include/ \
 if [ ! -z $PROTO_DIR ]; then
     PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
     PROTO_FILES=(`find ${PROTO_DIR} -maxdepth 1 -name "*.proto"`)
-else 
+else
     PROTO_INCLUDE="-I . $PROTO_INCLUDE"
     PROTO_FILES=($FILE)
 fi
 
-protoc $PROTO_INCLUDE \
-    $GEN_STRING \
-    ${PROTO_FILES[@]}
+if [[ $GEN_LANG == "js" ]];then
+    grpc_tools_node_protoc $PROTO_INCLUDE \
+                           $GEN_STRING \
+                           ${PROTO_FILES[@]}
+else
+    protoc $PROTO_INCLUDE \
+           $GEN_STRING \
+           ${PROTO_FILES[@]}
+fi
 
 if [ $GEN_GATEWAY = true ]; then
     GATEWAY_DIR=${OUT_DIR}
