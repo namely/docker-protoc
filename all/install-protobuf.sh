@@ -17,3 +17,6 @@ cd /tmp
 git clone -b $GRPC_VERSION --recursive https://github.com/grpc/grpc-java.git
 cd /tmp/grpc-java/compiler
 ../gradlew java_pluginExecutable
+
+# nodejs
+npm install -g grpc-tools
