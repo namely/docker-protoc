@@ -144,7 +144,6 @@ case $GEN_LANG in
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which protoc-gen-grpc-java`"
         ;;
     "node")
-        SERVICE_NAME=$(basename $PROTO_DIR)
         GEN_STRING="--grpc_out=$OUT_DIR --js_out=import_style=commonjs,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
     *)
