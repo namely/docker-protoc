@@ -66,17 +66,38 @@ $ docker run ... namely/protoc-all:1.9 -f protorepo/catalog/catalog.proto -l go
 ## gRPC Gateway (Experimental)
 
 This repo also provides a docker images `namely/gen-grpc-gateway` that
-generates a gRPC gateway. After running this image, it will create a folder with a
-simple go [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server. By
-default, this goes in the `gen/grpc-gateway` folder.
+generates a [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server.
+By annotating your proto (see the grpc-gateway documentation), you can generate a
+server that acts as an HTTP server, and a gRPC client to your gRPC service.
 
-This directory includes a Dockerfile. To build into a Docker image simply run
-`docker build -t my-container gen/grpc-gateway/`.
+Generate a gRPC Gateway docker project with
 
-The container is a stand-alone app that acts as an HTTP server and a gRPC client
-for your service. Run it with "docker run my-container --backend=grpc-service:50051",
-where --backend refers to your actual gRPC server's address. It listens on port 80
-for HTTP traffic.
+```
+docker run -v `pwd`:/defs namely/gen-grpc-gateway -f path/to/your/proto.proto -s Service
+```
+
+where `Service` is the name of your gRPC service defined in the proto. This will create a
+folder with a simple go  server.
+By default, this goes in the `gen/grpc-gateway` folder. You can then build the contents of this
+folder into an actual runnable grpc-gateway server.
+
+Build your gRPC Gateway server with 
+```
+docker build -t my-grpc-gateway gen/grpc-gateway/
+```
+
+*NOTE*: If your service does not contain any `(google.api.http)` annotations, this build will
+fail with an error `...HandlerFromEndpoint is undefined`. You need to have at least one rpc
+method annotated to build a gRPC Gateway.
+
+Run this image with
+
+```
+docker run my-grpc-gateway --backend=grpc-service:50051
+```
+
+where `--backend` refers to your actual gRPC server's address. The gRPC gateway 
+listens on port 80 for HTTP traffic.
 
 ## grpc\_cli
 
