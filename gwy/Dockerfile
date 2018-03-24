@@ -1,4 +1,5 @@
-FROM namely/protoc-all
+ARG grpc=1.10
+FROM namely/protoc-all:$grpc
 
 COPY templates /templates
 COPY generate_gateway.sh /usr/local/bin
