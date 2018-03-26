@@ -15,9 +15,11 @@ printUsage() {
     echo " -o DIRECTORY         The output directory for generated files. Will be automatically created."
     echo " -i includes          Extra includes"
     echo " --with-gateway       Generate grpc-gateway files (experimental)."
+    echo " --no-init            Does not generate __init__.py files (Python 3.6 and up)"
 
 }
 
+NO_INIT=false
 GEN_GATEWAY=false
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "node")
 EXTRA_INCLUDES=""
@@ -71,6 +73,10 @@ while test $# -gt 0; do
             GEN_GATEWAY=true
             shift
             ;;
+        --no-init)
+            NO_INIT=true
+            shift
+            ;;
         *)
             break
             ;;
@@ -105,6 +111,11 @@ if [[ "$GEN_GATEWAY" == true && "$GEN_LANG" != "go" ]]; then
   exit 1
 fi
 
+if [[ "$NO_INIT" == true && "$GEN_LANG" != "python" ]]; then
+  echo "Not generating init files is Python specific."
+  exit 1
+fi
+
 PLUGIN_LANG=$GEN_LANG
 if [ $PLUGIN_LANG == 'objc' ] ; then
     PLUGIN_LANG='objective_c'
@@ -130,14 +141,14 @@ fi
 # If __init__.py files are needed at higher level directories (i.e.
 # directories above $OUT_DIR), it's the caller's responsibility to
 # create them.
-if [[ $GEN_LANG == "python" ]]; then
+if [[ $GEN_LANG == "python" && $ $NO_INIT = false ]]; then
     BASE_DIR=$(echo "$OUT_DIR" | cut -d "/" -f1)
     find $BASE_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
 fi
 
 GEN_STRING=''
 case $GEN_LANG in
-    "go") 
+    "go")
         GEN_STRING="--go_out=plugins=grpc:$OUT_DIR"
         ;;
     "java")
@@ -159,7 +170,7 @@ PROTO_INCLUDE="-I /usr/include/ \
 if [ ! -z $PROTO_DIR ]; then
     PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
     PROTO_FILES=(`find ${PROTO_DIR} -maxdepth 1 -name "*.proto"`)
-else 
+else
     PROTO_INCLUDE="-I . $PROTO_INCLUDE"
     PROTO_FILES=($FILE)
 fi
