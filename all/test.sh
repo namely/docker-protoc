@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LANGS=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php")
+LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php")
 
 CONTAINER=$1
 
