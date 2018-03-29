@@ -19,7 +19,8 @@ printUsage() {
 }
 
 GEN_GATEWAY=false
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "node")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node")
 EXTRA_INCLUDES=""
 OUT_DIR=""
 
@@ -137,8 +138,19 @@ fi
 
 GEN_STRING=''
 case $GEN_LANG in
-    "go") 
+    "go")
         GEN_STRING="--go_out=plugins=grpc:$OUT_DIR"
+        ;;
+    "gogo")
+        GEN_STRING="--gogofast_out=\
+Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,\
+Mgoogle/protobuf/field_mask.proto=github.com/gogo/protobuf/types,\
+plugins=grpc+embedded\
+:$OUT_DIR"
         ;;
     "java")
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which protoc-gen-grpc-java`"
@@ -153,7 +165,8 @@ esac
 
 PROTO_INCLUDE="-I /usr/include/ \
     -I /usr/local/include/ \
-    -I /go/src/github.com/grpc-ecosystem/grpc-gateway/ \
+    -I ${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/ \
+    -I ${GOPATH}/src \
     $EXTRA_INCLUDES"
 
 if [ ! -z $PROTO_DIR ]; then
