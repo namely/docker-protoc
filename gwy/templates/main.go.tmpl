@@ -44,11 +44,8 @@ func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
 
 // sanitizeApiPrefix forces prefix to be non-empty and end with a slash.
 func sanitizeApiPrefix(prefix string) string {
-  if len(prefix) == 0 {
-    prefix = "/"
-  }
-  if prefix[len(prefix)-1:] != "/" {
-    prefix = prefix + "/"
+  if len(prefix) == 0 || prefix[len(prefix)-1:] != "/" {
+    return prefix + "/"
   }
   return prefix
 }
