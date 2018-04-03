@@ -20,10 +20,18 @@ import (
 )
 
 type proxyConfig struct {
-  backend string
-  swagger string
+  // The backend gRPC service to listen to.
+  backend              string
+  // Path to the swagger file to serve.
+  swagger              string
+  // Value to set for Access-Control-Allow-Origin header.
   corsAllowOrigin      string
+  // Value to set for Access-Control-Allow-Credentials header.
   corsAllowCredentials string
+  // Prefix that this gateway is running on. For example, if your API endpoint
+  // was "/foo/bar" in your protofile, and you wanted to run APIs under "/api",
+  // set this to "/api/".
+  apiPrefix            string
 }
 
 func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
@@ -32,6 +40,17 @@ func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
     w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
     handler.ServeHTTP(w, req)
   })
+}
+
+// sanitizeApiPrefix forces prefix to be non-empty and end with a slash.
+func sanitizeApiPrefix(prefix string) string {
+  if len(prefix) == 0 {
+    prefix = "/"
+  }
+  if prefix[len(prefix)-1:] != "/" {
+    prefix = prefix + "/"
+  }
+  return prefix
 }
 
 func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
@@ -49,7 +68,10 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
   if err != nil {
     log.Fatalf("Could not register gateway: %v", err)
   }
-  mux.Handle("/", allowCors(cfg, gwmux))
+
+	prefix := sanitizeApiPrefix(cfg.apiPrefix)
+	log.Println("API prefix is", prefix)
+	mux.Handle(prefix, http.StripPrefix(prefix[:len(prefix)-1], allowCors(cfg, gwmux)))
   return mux
 }
 
@@ -100,10 +122,11 @@ func main() {
   defer cancel()
 
   mux := SetupMux(ctx, proxyConfig{
-    backend: cfg.GetString("backend"),
-    swagger: cfg.GetString("swagger.file"),
+    backend:              cfg.GetString("backend"),
+    swagger:              cfg.GetString("swagger.file"),
     corsAllowOrigin:      cfg.GetString("cors.allow-origin"),
     corsAllowCredentials: cfg.GetString("cors.allow-credentials"),
+    apiPrefix:            cfg.GetString("proxy.api-prefix"),
   })
 
   addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
