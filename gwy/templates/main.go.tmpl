@@ -69,9 +69,9 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
     log.Fatalf("Could not register gateway: %v", err)
   }
 
-	prefix := sanitizeApiPrefix(cfg.apiPrefix)
-	log.Println("API prefix is", prefix)
-	mux.Handle(prefix, http.StripPrefix(prefix[:len(prefix)-1], allowCors(cfg, gwmux)))
+  prefix := sanitizeApiPrefix(cfg.apiPrefix)
+  log.Println("API prefix is", prefix)
+  mux.Handle(prefix, http.StripPrefix(prefix[:len(prefix)-1], allowCors(cfg, gwmux)))
   return mux
 }
 
