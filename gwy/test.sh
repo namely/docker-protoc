@@ -25,7 +25,7 @@ status=`curl -s -o /dev/null -w "%{http_code}" localhost:8080/api/messages`
 # here we can use the 503 to indicate that the gateway tried to send the request
 # downstream.
 if [ "$status" -ne "503" ]; then
-  kill $1
+  kill $!
   echo "Invalid status: '$status'"
   exit 1
 fi
@@ -34,7 +34,7 @@ fi
 # get a 404, since there's no handler for that endpoint.
 status=`curl -s -o /dev/null -w "%{http_code}" localhost:8080/messages`
 if [ "$status" -ne "404" ]; then
-  kill $1
+  kill $!
   echo "Invalid status: '$status'"
   exit 1
 fi
