@@ -1,4 +1,4 @@
-FROM namely/protoc-all
+FROM namely/protoc-all:1.10
 
 COPY templates /templates
 COPY generate_gateway.sh /usr/local/bin
