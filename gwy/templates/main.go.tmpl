@@ -5,6 +5,7 @@ import (
   "fmt"
   "log"
   "net/http"
+  "net/textproto"
   "os"
   "os/signal"
   "strings"
@@ -50,6 +51,20 @@ func sanitizeApiPrefix(prefix string) string {
   return prefix
 }
 
+// incomingHeaderMatcher converts an HTTP header name on http.Request to
+// grpc metadata. We prepend incoming headers with grpcgateway- to avoid
+// collisions with reserved metadata names.
+func incomingHeaderMatcher(key string) (string, bool) {
+  key = textproto.CanonicalMIMEHeaderKey(key)
+  return runtime.MetadataPrefix + key, true
+}
+
+// outgoingHeaderMatcher transforms outgoing metadata into HTTP headers.
+// We return any response metadata as is.
+func outgoingHeaderMatcher(metadata string) (string, bool) {
+  return metadata, true
+}
+
 func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
   mux := http.NewServeMux()
 
@@ -57,10 +72,16 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
     http.ServeFile(w, r, cfg.swagger)
   })
 
-  opts := []grpc.DialOption{grpc.WithInsecure()}
-  gwmux := runtime.NewServeMux()
+  gwmux := runtime.NewServeMux(
+    runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
+    runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
+  )
   fmt.Printf("Proxying requests to gRPC service at '%s'\n", cfg.backend)
   
+  opts := []grpc.DialOption{grpc.WithInsecure()}
+  // If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
+  // does not exist, it's because you haven't added any google.api.http annotations
+  // to your proto. Add some!
   err := gw.Register${SERVICE}HandlerFromEndpoint(ctx, gwmux, cfg.backend, opts)
   if err != nil {
     log.Fatalf("Could not register gateway: %v", err)
