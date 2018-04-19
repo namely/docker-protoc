@@ -34,6 +34,10 @@ RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
+RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
+RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
+RUN go get -u github.com/ckaznocha/protoc-gen-lint
+
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
 COPY --from=build /tmp/grpc/libs/opt/ /usr/local/lib/

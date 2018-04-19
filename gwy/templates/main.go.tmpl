@@ -5,6 +5,7 @@ import (
   "fmt"
   "log"
   "net/http"
+  "net/textproto"
   "os"
   "os/signal"
   "strings"
@@ -20,10 +21,18 @@ import (
 )
 
 type proxyConfig struct {
-  backend string
-  swagger string
+  // The backend gRPC service to listen to.
+  backend              string
+  // Path to the swagger file to serve.
+  swagger              string
+  // Value to set for Access-Control-Allow-Origin header.
   corsAllowOrigin      string
+  // Value to set for Access-Control-Allow-Credentials header.
   corsAllowCredentials string
+  // Prefix that this gateway is running on. For example, if your API endpoint
+  // was "/foo/bar" in your protofile, and you wanted to run APIs under "/api",
+  // set this to "/api/".
+  apiPrefix            string
 }
 
 func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
@@ -34,6 +43,76 @@ func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
   })
 }
 
+// sanitizeApiPrefix forces prefix to be non-empty and end with a slash.
+func sanitizeApiPrefix(prefix string) string {
+  if len(prefix) == 0 || prefix[len(prefix)-1:] != "/" {
+    return prefix + "/"
+  }
+  return prefix
+}
+
+// isPermanentHTTPHeader checks whether hdr belongs to the list of
+// permenant request headers maintained by IANA.
+// http://www.iana.org/assignments/message-headers/message-headers.xml
+// From https://github.com/grpc-ecosystem/grpc-gateway/blob/7a2a43655ccd9a488d423ea41a3fc723af103eda/runtime/context.go#L157
+func isPermanentHTTPHeader(hdr string) bool {
+	switch hdr {
+	case
+		"Accept",
+		"Accept-Charset",
+		"Accept-Language",
+		"Accept-Ranges",
+		"Authorization",
+		"Cache-Control",
+		"Content-Type",
+		"Cookie",
+		"Date",
+		"Expect",
+		"From",
+		"Host",
+		"If-Match",
+		"If-Modified-Since",
+		"If-None-Match",
+		"If-Schedule-Tag-Match",
+		"If-Unmodified-Since",
+		"Max-Forwards",
+		"Origin",
+		"Pragma",
+		"Referer",
+		"User-Agent",
+		"Via",
+		"Warning":
+		return true
+	}
+	return false
+}
+
+// isReserved returns whether the key is reserved by gRPC.
+func isReserved(key string) bool {
+  return strings.HasPrefix(key, "Grpc-")
+}
+
+// incomingHeaderMatcher converts an HTTP header name on http.Request to
+// grpc metadata. Permanent headers (i.e. User-Agent) are prepended with
+// "grpc-gateway". Headers that start with start with "Grpc-" (reserved
+// by grpc) are prepended with "X-". Other headers are forwarded as is.
+func incomingHeaderMatcher(key string) (string, bool) {
+  key = textproto.CanonicalMIMEHeaderKey(key)
+  if isPermanentHTTPHeader(key) {
+    return runtime.MetadataPrefix + key, true
+  }
+  if isReserved(key) {
+    return "X-" + key, true
+  }
+  return key, true
+}
+
+// outgoingHeaderMatcher transforms outgoing metadata into HTTP headers.
+// We return any response metadata as is.
+func outgoingHeaderMatcher(metadata string) (string, bool) {
+  return metadata, true
+}
+
 func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
   mux := http.NewServeMux()
 
@@ -41,15 +120,24 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
     http.ServeFile(w, r, cfg.swagger)
   })
 
-  opts := []grpc.DialOption{grpc.WithInsecure()}
-  gwmux := runtime.NewServeMux()
+  gwmux := runtime.NewServeMux(
+    runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
+    runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
+  )
   fmt.Printf("Proxying requests to gRPC service at '%s'\n", cfg.backend)
   
+  opts := []grpc.DialOption{grpc.WithInsecure()}
+  // If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
+  // does not exist, it's because you haven't added any google.api.http annotations
+  // to your proto. Add some!
   err := gw.Register${SERVICE}HandlerFromEndpoint(ctx, gwmux, cfg.backend, opts)
   if err != nil {
     log.Fatalf("Could not register gateway: %v", err)
   }
-  mux.Handle("/", allowCors(cfg, gwmux))
+
+  prefix := sanitizeApiPrefix(cfg.apiPrefix)
+  log.Println("API prefix is", prefix)
+  mux.Handle(prefix, http.StripPrefix(prefix[:len(prefix)-1], allowCors(cfg, gwmux)))
   return mux
 }
 
@@ -100,10 +188,11 @@ func main() {
   defer cancel()
 
   mux := SetupMux(ctx, proxyConfig{
-    backend: cfg.GetString("backend"),
-    swagger: cfg.GetString("swagger.file"),
+    backend:              cfg.GetString("backend"),
+    swagger:              cfg.GetString("swagger.file"),
     corsAllowOrigin:      cfg.GetString("cors.allow-origin"),
     corsAllowCredentials: cfg.GetString("cors.allow-credentials"),
+    apiPrefix:            cfg.GetString("proxy.api-prefix"),
   })
 
   addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
