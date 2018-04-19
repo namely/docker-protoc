@@ -19,7 +19,6 @@ printUsage() {
 }
 
 GEN_GATEWAY=false
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php")
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node")
 EXTRA_INCLUDES=""
 OUT_DIR=""
