@@ -130,6 +130,25 @@ Now you can call it with
 grpc_cli call docker.for.mac.localhost:50051 LinkShortener.ResolveShortLink "short_link:'asdf'" --protofiles=link_shortener.proto
 ```
 
+### Configuring grpc-gateway
+
+The gateway is configured using [spf13/viper](https://github.com/spf13/viper), see [gwy/templates/config.yaml.tmpl] for configuration options.
+
+To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have (google.api.http) = '/foo/bar', and set proxy.api-prefix to '/api/', your gateway will listen to requests on '/api/foo/bar'.
+
+See [gwy/test.sh] for an example of how to set the prefix with an environment variable.
+
+### HTTP Headers
+
+The gateway will turn any HTTP headers that it receives into gRPC metadata. Any
+[permanent HTTP headers](https://github.com/namely/docker-protoc/blob/2e7f0c921984c9d9fc7e42e6a7b9474292f11751/gwy/templates/main.go.tmpl#L61)
+will be prefixed with 'grpcgateway-' in the metadata, so that your server receives both
+the HTTP client to gateway headers, as well as the gateway to gRPC server headers.
+
+Any headers starting with 'Grpc-' will be prefixed with an 'X-', this is because 'grpc-' is a reserved metadata prefix.
+
+All other headers will be converted to metadata as is.
+
 ## Contributing
 
 If you make changes, or add a container for another language compiler, this repo
