@@ -101,11 +101,11 @@ listens on port 80 for HTTP traffic.
 
 ### Configuring grpc-gateway
 
-The gateway is configured using [spf13/viper](https://github.com/spf13/viper), see [gwy/templates/config.yaml.tmpl] for configuration options.
+The gateway is configured using [spf13/viper](https://github.com/spf13/viper), see [gwy/templates/config.yaml.tmpl](https://github.com/namely/docker-protoc/blob/master/gwy/templates/config.yaml.tmpl) for configuration options.
 
-To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have (google.api.http) = '/foo/bar', and set proxy.api-prefix to '/api/', your gateway will listen to requests on '/api/foo/bar'.
+To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have `(google.api.http) = '/foo/bar'`, and set `proxy.api-prefix` to `/api/'`, your gateway will listen to requests on `'/api/foo/bar'`.
 
-See [gwy/test.sh] for an example of how to set the prefix with an environment variable.
+See [gwy/test.sh](https://github.com/namely/docker-protoc/blob/master/gwy/test.sh) for an example of how to set the prefix with an environment variable.
 
 ### HTTP Headers
 
