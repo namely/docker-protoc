@@ -2,7 +2,7 @@
 DOCKER_REPO ?=
 NAMESPACE ?= namely
 NAME ?= protoc-all
-TAG ?= latest
+TAG ?= 1.11
 CONTAINER = $(DOCKER_REPO)$(NAMESPACE)/$(NAME):$(TAG)
 
 .PHONY: build
