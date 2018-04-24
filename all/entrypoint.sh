@@ -170,8 +170,8 @@ PROTO_INCLUDE="-I /usr/include/ \
 
 if [ ! -z $PROTO_DIR ]; then
     PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
-    PROTO_FILES=(`find ${PROTO_DIR} -maxdepth 1 -name "*.proto"`)
-else 
+    PROTO_FILES=(`find ${PROTO_DIR} -name "*.proto"`)
+else
     PROTO_INCLUDE="-I . $PROTO_INCLUDE"
     PROTO_FILES=($FILE)
 fi
