@@ -9,7 +9,7 @@ language you want to generate.
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
 
 > Note - throughout this document, commands for bash are prefixed with `$` and commands
-> for PowerShell on Windows are prefixed with `PS>`.  It is not required to use "Windows
+> for PowerShell on Windows are prefixed with `PS>`. It is not required to use "Windows
 > Subsystem for Linux" (WSL)
 
 ## Usage
@@ -17,7 +17,7 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 Pull the container:
 
 ```sh
-$ docker pull namely/protoc-all:1.10
+$ docker pull namely/protoc-all:1.11
 ```
 
 After that, travel to the directory that contains your `.proto` definition
@@ -28,12 +28,12 @@ So if you have a directory: `~/my_project/protobufs/` that has:
 
 ```sh
 $ cd ~/my_project/protobufs
-$ docker run -v `pwd`:/defs namely/protoc-all:1.10 -f myproto.proto -l ruby #or go, csharp, etc
+$ docker run -v `pwd`:/defs namely/protoc-all:1.11 -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 ```powershell
 PS> cd ~/my_project/protobufs
-PS> docker run -v ${pwd}:/defs namely/protoc-all:1.10 -f myproto.proto -l ruby #or go, csharp, etc
+PS> docker run -v ${pwd}:/defs namely/protoc-all:1.11 -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 The container automatically puts the compiled files into a `gen` directory with
@@ -57,9 +57,9 @@ input. To remove the `protorepo` you need to add an include and change the
 import:
 
 ```
-$ docker run ... namely/protoc-all:1.10 -i protorepo -f catalog/catalog.proto -l go
+$ docker run ... namely/protoc-all:1.11 -i protorepo -f catalog/catalog.proto -l go
 # instead of
-$ docker run ... namely/protoc-all:1.10 -f protorepo/catalog/catalog.proto -l go
+$ docker run ... namely/protoc-all:1.11 -f protorepo/catalog/catalog.proto -l go
 # which will generate files in a `protorepo` directory.
 ```
 
@@ -77,16 +77,17 @@ docker run -v `pwd`:/defs namely/gen-grpc-gateway -f path/to/your/proto.proto -s
 ```
 
 where `Service` is the name of your gRPC service defined in the proto. This will create a
-folder with a simple go  server.
+folder with a simple go server.
 By default, this goes in the `gen/grpc-gateway` folder. You can then build the contents of this
 folder into an actual runnable grpc-gateway server.
 
-Build your gRPC Gateway server with 
+Build your gRPC Gateway server with
+
 ```
 docker build -t my-grpc-gateway gen/grpc-gateway/
 ```
 
-*NOTE*: If your service does not contain any `(google.api.http)` annotations, this build will
+_NOTE_: If your service does not contain any `(google.api.http)` annotations, this build will
 fail with an error `...HandlerFromEndpoint is undefined`. You need to have at least one rpc
 method annotated to build a gRPC Gateway.
 
@@ -96,7 +97,7 @@ Run this image with
 docker run my-grpc-gateway --backend=grpc-service:50051
 ```
 
-where `--backend` refers to your actual gRPC server's address. The gRPC gateway 
+where `--backend` refers to your actual gRPC server's address. The gRPC gateway
 listens on port 80 for HTTP traffic.
 
 ### Configuring grpc-gateway
@@ -118,9 +119,9 @@ Any headers starting with 'Grpc-' will be prefixed with an 'X-', this is because
 
 All other headers will be converted to metadata as is.
 
-## grpc\_cli
+## grpc_cli
 
-This repo also contains a Dockerfile for building a grpc\_cli. 
+This repo also contains a Dockerfile for building a grpc_cli.
 
 Run it with
 
@@ -133,7 +134,7 @@ You can pass multiple files to --protofiles by separating them with commas, for 
 `--protofiles=link_shortener.proto,foo/bar/baz.proto,biz.proto`. All of the protofiles
 must be relative to pwd, since pwd is mounted into the container.
 
-See the [grpc\_cli documentation](https://github.com/grpc/grpc/blob/master/doc/command_line_tool.md)
+See the [grpc_cli documentation](https://github.com/grpc/grpc/blob/master/doc/command_line_tool.md)
 for more information. You may find it useful to bind this to an alias:
 
 ```sh
@@ -175,9 +176,8 @@ This will build and push the containers to the Namely registry located on
 [DockerHub](https://hub.docker.com/u/namely/). You must be authorized to push to
 this repo.
 
-
 ## Docker Troubleshooting
 
 Docker must be configured to use Linux containers.
 
-If on Windows, you must have your C: drive shared with Docker.  Open the Docker settings (right-click Docker icon in notification area) and pick the Shared Drives tab.  Ensure C is listed and the box is checked.  If you are still experiencing trouble, click "Reset credentials..." on that tab and re-enter your local Windows username and password.
+If on Windows, you must have your C: drive shared with Docker. Open the Docker settings (right-click Docker icon in notification area) and pick the Shared Drives tab. Ensure C is listed and the box is checked. If you are still experiencing trouble, click "Reset credentials..." on that tab and re-enter your local Windows username and password.

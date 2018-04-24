@@ -1,10 +1,10 @@
 #!/bin/sh
 
-GRPC_VERSION=v1.10.x
+GRPC_VERSION=v1.11.x
 
 git clone -b $GRPC_VERSION --recursive -j8 https://github.com/grpc/grpc
 cd /tmp/grpc
-make 
+make
 make install
 # php support
 git submodule update --init
