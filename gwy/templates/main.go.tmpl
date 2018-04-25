@@ -42,6 +42,11 @@ func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
     w.Header().Set("Access-Control-Allow-Origin", cfg.corsAllowOrigin)
     w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
     w.Header().Set("Access-Control-Allow-Methods", cfg.corsAllowMethods)
+    if req.Method == "OPTIONS" && req.Header.Get("Access-Control-Request-Method") != "" {
+      headers := []string{"Content-Type", "Accept"}
+      w.Header().Set("Access-Control-Allow-Headers", strings.Join(headers, ","))
+      return
+    }
     handler.ServeHTTP(w, req)
   })
 }
