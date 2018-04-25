@@ -29,6 +29,8 @@ type proxyConfig struct {
   corsAllowOrigin      string
   // Value to set for Access-Control-Allow-Credentials header.
   corsAllowCredentials string
+  // Value to set for Access-Control-Allow-Methods header.
+  corsAllowMethods string
   // Prefix that this gateway is running on. For example, if your API endpoint
   // was "/foo/bar" in your protofile, and you wanted to run APIs under "/api",
   // set this to "/api/".
@@ -39,6 +41,7 @@ func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
     w.Header().Set("Access-Control-Allow-Origin", cfg.corsAllowOrigin)
     w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
+    w.Header().Set("Access-Control-Allow-Methods", cfg.corsAllowMethods)
     handler.ServeHTTP(w, req)
   })
 }
@@ -192,6 +195,7 @@ func main() {
     swagger:              cfg.GetString("swagger.file"),
     corsAllowOrigin:      cfg.GetString("cors.allow-origin"),
     corsAllowCredentials: cfg.GetString("cors.allow-credentials"),
+    corsAllowMethods:     cfg.GetString("cors.allow-methods"),
     apiPrefix:            cfg.GetString("proxy.api-prefix"),
   })
 
