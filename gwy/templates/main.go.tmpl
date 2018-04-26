@@ -31,6 +31,8 @@ type proxyConfig struct {
   corsAllowCredentials string
   // Value to set for Access-Control-Allow-Methods header.
   corsAllowMethods string
+  // Value to set for Access-Control-Allow-Headers header.
+  corsAllowHeaders string
   // Prefix that this gateway is running on. For example, if your API endpoint
   // was "/foo/bar" in your protofile, and you wanted to run APIs under "/api",
   // set this to "/api/".
@@ -39,18 +41,17 @@ type proxyConfig struct {
 
 func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
   return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-    if cfg.corsAllowOrigin == "*" {
+    corsAllowOrigin := cfg.corsAllowOrigin
+    if corsAllowOrigin == "*" {
       if origin := req.Header.Get("Origin"); origin != "" {
-        w.Header().Set("Access-Control-Allow-Origin", origin)
+        corsAllowOrigin = origin
       }
-    } else {
-      w.Header().Set("Access-Control-Allow-Origin", cfg.corsAllowOrigin)
     }
+    w.Header().Set("Access-Control-Allow-Origin", corsAllowOrigin)
     w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
     w.Header().Set("Access-Control-Allow-Methods", cfg.corsAllowMethods)
+    w.Header().Set("Access-Control-Allow-Headers", cfg.corsAllowHeaders)
     if req.Method == "OPTIONS" && req.Header.Get("Access-Control-Request-Method") != "" {
-      headers := []string{"Content-Type", "Accept"}
-      w.Header().Set("Access-Control-Allow-Headers", strings.Join(headers, ","))
       return
     }
     handler.ServeHTTP(w, req)
@@ -128,6 +129,7 @@ func outgoingHeaderMatcher(metadata string) (string, bool) {
 }
 
 func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
+  log.Printf("Creating grpc-gateway proxy with config: %v", cfg)
   mux := http.NewServeMux()
 
   mux.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
@@ -207,6 +209,7 @@ func main() {
     corsAllowOrigin:      cfg.GetString("cors.allow-origin"),
     corsAllowCredentials: cfg.GetString("cors.allow-credentials"),
     corsAllowMethods:     cfg.GetString("cors.allow-methods"),
+    corsAllowHeaders:     cfg.GetString("cors.allow-headers"),
     apiPrefix:            cfg.GetString("proxy.api-prefix"),
   })
 
