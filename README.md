@@ -119,6 +119,23 @@ Any headers starting with 'Grpc-' will be prefixed with an 'X-', this is because
 
 All other headers will be converted to metadata as is.
 
+### CORS Configuration.
+
+You can configure [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for your gateway through the
+configuration. This will allow your gateway to receive requests from different origins.
+
+There are four values:
+
+- `cors.allow-origin`: Value to set for Access-Control-Allow-Origin header.
+- `cors.allow-credentials`: Value to set for Access-Control-Allow-Credentials header.
+- `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
+- `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
+
+For CORS, you will want to configure your `cors.allow-methods` to be the HTTP verbs set in your proto (i.e. `GET`, `PUT`, etc.), as well as `OPTIONS`, so that your service can handle the [preflight request](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
+
+If you are not using CORS, you can leave these configuration values at their default, and your gateway will not accept CORS requests.
+
+
 ## grpc_cli
 
 This repo also contains a Dockerfile for building a grpc_cli.
