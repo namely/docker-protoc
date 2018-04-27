@@ -126,15 +126,6 @@ if [[ ! -d $OUT_DIR ]]; then
   mkdir -p $OUT_DIR
 fi
 
-# Python also needs __init__.py files in each directory to import.
-# If __init__.py files are needed at higher level directories (i.e.
-# directories above $OUT_DIR), it's the caller's responsibility to
-# create them.
-if [[ $GEN_LANG == "python" ]]; then
-    BASE_DIR=$(echo "$OUT_DIR" | cut -d "/" -f1)
-    find $BASE_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
-fi
-
 GEN_STRING=''
 case $GEN_LANG in
     "go")
@@ -179,6 +170,23 @@ fi
 protoc $PROTO_INCLUDE \
     $GEN_STRING \
     ${PROTO_FILES[@]}
+
+# Python also needs __init__.py files in each directory to import.
+# If __init__.py files are needed at higher level directories (i.e.
+# directories above $OUT_DIR), it's the caller's responsibility to
+# create them.
+if [[ $GEN_LANG == "python" ]]; then
+    # Create __init__.py for everything in the OUT_DIR
+    # (i.e. gen/pb_python/foo/bar/).
+    echo "Out dir is '$OUT_DIR'"
+    find $OUT_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
+    # And everything above it (i.e. gen/__init__py")
+    d=`dirname $OUT_DIR`
+    while [[ "$d" != "." ]]; do
+        touch "$d/__init__.py"
+        d=`dirname $d`
+    done
+fi
 
 if [ $GEN_GATEWAY = true ]; then
     GATEWAY_DIR=${OUT_DIR}
