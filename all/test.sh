@@ -55,3 +55,10 @@ for lang in ${LANGS[@]}; do
     testGeneration "$lang" "$test_dir" -o "$test_dir"
 done
 
+
+# Test .jar generation for java
+docker run --rm -v=`pwd`:/defs $CONTAINER -f test/test.proto -l java -i test -o gen/test.jar
+if [[ ! -f gen/test.jar ]]; then
+  echo "Expected gen/test.jar to be a jar file."
+  exit 1
+fi

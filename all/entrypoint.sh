@@ -123,7 +123,13 @@ fi
 echo "Generating $GEN_LANG files for ${FILE}${PROTO_DIR} in $OUT_DIR"
 
 if [[ ! -d $OUT_DIR ]]; then
-  mkdir -p $OUT_DIR
+  # If a .jar is specified, protoc can output to the jar directly. So
+  # don't create it as a directory.
+  if [[ "$GEN_LANG" == "java" ]] && [[ $OUT_DIR == *.jar ]]; then
+    mkdir -p `dirname $OUT_DIR`
+  else
+    mkdir -p $OUT_DIR
+  fi
 fi
 
 GEN_STRING=''
