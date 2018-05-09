@@ -76,7 +76,7 @@ while test $# -gt 0; do
             ;;
         --lint)
             LINT=true
-            if test $# -gt 1; then
+            if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
                 LINT_CHECKS=$2
             fi
             shift
