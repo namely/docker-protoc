@@ -14,11 +14,14 @@ printUsage() {
     echo " -l LANGUAGE          The language to generate (${SUPPORTED_LANGUAGES[@]})"
     echo " -o DIRECTORY         The output directory for generated files. Will be automatically created."
     echo " -i includes          Extra includes"
+    echo " --lint CHECKS        Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
     echo " --with-gateway       Generate grpc-gateway files (experimental)."
 
 }
 
 GEN_GATEWAY=false
+LINT=false
+LINT_CHECKS=""
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node")
 EXTRA_INCLUDES=""
 OUT_DIR=""
@@ -69,6 +72,13 @@ while test $# -gt 0; do
             ;;
         --with-gateway)
             GEN_GATEWAY=true
+            shift
+            ;;
+        --lint)
+            LINT=true
+            if test $# -gt 1; then
+                LINT_CHECKS=$2
+            fi
             shift
             ;;
         *)
@@ -159,6 +169,15 @@ plugins=grpc+embedded\
         ;;
 esac
 
+LINT_STRING=''
+if [[ $LINT == true ]]; then
+    if [[ $LINT_CHECKS == '' ]]; then
+        LINT_STRING="--lint_out=."
+    else
+        LINT_STRING="--lint_out=$LINT_CHECKS:."
+    fi
+fi
+
 PROTO_INCLUDE="-I /usr/include/ \
     -I /usr/local/include/ \
     -I ${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/ \
@@ -175,6 +194,7 @@ fi
 
 protoc $PROTO_INCLUDE \
     $GEN_STRING \
+    $LINT_STRING \
     ${PROTO_FILES[@]}
 
 # Python also needs __init__.py files in each directory to import.
