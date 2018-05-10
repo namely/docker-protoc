@@ -53,6 +53,7 @@ COPY --from=build /tmp/grpc/bins/opt/grpc_cli /bin/grpc_cli
 # Copy standard proto files
 COPY --from=build /tmp/protobuf/src/google/protobuf/*.proto /protos/google/protobuf/
 COPY --from=build /tmp/googleapis/google/api /protos/google/api
+COPY --from=build /tmp/googleapis/google/type /protos/google/type
 COPY --from=build /tmp/grpc-gateway/protoc-gen-swagger/options /protos/protoc-gen-swagger/options
 
 COPY entrypoint.sh /
