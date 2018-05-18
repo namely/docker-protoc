@@ -16,10 +16,12 @@ printUsage() {
     echo " -i includes          Extra includes"
     echo " --lint CHECKS        Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
     echo " --with-gateway       Generate grpc-gateway files (experimental)."
-
+    echo " --with-docs FORMAT   Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
 }
 
 GEN_GATEWAY=false
+GEN_DOCS=false
+DOCS_FORMAT="html,index.html"
 LINT=false
 LINT_CHECKS=""
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node")
@@ -72,6 +74,14 @@ while test $# -gt 0; do
             ;;
         --with-gateway)
             GEN_GATEWAY=true
+            shift
+            ;;
+        --with-docs)
+            GEN_DOCS=true
+            if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
+                DOCS_FORMAT=$2
+                shift
+            fi
             shift
             ;;
         --lint)
@@ -169,6 +179,11 @@ plugins=grpc+embedded\
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
 esac
+
+if [[ $GEN_DOCS == true ]]; then
+    mkdir -p $OUT_DIR/doc
+    GEN_STRING="$GEN_STRING --doc_opt=$DOCS_FORMAT --doc_out=$OUT_DIR/doc"
+fi
 
 LINT_STRING=''
 if [[ $LINT == true ]]; then
