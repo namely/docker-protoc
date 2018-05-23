@@ -69,7 +69,7 @@ while test $# -gt 0; do
             shift
             ;;
         -i) shift
-            EXTRA_INCLUDES="-I$1"
+            EXTRA_INCLUDES="$EXTRA_INCLUDES -I$1"
             shift
             ;;
         --with-gateway)
