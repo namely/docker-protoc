@@ -14,7 +14,7 @@ RUN set -ex && apk --update --no-cache add \
     libtool \
     g++ \
     git \
-    openjdk8-jre 
+    openjdk8-jre
 
 WORKDIR /tmp
 COPY install-protobuf.sh /tmp
@@ -37,6 +37,7 @@ RUN go get -u github.com/golang/protobuf/protoc-gen-go
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
+RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
