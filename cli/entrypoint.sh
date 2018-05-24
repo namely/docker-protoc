@@ -10,4 +10,4 @@ set -e
 ln -sf /defs/* /run/
 ln -sf /protos/* /run/
 
-grpc_cli $@
+grpc_cli "$@"
