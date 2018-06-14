@@ -13,7 +13,7 @@ RUN go get ./...
 WORKDIR /app
 
 # Build the gateway
-RUN go build -o grpc_gateway src/pkg/main/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o grpc_gateway src/pkg/main/main.go
 
 FROM alpine:3.6
 WORKDIR /app
