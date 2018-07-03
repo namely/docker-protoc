@@ -119,6 +119,12 @@ func incomingHeaderMatcher(key string) (string, bool) {
   if isReserved(key) {
     return "X-" + key, true
   }
+
+  // The Istio service mesh dislikes when you pass the Content-Length header
+  if key == "Content-Length" {
+    return "", false
+  }
+
   return key, true
 }
 
@@ -141,7 +147,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
     runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
   )
   fmt.Printf("Proxying requests to gRPC service at '%s'\n", cfg.backend)
-  
+
   opts := []grpc.DialOption{grpc.WithInsecure()}
   // If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
   // does not exist, it's because you haven't added any google.api.http annotations
