@@ -17,6 +17,7 @@ printUsage() {
     echo " --lint CHECKS        Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
     echo " --with-gateway       Generate grpc-gateway files (experimental)."
     echo " --with-docs FORMAT   Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
+    echo " --go-source-relative Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
 }
 
 GEN_GATEWAY=false
@@ -27,6 +28,7 @@ LINT_CHECKS=""
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node")
 EXTRA_INCLUDES=""
 OUT_DIR=""
+GO_SOURCE_RELATIVE=""
 
 while test $# -gt 0; do
     case "$1" in
@@ -90,6 +92,10 @@ while test $# -gt 0; do
                 LINT_CHECKS=$2
 		        shift
             fi
+            shift
+            ;;
+         --go-source-relative)
+            GO_SOURCE_RELATIVE="paths=source_relative,"
             shift
             ;;
         *)
@@ -156,10 +162,10 @@ fi
 GEN_STRING=''
 case $GEN_LANG in
     "go")
-        GEN_STRING="--go_out=plugins=grpc:$OUT_DIR"
+        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}plugins=grpc:$OUT_DIR"
         ;;
     "gogo")
-        GEN_STRING="--gogofast_out=\
+        GEN_STRING="--gogofast_out=${GO_SOURCE_RELATIVE}\
 Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,\
 Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,\
 Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,\
