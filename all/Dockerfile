@@ -1,5 +1,5 @@
-ARG alpine=3.6
-ARG go=1.9.2
+ARG alpine=3.8
+ARG go=1.10.3
 
 FROM golang:$go-alpine$alpine AS build
 
@@ -45,6 +45,9 @@ COPY --from=build /tmp/grpc/libs/opt/ /usr/local/lib/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /tmp/googleapis/google /usr/include/google
 COPY --from=build /usr/local/include/google /usr/local/include/google
+
+RUN mkdir -p /usr/local/include/protoc-gen-swagger/options/
+RUN cp -R /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/ /usr/local/include/protoc-gen-swagger/
 
 ADD entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
