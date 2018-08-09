@@ -1,7 +1,6 @@
-
 NAMESPACE=namely
 NAME=gen-grpc-gateway
-TAG=1.12
+TAG=1.15
 CONTAINER=$(NAMESPACE)/$(NAME):$(TAG)
 
 .PHONY: build

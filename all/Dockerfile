@@ -1,5 +1,5 @@
-ARG alpine=3.6
-ARG go=1.9.2
+ARG alpine=3.8
+ARG go=1.10.3
 
 FROM golang:$go-alpine$alpine AS build
 

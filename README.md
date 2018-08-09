@@ -17,7 +17,7 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 Pull the container:
 
 ```sh
-$ docker pull namely/protoc-all:1.14
+$ docker pull namely/protoc-all:1.15
 ```
 
 After that, travel to the directory that contains your `.proto` definition
@@ -28,12 +28,12 @@ So if you have a directory: `~/my_project/protobufs/` that has:
 
 ```sh
 $ cd ~/my_project/protobufs
-$ docker run -v `pwd`:/defs namely/protoc-all:1.14 -f myproto.proto -l ruby #or go, csharp, etc
+$ docker run -v `pwd`:/defs namely/protoc-all:1.15 -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 ```powershell
 PS> cd ~/my_project/protobufs
-PS> docker run -v ${pwd}:/defs namely/protoc-all:1.14 -f myproto.proto -l ruby #or go, csharp, etc
+PS> docker run -v ${pwd}:/defs namely/protoc-all:1.15 -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 The container automatically puts the compiled files into a `gen` directory with
@@ -57,9 +57,9 @@ input. To remove the `protorepo` you need to add an include and change the
 import:
 
 ```
-$ docker run ... namely/protoc-all:1.14 -i protorepo -f catalog/catalog.proto -l go
+$ docker run ... namely/protoc-all:1.15 -i protorepo -f catalog/catalog.proto -l go
 # instead of
-$ docker run ... namely/protoc-all:1.14 -f protorepo/catalog/catalog.proto -l go
+$ docker run ... namely/protoc-all:1.15 -f protorepo/catalog/catalog.proto -l go
 # which will generate files in a `protorepo` directory.
 ```
 
