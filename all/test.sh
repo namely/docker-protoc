@@ -2,7 +2,12 @@
 
 LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php")
 
-CONTAINER=$1
+CONTAINER=${CONTAINER}
+
+if [ -z ${CONTAINER} ]; then
+    echo "You must specify a build container with \${CONTAINER} to test"
+    exit 1
+fi
 
 # Checks that directories were appropriately created, and deletes the generated directory.
 testGeneration() {
@@ -14,7 +19,7 @@ testGeneration() {
     echo "Testing language $lang $expected_output_dir $extra_args"
 
     # Test calling a file directly.
-    docker run --rm -v=`pwd`:/defs $CONTAINER -f test/test.proto -l $lang -i test $extra_args
+    docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i test $extra_args
     if [[ ! -d "$expected_output_dir" ]]; then 
         echo "generated directory $expected_output_dir does not exist"
         exit 1
