@@ -1,8 +1,11 @@
 #!/bin/sh
 
-GRPC_VERSION=v1.14.x
+if [ -z $1 ]; then
+    echo "You must specify a grpc version."
+    exit 1
+fi
 
-git clone -b $GRPC_VERSION --recursive -j8 https://github.com/grpc/grpc
+git clone -b v$1.x --recursive -j8 https://github.com/grpc/grpc
 cd /tmp/grpc
 make
 make install
@@ -17,6 +20,6 @@ make
 make install
 
 cd /tmp
-git clone -b $GRPC_VERSION --recursive https://github.com/grpc/grpc-java.git
+git clone -b v$1.x --recursive https://github.com/grpc/grpc-java.git
 cd /tmp/grpc-java/compiler
 ../gradlew java_pluginExecutable

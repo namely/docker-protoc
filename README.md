@@ -1,23 +1,41 @@
-# Protocol Buffer Compiler Containers
+# gRPC/Protocol Buffer Compiler Containers
 
-This repository contains the Dockerfile for generating gRPC and protobuf code
-for various languages, removing the need to setup protoc and the various gRPC
-plugins lcoally. It relies on setting a simple volume to the docker container,
+This repository contains support for various Docker images that wrap `protoc`,
+`prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
+in a variety of languages removing the need to install and manage these commands locally. 
+It relies on setting a simple volume to the docker container,
 usually mapping the current directory to `/defs`, and specifying the file and
 language you want to generate.
 
+## Features
+
+* Docker images for:
+    * `protoc` with `namely/protoc`
+    * [Uber's Prototool](https://github.com/uber/prototool) with `namely/prototool`
+    * A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
+    * `grpc_cli` with `namely/grpc-cli`
+    * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
+* [Google APIs](https://github.com/googleapis/googleapis) included in `/usr/include/google`
+* [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/usr/local/include/google`
+* Support for all C based gRPC libraries with Go and Java native libraries
+*
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
 
 > Note - throughout this document, commands for bash are prefixed with `$` and commands
 > for PowerShell on Windows are prefixed with `PS>`. It is not required to use "Windows
 > Subsystem for Linux" (WSL)
 
+## Tag Conventions
+
+For `protoc`, `grpc_cli` and `prototool` a pattern of <GRPC\_VERSION>_<CONTAINER\_VERSION> is used for all images.
+Example is namely/protoc-all:1.14_0 for gRPC version `1.14`. The `latest` tag will always point to the most recent version.
+
 ## Usage
 
 Pull the container:
 
 ```sh
-$ docker pull namely/protoc-all:1.15
+$ docker pull namely/protoc-all
 ```
 
 After that, travel to the directory that contains your `.proto` definition
@@ -28,12 +46,12 @@ So if you have a directory: `~/my_project/protobufs/` that has:
 
 ```sh
 $ cd ~/my_project/protobufs
-$ docker run -v `pwd`:/defs namely/protoc-all:1.15 -f myproto.proto -l ruby #or go, csharp, etc
+$ docker run -v `pwd`:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 ```powershell
 PS> cd ~/my_project/protobufs
-PS> docker run -v ${pwd}:/defs namely/protoc-all:1.15 -f myproto.proto -l ruby #or go, csharp, etc
+PS> docker run -v ${pwd}:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 The container automatically puts the compiled files into a `gen` directory with
@@ -57,9 +75,9 @@ input. To remove the `protorepo` you need to add an include and change the
 import:
 
 ```
-$ docker run ... namely/protoc-all:1.15 -i protorepo -f catalog/catalog.proto -l go
+$ docker run ... namely/protoc-all -i protorepo -f catalog/catalog.proto -l go
 # instead of
-$ docker run ... namely/protoc-all:1.15 -f protorepo/catalog/catalog.proto -l go
+$ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 # which will generate files in a `protorepo` directory.
 ```
 
@@ -131,9 +149,9 @@ There are four values:
 - `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
 - `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
 
-For CORS, you will want to configure your `cors.allow-methods` to be the HTTP verbs set in your proto (i.e. `GET`, `PUT`, etc.), as well as `OPTIONS`, so that your service can handle the [preflight request](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
+    For CORS, you will want to configure your `cors.allow-methods` to be the HTTP verbs set in your proto (i.e. `GET`, `PUT`, etc.), as well as `OPTIONS`, so that your service can handle the [preflight request](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
 
-If you are not using CORS, you can leave these configuration values at their default, and your gateway will not accept CORS requests.
+    If you are not using CORS, you can leave these configuration values at their default, and your gateway will not accept CORS requests.
 
 
 ## grpc_cli
@@ -144,7 +162,7 @@ Run it with
 
 ```sh
 docker run -v `pwd`:/defs --rm -it namely/grpc-cli call docker.for.mac.localhost:50051 \\
-   LinkShortener.ResolveShortLink "short_link:'asdf'" --protofiles=link_shortener.proto
+LinkShortener.ResolveShortLink "short_link:'asdf'" --protofiles=link_shortener.proto
 ```
 
 You can pass multiple files to --protofiles by separating them with commas, for example
