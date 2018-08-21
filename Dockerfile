@@ -21,7 +21,7 @@ RUN set -ex && apk --update --no-cache add \
     openjdk8-jre
 
 WORKDIR /tmp
-COPY install-protobuf.sh /tmp
+COPY all/install-protobuf.sh /tmp
 RUN chmod +x /tmp/install-protobuf.sh
 RUN /tmp/install-protobuf.sh $grpc
 RUN git clone https://github.com/googleapis/googleapis
@@ -61,15 +61,27 @@ COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 RUN mkdir -p /usr/local/include/protoc-gen-swagger/options/
 RUN cp -R /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/ /usr/local/include/protoc-gen-swagger/
 
-ADD entrypoint.sh /usr/local/bin
+ADD all/entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /defs
 ENTRYPOINT [ "entrypoint.sh" ]
 
+# protoc
 FROM protoc-all AS protoc
 ENTRYPOINT [ "protoc" ]
 
+# prototool
 FROM protoc-all AS prototool
 ENTRYPOINT [ "prototool" ]
 
+# grpc-cli
+FROM protoc-all as grpc-cli
+
+COPY --from=build /tmp/grpc/bins/opt/grpc_cli /usr/loca/bin/
+
+ADD ./cli/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+WORKDIR /run
+ENTRYPOINT [ "/entrypoint.sh" ]

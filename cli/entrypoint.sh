@@ -8,6 +8,8 @@ set -e
 # everything into the /run directory, and run grpc_cli from there.
 
 ln -sf /defs/* /run/
-ln -sf /protos/* /run/
+ln -sf /usr/include/google /run/
+ln -sf /usr/local/include/google/* /run/google/
+ln -sf /usr/local/include/protoc-gen-swagger /run/
 
 grpc_cli "$@"
