@@ -13,4 +13,3 @@ push: build test
 .PHONY: tag-latest
 tag-latest:
 	bash ./build.sh true
-	
