@@ -10,13 +10,13 @@ language you want to generate.
 ## Features
 
 * Docker images for:
-    * `protoc` with `namely/protoc`
+    * `protoc` with `namely/protoc` (automatically includes `/usr/local/include`)
     * [Uber's Prototool](https://github.com/uber/prototool) with `namely/prototool`
     * A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
     * `grpc_cli` with `namely/grpc-cli`
     * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
-* [Google APIs](https://github.com/googleapis/googleapis) included in `/usr/include/google`
-* [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/usr/local/include/google`
+* [Google APIs](https://github.com/googleapis/googleapis) included in `/usr/local/include/google`
+* [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/usr/local/include/google/protobuf`
 * Support for all C based gRPC libraries with Go and Java native libraries
 *
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.

@@ -18,10 +18,11 @@ RUN set -ex && apk --update --no-cache add \
     libtool \
     g++ \
     git \
-    openjdk8-jre
+    openjdk8-jre \
+    libstdc++
 
 WORKDIR /tmp
-COPY install-protobuf.sh /tmp
+COPY all/install-protobuf.sh /tmp
 RUN chmod +x /tmp/install-protobuf.sh
 RUN /tmp/install-protobuf.sh $grpc
 RUN git clone https://github.com/googleapis/googleapis
@@ -30,14 +31,7 @@ RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.0.0-rc1/pro
   -o /usr/local/bin/prototool && \
   chmod +x /usr/local/bin/prototool
 
-
-FROM golang:$go-alpine$alpine AS protoc-all
-
-RUN set -ex && apk --update --no-cache add \
-    bash \
-    git \
-    libstdc++
-
+# Go get go-related bins
 RUN go get -u google.golang.org/grpc
 
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
@@ -50,26 +44,43 @@ RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
+FROM alpine:$alpine AS protoc-all
+
+RUN set -ex && apk --update --no-cache add \
+    bash \
+    libstdc++
+
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
 COPY --from=build /tmp/grpc/libs/opt/ /usr/local/lib/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
-COPY --from=build /tmp/googleapis/google /usr/include/google
-COPY --from=build /usr/local/include/google /usr/local/include/google
+COPY --from=build /tmp/googleapis/google/ /usr/local/include/google
+COPY --from=build /usr/local/include/google/ /usr/local/include/google
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
+COPY --from=build /go/bin/* /usr/local/bin/
 
-RUN mkdir -p /usr/local/include/protoc-gen-swagger/options/
-RUN cp -R /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/ /usr/local/include/protoc-gen-swagger/
+COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/ /usr/local/include/protoc-gen-swagger/options/
 
-ADD entrypoint.sh /usr/local/bin
+ADD all/entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /defs
 ENTRYPOINT [ "entrypoint.sh" ]
 
+# protoc
 FROM protoc-all AS protoc
-ENTRYPOINT [ "protoc" ]
+ENTRYPOINT [ "protoc", "-I/usr/local/include" ]
 
+# prototool
 FROM protoc-all AS prototool
 ENTRYPOINT [ "prototool" ]
 
+# grpc-cli
+FROM protoc-all as grpc-cli
+
+
+ADD ./cli/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+WORKDIR /run
+ENTRYPOINT [ "/entrypoint.sh" ]

@@ -200,10 +200,7 @@ if [[ $LINT == true ]]; then
     fi
 fi
 
-PROTO_INCLUDE="-I /usr/include/ \
-    -I /usr/local/include/ \
-    -I ${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/ \
-    -I ${GOPATH}/src \
+PROTO_INCLUDE="-I /usr/local/include/ \
     $EXTRA_INCLUDES"
 
 if [ ! -z $PROTO_DIR ]; then
