@@ -7,7 +7,7 @@ GRPC_VERSION=${GRPC_VERSION:-1.14}
 BUILD_VERSION=${BUILD_VERSION:-0}
 CONTAINER=${DOCKER_REPO}${NAMESPACE}
 LATEST=${1:false}
-BUILDS=("protoc-all" "protoc" "prototool" "grpc-cli")
+BUILDS=("protoc-all" "protoc" "prototool" "grpc-cli" "gen-grpc-gateway")
 
 for build in ${BUILDS[@]}; do
     tag=${CONTAINER}/${build}:${GRPC_VERSION}_${BUILD_VERSION}

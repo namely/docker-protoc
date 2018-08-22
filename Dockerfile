@@ -78,9 +78,19 @@ ENTRYPOINT [ "prototool" ]
 # grpc-cli
 FROM protoc-all as grpc-cli
 
-
 ADD ./cli/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 WORKDIR /run
 ENTRYPOINT [ "/entrypoint.sh" ]
+
+# gen-grpc-gateway
+FROM protoc-all AS gen-grpc-gateway
+
+COPY gwy/templates /templates
+COPY gwy/generate_gateway.sh /usr/local/bin
+RUN chmod +x /usr/local/bin/generate_gateway.sh
+
+WORKDIR /defs
+ENTRYPOINT [ "generate_gateway.sh" ]
+
