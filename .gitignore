@@ -1,5 +1,6 @@
 .DS_STORE
 test.pb.go
 test.rb
-gen/*
+**/gen/*
 pb-*
+
