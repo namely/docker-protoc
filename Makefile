@@ -8,7 +8,11 @@ test:
 
 .PHONY: push
 push: build test
-	docker push $(CONTAINER)
+	bash ./push.sh
+
+.PHONY: push-latest
+push-latest:
+	bash ./push.sh true
 
 .PHONY: tag-latest
 tag-latest:
