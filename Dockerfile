@@ -19,7 +19,8 @@ RUN set -ex && apk --update --no-cache add \
     g++ \
     git \
     openjdk8-jre \
-    libstdc++
+    libstdc++ \
+    ca-certificates
 
 WORKDIR /tmp
 COPY all/install-protobuf.sh /tmp
@@ -28,8 +29,8 @@ RUN /tmp/install-protobuf.sh $grpc
 RUN git clone https://github.com/googleapis/googleapis
 
 RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.0.0-rc1/prototool-$(uname -s)-$(uname -m) \
-  -o /usr/local/bin/prototool && \
-  chmod +x /usr/local/bin/prototool
+    -o /usr/local/bin/prototool && \
+    chmod +x /usr/local/bin/prototool
 
 # Go get go-related bins
 RUN go get -u google.golang.org/grpc
@@ -48,7 +49,9 @@ FROM alpine:$alpine AS protoc-all
 
 RUN set -ex && apk --update --no-cache add \
     bash \
-    libstdc++
+    libstdc++ \
+    libc6-compat \
+    ca-certificates
 
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
@@ -93,4 +96,3 @@ RUN chmod +x /usr/local/bin/generate_gateway.sh
 
 WORKDIR /defs
 ENTRYPOINT [ "generate_gateway.sh" ]
-
