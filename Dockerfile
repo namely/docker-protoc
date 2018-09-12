@@ -28,7 +28,7 @@ RUN chmod +x /tmp/install-protobuf.sh
 RUN /tmp/install-protobuf.sh $grpc
 RUN git clone https://github.com/googleapis/googleapis
 
-RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.0.0-rc1/prototool-$(uname -s)-$(uname -m) \
+RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.2.0/prototool-$(uname -s)-$(uname -m) \
     -o /usr/local/bin/prototool && \
     chmod +x /usr/local/bin/prototool
 
