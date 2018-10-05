@@ -143,6 +143,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
   })
 
   gwmux := runtime.NewServeMux(
+	runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{OrigName: true, EmitDefaults: true}),
     runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
     runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
   )
