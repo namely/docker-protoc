@@ -122,7 +122,7 @@ listens on port 80 for HTTP traffic.
 
 The gateway is configured using [spf13/viper](https://github.com/spf13/viper), see [gwy/templates/config.yaml.tmpl](https://github.com/namely/docker-protoc/blob/master/gwy/templates/config.yaml.tmpl) for configuration options.
 
-To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have `(google.api.http) = '/foo/bar'`, and set `proxy.api-prefix` to `/api/'`, your gateway will listen to requests on `'/api/foo/bar'`.
+To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have `(google.api.http) = '/foo/bar'`, and set `proxy.api-prefix` to `/api/'`, your gateway will listen to requests on `'/api/foo/bar'`. This can also be set with the environment variable `<SERVICE>_PROXY_API-PREFIX` where `<SERVICE>` is the name of the service generating the gateway. 
 
 See [gwy/test.sh](https://github.com/namely/docker-protoc/blob/master/gwy/test.sh) for an example of how to set the prefix with an environment variable.
 
@@ -153,6 +153,9 @@ There are four values:
 
     If you are not using CORS, you can leave these configuration values at their default, and your gateway will not accept CORS requests.
 
+### Environment Variables
+
+The gateway project used [spf13/viper](https://github.com/spf13/viper) for configuration. The generated gateway code includes a config file that can be overridden with cli flags or environment variables. For environment variable overrides use a `<SERVICE>_` prefix, upcase the setting, and replace `.` with `_`.
 
 ## grpc_cli
 
