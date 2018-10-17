@@ -18,7 +18,7 @@ make install
 
 cd /tmp
 
-git clone -b $1 --recursive -j8 https://github.com/grpc/grpc
+git clone -b v$1.x --recursive -j8 https://github.com/grpc/grpc
 cd /tmp/grpc
 make
 make install
@@ -38,6 +38,6 @@ cd /tmp/grpc
 make grpc_cli
 
 cd /tmp
-git clone -b $2 --recursive https://github.com/grpc/grpc-java.git
+git clone -b v$2.x --recursive https://github.com/grpc/grpc-java.git
 cd /tmp/grpc-java/compiler
 ../gradlew java_pluginExecutable

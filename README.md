@@ -28,7 +28,7 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 ## Tag Conventions
 
 For `protoc`, `grpc_cli` and `prototool` a pattern of <GRPC\_VERSION>_<CONTAINER\_VERSION> is used for all images.
-Example is namely/protoc-all:v1.15.1_0 for gRPC version `v1.15.1`. The `latest` tag will always point to the most recent version.
+Example is namely/protoc-all:1.15_0 for gRPC version `1.15`. The `latest` tag will always point to the most recent version.
 
 ## Usage
 

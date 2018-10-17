@@ -1,5 +1,5 @@
 ARG alpine=3.8
-ARG go=1.11.1
+ARG go=1.11.0
 ARG grpc
 ARG grpc_java
 
