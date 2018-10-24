@@ -80,7 +80,10 @@ func logFormatter(cfg proxyConfig) handlers.LogFormatter {
 		}
 
 		duration := int64(time.Now().Sub(params.TimeStamp) / time.Millisecond)
-		headers, _ := json.Marshal(params.Request.Header)
+		headers, err := json.Marshal(params.Request.Header)
+		if err != nil {
+			headers = []byte(err.Error())
+		}
 
 		fields := logrus.Fields{
 			"host":       host,
