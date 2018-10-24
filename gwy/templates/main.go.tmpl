@@ -81,9 +81,6 @@ func logFormatter(cfg proxyConfig) handlers.LogFormatter {
 
 		duration := int64(time.Now().Sub(params.TimeStamp) / time.Millisecond)
 		headers, err := json.Marshal(params.Request.Header)
-		if err != nil {
-			headers = []byte(err.Error())
-		}
 
 		fields := logrus.Fields{
 			"host":       host,
@@ -98,6 +95,9 @@ func logFormatter(cfg proxyConfig) handlers.LogFormatter {
 			"user_agent": params.Request.UserAgent(),
 			"headers":    string(headers),
 			"request_id": params.Request.Header.Get("x-request-id"),
+		}
+		if err != nil {
+			fields["header_error"] = err.Error()
 		}
 		logrus.WithFields(fields).WithTime(params.TimeStamp).Infof("%s %s %d", params.Request.Method, uri, params.StatusCode)
 	}
