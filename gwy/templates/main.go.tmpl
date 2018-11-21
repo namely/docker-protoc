@@ -29,6 +29,8 @@ type proxyConfig struct {
 	backend string
 	// The log level to use
 	logLevel string
+	// Whether to log request headers
+	logHeaders bool
 	// Path to the swagger file to serve.
 	swagger string
 	// Value to set for Access-Control-Allow-Origin header.
@@ -80,7 +82,6 @@ func logFormatter(cfg proxyConfig) handlers.LogFormatter {
 		}
 
 		duration := int64(time.Now().Sub(params.TimeStamp) / time.Millisecond)
-		headers, err := json.Marshal(params.Request.Header)
 
 		fields := logrus.Fields{
 			"host":       host,
@@ -93,12 +94,18 @@ func logFormatter(cfg proxyConfig) handlers.LogFormatter {
 			"size":       params.Size,
 			"referer":    params.Request.Referer(),
 			"user_agent": params.Request.UserAgent(),
-			"headers":    string(headers),
 			"request_id": params.Request.Header.Get("x-request-id"),
 		}
-		if err != nil {
-			fields["header_error"] = err.Error()
+
+		// Only append headers if explicitly enabled
+		if cfg.logHeaders {
+			if headers, err := json.Marshal(params.Request.Header); err == nil {
+				fields["headers"] = string(headers)
+			} else {
+				fields["header_error"] = err.Error()
+			}
 		}
+
 		logrus.WithFields(fields).WithTime(params.TimeStamp).Infof("%s %s %d", params.Request.Method, uri, params.StatusCode)
 	}
 }
@@ -279,6 +286,7 @@ func main() {
 	mux := SetupMux(ctx, proxyConfig{
 		backend:              cfg.GetString("backend"),
 		logLevel:             cfg.GetString("log_level"),
+		logHeaders:           cfg.GetBool("log_headers"),
 		swagger:              cfg.GetString("swagger.file"),
 		corsAllowOrigin:      cfg.GetString("cors.allow-origin"),
 		corsAllowCredentials: cfg.GetString("cors.allow-credentials"),
