@@ -20,12 +20,13 @@ printUsage() {
     echo " --go-source-relative Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
 }
 
+
 GEN_GATEWAY=false
 GEN_DOCS=false
 DOCS_FORMAT="html,index.html"
 LINT=false
 LINT_CHECKS=""
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web")
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
@@ -147,8 +148,6 @@ if [[ $OUT_DIR == '' ]]; then
     fi
 fi
 
-echo "Generating $GEN_LANG files for ${FILE}${PROTO_DIR} in $OUT_DIR"
-
 if [[ ! -d $OUT_DIR ]]; then
   # If a .jar is specified, protoc can output to the jar directly. So
   # don't create it as a directory.
@@ -180,6 +179,9 @@ plugins=grpc+embedded\
         ;;
     "node")
         GEN_STRING="--grpc_out=$OUT_DIR --js_out=import_style=commonjs,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
+        ;;
+    "web")
+        GEN_STRING="--grpc-web_out=import_style=typescript,mode=grpcwebtext:$OUT_DIR --js_out=import_style=commonjs:$OUT_DIR --plugin=protoc-gen-grpc-web=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
     *)
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
