@@ -1,11 +1,13 @@
 ARG alpine=3.8
 ARG go=1.11.0
 ARG grpc
+ARG grpc_java
 
 FROM golang:$go-alpine$alpine AS build
 
 # TIL docker arg variables need to be redefined in each build stage
 ARG grpc
+ARG grpc_java
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -25,7 +27,7 @@ RUN set -ex && apk --update --no-cache add \
 WORKDIR /tmp
 COPY all/install-protobuf.sh /tmp
 RUN chmod +x /tmp/install-protobuf.sh
-RUN /tmp/install-protobuf.sh $grpc
+RUN /tmp/install-protobuf.sh ${grpc} ${grpc_java}
 RUN git clone https://github.com/googleapis/googleapis
 
 RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \

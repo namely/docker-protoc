@@ -8,6 +8,7 @@ for build in ${BUILDS[@]}; do
 	docker build -t ${tag} \
         -f Dockerfile \
         --build-arg grpc=${GRPC_VERSION} \
+        --build-arg grpc_java=${GRPC_JAVA_VERSION} \
         --target ${build} \
         .
 
