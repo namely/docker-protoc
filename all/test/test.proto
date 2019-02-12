@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package Messages;
-
 import "google/api/annotations.proto";
-import "include.proto";
+import "all/test/include.proto";
+
+package Messages;
 
 service Message {
   rpc ListMessage (ListMessageRequest) returns (ListMessageResponse) {

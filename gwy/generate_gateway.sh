@@ -30,7 +30,7 @@ while test $# -gt 0; do
       ;;
     -i|--includes)
       shift
-      INCLUDES="$INCLUDES -i$1"
+      INCLUDES="$INCLUDES -i $1"
       shift
       ;;
     -f|--file)

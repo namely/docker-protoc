@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 DOCKER_REPO=${DOCKER_REPO}
 NAMESPACE=${NAMESPACE:-namely}
