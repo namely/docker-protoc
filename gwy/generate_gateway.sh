@@ -7,6 +7,7 @@ printUsage() {
   echo ""
   echo "Options:"
   echo "-h, --help              Show this message."
+  echo "-i, --includes INCLUDES Extra includes (optional)."
   echo "-f, --file FILE         Relative path to the proto file to build the gateway from."
   echo "-s, --service SERVICE   The name of the service to build the gateway for."
   echo "-o, --out DIRECTORY     Optional. The output directory for the gateway. By default, gen/grpc-gateway."
@@ -18,12 +19,19 @@ FILE=""
 SERVICE=""
 # Output directory.
 OUT_DIR=""
+# Extra includes.
+INCLUDES=""
 
 while test $# -gt 0; do
   case "$1" in
     -h|--help)
       printUsage
       exit 0
+      ;;
+    -i|--includes)
+      shift
+      INCLUDES="$INCLUDES -i$1"
+      shift
       ;;
     -f|--file)
       shift
@@ -86,7 +94,7 @@ fi
 
 # Generate the gateway files in src
 PROTO_DIR=$(dirname $FILE)
-entrypoint.sh -d $PROTO_DIR -l go --with-gateway -o $OUT_DIR/src/gen/pb-go
+entrypoint.sh $INCLUDES -d $PROTO_DIR -l go --with-gateway -o $OUT_DIR/src/gen/pb-go
 
 # Find the Swagger file.
 PROTO_FILE=$(basename $FILE)
