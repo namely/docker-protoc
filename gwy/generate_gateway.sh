@@ -101,7 +101,7 @@ fi
 
 # Generate the gateway files in src
 PROTO_DIR=$(dirname $FILE)
-entrypoint.sh $INCLUDES -d $PROTO_DIR -l go --with-gateway -o $OUT_DIR/src/gen/pb-go
+entrypoint.sh -d $PROTO_DIR -l go --with-gateway -o $OUT_DIR/src/gen/pb-go $INCLUDES
 
 # Find the Swagger file.
 PROTO_FILE=$(basename $FILE)
