@@ -30,8 +30,15 @@ while test $# -gt 0; do
       ;;
     -i|--includes)
       shift
-      INCLUDES="$INCLUDES -i $1"
-      shift
+      if test $# -gt 0; then
+        INCLUDES="$INCLUDES -i $1"
+        shift
+      else
+        echo "Missing extra include directory name for --includes."
+        echo ""
+        printUsage
+        exit 1
+      fi
       ;;
     -f|--file)
       shift
@@ -40,7 +47,7 @@ while test $# -gt 0; do
         shift
       else
         echo "Missing file name for --file."
-        echo""
+        echo ""
         printUsage
         exit 1
       fi
