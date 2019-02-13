@@ -201,10 +201,10 @@ $ make build
 This will build all of the known containers.
 
 ```sh
-$ make test
+$ CONTAINER=namely/protoc-all:VVV make test
 ```
 
-This will run tests that containers can build for each language.
+Where VVV is your version. This will run tests that containers can build for each language.
 
 ```sh
 $ make push

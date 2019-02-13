@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -ex
 
 if [ -z $1 ]; then
     echo "You must specify a grpc version."
