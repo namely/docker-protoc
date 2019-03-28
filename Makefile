@@ -7,7 +7,7 @@ test:
 	bash ./all/test.sh
 
 .PHONY: push
-push: build test
+push: build
 	bash ./push.sh
 
 .PHONY: push-latest
