@@ -221,9 +221,9 @@ func getResponseHeaders(cfg *viper.Viper) map[string]string {
 	m := make(map[string]string)
 	headersPrefix := strings.ToLower(ResponseHeaders)
 	for _, key := range cfg.AllKeys() {
-		if strings.HasPrefix(key, headersPrefix) {
+		if strings.HasPrefix(key, headersPrefix+".") {
 			value := cfg.GetString(key)
-			header := strings.TrimPrefix(key, headersPrefix + ".")
+			header := strings.TrimPrefix(key, headersPrefix+".")
 			// headers are case insensetive
 			m[header] = value
 		}
