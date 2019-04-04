@@ -24,7 +24,11 @@ import (
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails" // Pull in errdetails
 	gw "gen/pb-go"
 )
-
+const (
+	ResponseHeaders = "RESPONSE-HEADERS"
+	EnvVarSepChar = "_"
+	ViperKeySepChar = "."
+)
 type proxyConfig struct {
 	// The backend gRPC service to listen to.
 	backend string
@@ -46,6 +50,8 @@ type proxyConfig struct {
 	// was "/foo/bar" in your protofile, and you wanted to run APIs under "/api",
 	// set this to "/api/".
 	apiPrefix string
+	// map of headers to send in the http response
+	responseHeaders map[string]string
 }
 
 func logFormatter(cfg proxyConfig) handlers.LogFormatter {
@@ -110,14 +116,19 @@ func logFormatter(cfg proxyConfig) handlers.LogFormatter {
 		logrus.WithFields(fields).WithTime(params.TimeStamp).Infof("%s %s %d", params.Request.Method, uri, params.StatusCode)
 	}
 }
-
-func allowCors(cfg proxyConfig, handler http.Handler) http.Handler {
+// addRespHeaders adds any variables with the prefix `ResponseHeaders` as headers in the http response
+// as well as setting the Access-Control headers
+func addRespHeaders(cfg proxyConfig, handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		corsAllowOrigin := cfg.corsAllowOrigin
 		if corsAllowOrigin == "*" {
 			if origin := req.Header.Get("Origin"); origin != "" {
 				corsAllowOrigin = origin
 			}
+		}
+
+		for header, value := range cfg.responseHeaders {
+			w.Header().Set(header, value)	
 		}
 		w.Header().Set("Access-Control-Allow-Origin", corsAllowOrigin)
 		w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
@@ -206,6 +217,21 @@ func outgoingHeaderMatcher(metadata string) (string, bool) {
 	return metadata, true
 }
 
+// getResponseHeaders will identified keys and values which are response headers settings and 
+// translate into a map
+func getResponseHeaders(cfg *viper.Viper) map[string]string {
+	m := make(map[string]string)
+	headersPrefix := strings.ToLower(ResponseHeaders)
+	for _, key := range cfg.AllKeys() {
+		if strings.HasPrefix(key, headersPrefix+ViperKeySepChar) {
+			value := cfg.GetString(key)
+			header := strings.TrimPrefix(key, headersPrefix+ViperKeySepChar)
+			// headers are case insensetive
+			m[header] = value
+		}
+	}
+	return m
+}
 func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 
 	formatter := logFormatter(cfg)
@@ -234,8 +260,21 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 
 	prefix := sanitizeApiPrefix(cfg.apiPrefix)
 	logrus.Infof("API prefix is: %s", prefix)
-	mux.Handle(prefix, handlers.CustomLoggingHandler(os.Stdout, http.StripPrefix(prefix[:len(prefix)-1], allowCors(cfg, gwmux)), formatter))
+	mux.Handle(prefix, handlers.CustomLoggingHandler(os.Stdout, http.StripPrefix(prefix[:len(prefix)-1], addRespHeaders(cfg, gwmux)), formatter))
 	return mux
+}
+
+// bindEnvVars will bind all env vars that starts with "prefix_secondPrefix"
+func bindEnvVars(viper *viper.Viper, r *strings.Replacer, prefix string, secondPrefix string) {
+	for _, e := range os.Environ() {
+		pair := strings.Split(e, "=")
+		if strings.HasPrefix(pair[0], prefix+EnvVarSepChar) {
+			key := strings.TrimPrefix(pair[0], prefix+EnvVarSepChar)
+			if strings.HasPrefix(key, secondPrefix+EnvVarSepChar) {
+				viper.BindEnv(strings.ToLower(r.Replace(key)), pair[1])
+			}
+		}
+	}
 }
 
 // SetupViper returns a viper configuration object
@@ -243,7 +282,7 @@ func SetupViper() *viper.Viper {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetEnvPrefix("${SERVICE}")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.SetEnvKeyReplacer(strings.NewReplacer(ViperKeySepChar, EnvVarSepChar))
 	viper.AutomaticEnv()
 
 	flag.String("backend", "", "The gRPC backend service to proxy.")
@@ -257,7 +296,9 @@ func SetupViper() *viper.Viper {
 		logrus.Fatalf("Could not read config: %v", err)
 	}
 
-	return viper.GetViper()
+	v := viper.GetViper()
+	bindEnvVars(v, strings.NewReplacer(EnvVarSepChar, ViperKeySepChar), strings.ToUpper("${SERVICE}"), ResponseHeaders)
+	return v
 }
 
 // SignalRunner runs a runner function until an interrupt signal is received, at which point it
@@ -283,7 +324,7 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-
+	
 	mux := SetupMux(ctx, proxyConfig{
 		backend:              cfg.GetString("backend"),
 		logLevel:             cfg.GetString("log_level"),
@@ -294,6 +335,7 @@ func main() {
 		corsAllowMethods:     cfg.GetString("cors.allow-methods"),
 		corsAllowHeaders:     cfg.GetString("cors.allow-headers"),
 		apiPrefix:            cfg.GetString("proxy.api-prefix"),
+		responseHeaders:      getResponseHeaders(cfg),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
