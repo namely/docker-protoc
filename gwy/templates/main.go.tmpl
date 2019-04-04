@@ -27,7 +27,7 @@ import (
 const (
 	ResponseHeaders = "RESPONSE-HEADERS"
 	EnvVarSepChar = "_"
-	ViperKeySepcChar = "."
+	ViperKeySepChar = "."
 )
 type proxyConfig struct {
 	// The backend gRPC service to listen to.
@@ -223,9 +223,9 @@ func getResponseHeaders(cfg *viper.Viper) map[string]string {
 	m := make(map[string]string)
 	headersPrefix := strings.ToLower(ResponseHeaders)
 	for _, key := range cfg.AllKeys() {
-		if strings.HasPrefix(key, headersPrefix+".") {
+		if strings.HasPrefix(key, headersPrefix+ViperKeySepChar) {
 			value := cfg.GetString(key)
-			header := strings.TrimPrefix(key, headersPrefix+".")
+			header := strings.TrimPrefix(key, headersPrefix+ViperKeySepChar)
 			// headers are case insensetive
 			m[header] = value
 		}
@@ -282,7 +282,7 @@ func SetupViper() *viper.Viper {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetEnvPrefix("${SERVICE}")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(ViperKeySepcChar, EnvVarSepChar))
+	viper.SetEnvKeyReplacer(strings.NewReplacer(ViperKeySepChar, EnvVarSepChar))
 	viper.AutomaticEnv()
 
 	flag.String("backend", "", "The gRPC backend service to proxy.")
@@ -297,7 +297,7 @@ func SetupViper() *viper.Viper {
 	}
 
 	v := viper.GetViper()
-	bindEnvVars(v, strings.NewReplacer(EnvVarSepChar, ViperKeySepcChar), strings.ToUpper("${SERVICE}"), ResponseHeaders)
+	bindEnvVars(v, strings.NewReplacer(EnvVarSepChar, ViperKeySepChar), strings.ToUpper("${SERVICE}"), ResponseHeaders)
 	return v
 }
 
@@ -325,8 +325,6 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	
-	responseHeaders := getResponseHeaders(cfg)
-
 	mux := SetupMux(ctx, proxyConfig{
 		backend:              cfg.GetString("backend"),
 		logLevel:             cfg.GetString("log_level"),
@@ -337,7 +335,7 @@ func main() {
 		corsAllowMethods:     cfg.GetString("cors.allow-methods"),
 		corsAllowHeaders:     cfg.GetString("cors.allow-headers"),
 		apiPrefix:            cfg.GetString("proxy.api-prefix"),
-		responseHeaders:      responseHeaders,
+		responseHeaders:      getResponseHeaders(cfg),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
