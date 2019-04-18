@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 printUsage() {
     echo "gen-proto generates grpc and protobuf @ Namely"

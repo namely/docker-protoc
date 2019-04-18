@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp")
 
@@ -20,7 +20,7 @@ testGeneration() {
 
     # Test calling a file directly.
     docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args
-    if [[ ! -d "$expected_output_dir" ]]; then 
+    if [[ ! -d "$expected_output_dir" ]]; then
         echo "generated directory $expected_output_dir does not exist"
         exit 1
     fi
