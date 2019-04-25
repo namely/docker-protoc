@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp")
+LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "descriptor_set")
 
 CONTAINER=${CONTAINER}
 
