@@ -210,9 +210,8 @@ if [[ $LINT == true ]]; then
 fi
 
 PROTO_INCLUDE=""
-if [[ $NO_GOOGLE_INCLUDES == true ]]; then
-  # protoc implicitly uses /usr/local/include as part of the include path.
-  mv /usr/local/include/ /usr/local/_include
+if [[ $NO_GOOGLE_INCLUDES == false ]]; then
+  PROTO_INCLUDE="-I /opt/include"
 fi
 
 PROTO_INCLUDE="$PROTO_INCLUDE $EXTRA_INCLUDES"
