@@ -16,6 +16,7 @@ printUsage() {
     echo " --with-gateway       Generate grpc-gateway files (experimental)."
     echo " --with-docs FORMAT   Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
     echo " --go-source-relative Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
+    echo " --no-google-includes Don't include Google protobufs"
 }
 
 
@@ -28,6 +29,7 @@ SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "n
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
+NO_GOOGLE_INCLUDES=false
 
 while test $# -gt 0; do
     case "$1" in
@@ -95,6 +97,10 @@ while test $# -gt 0; do
             ;;
          --go-source-relative)
             GO_SOURCE_RELATIVE="paths=source_relative,"
+            shift
+            ;;
+        --no-google-includes)
+            NO_GOOGLE_INCLUDES=true
             shift
             ;;
         *)
@@ -203,8 +209,12 @@ if [[ $LINT == true ]]; then
     fi
 fi
 
-PROTO_INCLUDE="-I /usr/local/include/ \
-    $EXTRA_INCLUDES"
+PROTO_INCLUDE=""
+if [[ $NO_GOOGLE_INCLUDES == false ]]; then
+  PROTO_INCLUDE="-I /opt/include"
+fi
+
+PROTO_INCLUDE="$PROTO_INCLUDE $EXTRA_INCLUDES"
 
 if [ ! -z $PROTO_DIR ]; then
     PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
@@ -230,7 +240,6 @@ protoc $PROTO_INCLUDE \
 if [[ $GEN_LANG == "python" ]]; then
     # Create __init__.py for everything in the OUT_DIR
     # (i.e. gen/pb_python/foo/bar/).
-    echo "Out dir is '$OUT_DIR'"
     find $OUT_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
     # And everything above it (i.e. gen/__init__py")
     d=`dirname $OUT_DIR`
