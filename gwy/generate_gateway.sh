@@ -117,6 +117,7 @@ sed -e "s/\${SWAGGER_FILE_NAME}/${SWAGGER_FILE_NAME}/g" \
   > $OUT_DIR/config.yaml
 
 sed -e "s/\${SWAGGER_FILE_NAME}/${SWAGGER_FILE_NAME}/g" \
+    -e "s/\${GATEWAY_IMPORT_DIR}/${GATEWAY_IMPORT_DIR//\//\\/}/g" \
   /templates/Dockerfile.tmpl \
   > $OUT_DIR/Dockerfile
 
