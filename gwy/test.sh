@@ -2,6 +2,12 @@
 set -e
 set -x
 
+if [[ $# -ne 1 ]]; then
+  echo "Usage: test.sh container"
+  exit 1
+fi
+
+
 CONTAINER=$1
 HEADERS_FILE="./.headers"
 SOME_RESP_HEADER="SOME-RESPONSE-HEADER"
