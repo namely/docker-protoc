@@ -101,7 +101,11 @@ fi
 
 # Generate the gateway files in src
 PROTO_DIR=$(dirname $FILE)
-entrypoint.sh -d $PROTO_DIR -l go --with-gateway -o $OUT_DIR/src/gen/pb-go $INCLUDES
+OUT_PATH=$OUT_DIR/src/gen/pb-go
+entrypoint.sh -d $PROTO_DIR -l go --with-gateway -o $OUT_PATH $INCLUDES
+
+GATEWAY_IMPORT_DIR=`find $OUT_PATH -type f -name "*.gw.go" -print | head -n 1 | xargs -n1 dirname`
+GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/src/"}
 
 # Find the Swagger file.
 PROTO_FILE=$(basename $FILE)
@@ -119,6 +123,7 @@ sed -e "s/\${SWAGGER_FILE_NAME}/${SWAGGER_FILE_NAME}/g" \
 MAIN_DIR=$OUT_DIR/src/pkg/main
 mkdir -p $MAIN_DIR
 sed -e "s/\${SERVICE}/${SERVICE}/g" \
+    -e "s/\${GATEWAY_IMPORT_DIR}/${GATEWAY_IMPORT_DIR//\//\\/}/g" \
   /templates/main.go.tmpl \
   > $MAIN_DIR/main.go
 
