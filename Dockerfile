@@ -60,7 +60,13 @@ RUN set -ex && apk --update --no-cache add \
     bash \
     libstdc++ \
     libc6-compat \
-    ca-certificates
+    ca-certificates \
+    nodejs \
+    nodejs-npm
+
+# Add TypeScript support
+
+RUN npm i -g ts-protoc-gen@0.10.0
 
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
