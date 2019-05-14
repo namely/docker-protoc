@@ -18,7 +18,7 @@ language you want to generate.
 * [Google APIs](https://github.com/googleapis/googleapis) included in `/usr/local/include/google`
 * [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/usr/local/include/google/protobuf`
 * Support for all C based gRPC libraries with Go and Java native libraries
-*
+
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
 
 > Note - throughout this document, commands for bash are prefixed with `$` and commands
@@ -27,8 +27,8 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 
 ## Tag Conventions
 
-For `protoc`, `grpc_cli` and `prototool` a pattern of <GRPC\_VERSION>_<CONTAINER\_VERSION> is used for all images.
-Example is namely/protoc-all:1.15_0 for gRPC version `1.15`. The `latest` tag will always point to the most recent version.
+For `protoc`, `grpc_cli` and `prototool` a pattern of `<GRPC\_VERSION>_<CONTAINER\_VERSION>` is used for all images.
+Example is `namely/protoc-all:1.15_0` for gRPC version `1.15`. The `latest` tag will always point to the most recent version.
 
 ## Usage
 
@@ -38,11 +38,10 @@ Pull the container:
 $ docker pull namely/protoc-all
 ```
 
-After that, travel to the directory that contains your `.proto` definition
+After that, change working directory to the one that contains your `.proto` definition
 files.
 
-So if you have a directory: `~/my_project/protobufs/` that has:
-`myproto.proto`, you'd want to run this:
+So if you have a directory: `~/my_project/protobufs/` that has: `myproto.proto`, you'd want to run this:
 
 ```sh
 $ cd ~/my_project/protobufs
@@ -116,7 +115,7 @@ docker run my-grpc-gateway --backend=grpc-service:50051
 ```
 
 where `--backend` refers to your actual gRPC server's address. The gRPC gateway
-listens on port 80 for HTTP traffic.
+listens on port `80` for HTTP traffic.
 
 ### Configuring grpc-gateway
 
@@ -130,10 +129,10 @@ See [gwy/test.sh](https://github.com/namely/docker-protoc/blob/master/gwy/test.s
 
 The gateway will turn any HTTP headers that it receives into gRPC metadata. Any
 [permanent HTTP headers](https://github.com/namely/docker-protoc/blob/2e7f0c921984c9d9fc7e42e6a7b9474292f11751/gwy/templates/main.go.tmpl#L61)
-will be prefixed with 'grpcgateway-' in the metadata, so that your server receives both
+will be prefixed with `grpcgateway-` in the metadata, so that your server receives both
 the HTTP client to gateway headers, as well as the gateway to gRPC server headers.
 
-Any headers starting with 'Grpc-' will be prefixed with an 'X-', this is because 'grpc-' is a reserved metadata prefix.
+Any headers starting with `Grpc-` will be prefixed with an `X-`, this is because `grpc-` is a reserved metadata prefix.
 
 All other headers will be converted to metadata as is.
 
@@ -164,7 +163,7 @@ The gateway project used [spf13/viper](https://github.com/spf13/viper) for confi
 
 ## grpc_cli
 
-This repo also contains a Dockerfile for building a grpc_cli.
+This repo also contains a Dockerfile for building a `grpc_cli`.
 
 Run it with
 
@@ -173,9 +172,9 @@ docker run -v `pwd`:/defs --rm -it namely/grpc-cli call docker.for.mac.localhost
 LinkShortener.ResolveShortLink "short_link:'asdf'" --protofiles=link_shortener.proto
 ```
 
-You can pass multiple files to --protofiles by separating them with commas, for example
+You can pass multiple files to `--protofiles` by separating them with commas, for example
 `--protofiles=link_shortener.proto,foo/bar/baz.proto,biz.proto`. All of the protofiles
-must be relative to pwd, since pwd is mounted into the container.
+must be relative to `pwd`, since `pwd` is mounted into the container.
 
 See the [grpc_cli documentation](https://github.com/grpc/grpc/blob/master/doc/command_line_tool.md)
 for more information. You may find it useful to bind this to an alias:
@@ -209,7 +208,7 @@ This will build all of the known containers.
 $ CONTAINER=namely/protoc-all:VVV make test
 ```
 
-Where VVV is your version. This will run tests that containers can build for each language.
+Where `VVV` is your version. This will run tests that containers can build for each language.
 
 ```sh
 $ make push
@@ -223,4 +222,4 @@ this repo.
 
 Docker must be configured to use Linux containers.
 
-If on Windows, you must have your C: drive shared with Docker. Open the Docker settings (right-click Docker icon in notification area) and pick the Shared Drives tab. Ensure C is listed and the box is checked. If you are still experiencing trouble, click "Reset credentials..." on that tab and re-enter your local Windows username and password.
+If on Windows, you must have your `C:` drive shared with Docker. Open the Docker settings (right-click Docker icon in notification area) and pick the Shared Drives tab. Ensure `C:` is listed and the box is checked. If you are still experiencing trouble, click "Reset credentials..." on that tab and re-enter your local Windows username and password.
