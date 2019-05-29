@@ -6,17 +6,22 @@ printUsage() {
     echo "Usage: gen-proto -f my-service.proto -l go"
     echo " "
     echo "options:"
-    echo " -h, --help           Show help"
-    echo " -f FILE              The proto source file to generate"
-    echo " -d DIR               Scans the given directory for all proto files"
-    echo " -l LANGUAGE          The language to generate (${SUPPORTED_LANGUAGES[@]})"
-    echo " -o DIRECTORY         The output directory for generated files. Will be automatically created."
-    echo " -i includes          Extra includes"
-    echo " --lint CHECKS        Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
-    echo " --with-gateway       Generate grpc-gateway files (experimental)."
-    echo " --with-docs FORMAT   Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
-    echo " --go-source-relative Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
-    echo " --no-google-includes Don't include Google protobufs"
+    echo " -h, --help                    Show help"
+    echo " -f FILE                       The proto source file to generate"
+    echo " -d DIR                        Scans the given directory for all proto files"
+    echo " -l LANGUAGE                   The language to generate (${SUPPORTED_LANGUAGES[@]})"
+    echo " -o DIRECTORY                  The output directory for generated files. Will be automatically created."
+    echo " -i includes                   Extra includes"
+    echo " --lint CHECKS                 Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
+    echo " --with-gateway                Generate grpc-gateway files (experimental)."
+    echo " --with-docs FORMAT            Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
+    echo " --go-source-relative          Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
+    echo " --no-google-includes          Don't include Google protobufs"
+    echo " --descr_include_imports       When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
+                                             self-contained"
+    echo " --descr_include_source_info   When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto.This results in vastly
+                                             larger descriptors that include information about the original location of each decl in the source file as  well
+                                             as surrounding comments."
 }
 
 
@@ -189,6 +194,12 @@ plugins=grpc+embedded\
         ;;
     "descriptor_set")
         GEN_STRING="--descriptor_set_out=$OUT_DIR/descriptor_set.pb"
+        if [[ $DESCR_INCLUDE_IMPORTS ]]; then
+            GEN_STRING="$GEN_STRING --include_imports"
+        fi
+        if [[ $DESCR_INCLUDE_SOURCE_INFO ]]; then
+            GEN_STRING="$GEN_STRING --include_source_info"
+        fi
         ;;
     *)
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
