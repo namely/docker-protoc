@@ -15,6 +15,7 @@ printUsage() {
     echo " --lint CHECKS        Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
     echo " --with-gateway       Generate grpc-gateway files (experimental)."
     echo " --with-docs FORMAT   Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
+    echo " --with-typescript    Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
     echo " --go-source-relative Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
     echo " --no-google-includes Don't include Google protobufs"
 }
@@ -23,6 +24,7 @@ printUsage() {
 GEN_GATEWAY=false
 GEN_DOCS=false
 DOCS_FORMAT="html,index.html"
+GEN_TYPESCRIPT=false
 LINT=false
 LINT_CHECKS=""
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set")
@@ -87,6 +89,10 @@ while test $# -gt 0; do
             fi
             shift
             ;;
+        --with-typescript)
+            GEN_TYPESCRIPT=true
+            shift
+            ;;
         --lint)
             LINT=true
             if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
@@ -133,8 +139,13 @@ if [[ ! ${SUPPORTED_LANGUAGES[*]} =~ "$GEN_LANG" ]]; then
 fi
 
 if [[ "$GEN_GATEWAY" == true && "$GEN_LANG" != "go" ]]; then
-  echo "Generating grpc-gateway is Go specific."
-  exit 1
+    echo "Generating grpc-gateway is Go specific."
+    exit 1
+fi
+
+if [[ "$GEN_TYPESCRIPT" == true && "$GEN_LANG" != "node" ]]; then
+    echo "Generating TypeScript declaration files is Node specific."
+    exit 1
 fi
 
 PLUGIN_LANG=$GEN_LANG
@@ -198,6 +209,10 @@ esac
 if [[ $GEN_DOCS == true ]]; then
     mkdir -p $OUT_DIR/doc
     GEN_STRING="$GEN_STRING --doc_opt=$DOCS_FORMAT --doc_out=$OUT_DIR/doc"
+fi
+
+if [[ $GEN_TYPESCRIPT == true ]]; then
+    GEN_STRING="$GEN_STRING --ts_out=$OUT_DIR"
 fi
 
 LINT_STRING=''
