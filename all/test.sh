@@ -36,12 +36,23 @@ testGeneration() {
           current_path=$(dirname $current_path)
         done
     fi
+    if [[ "$extra_args" == *"--with-typescript"* ]]; then
+        # Test that we have generated the .d.ts files.
+        ts_file_count=$(find $expected_output_dir -type f -name "*.d.ts" | wc -l)
+        if [ $ts_file_count -eq 0 ]; then
+            echo ".d.ts files were not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
     rm -rf `echo $expected_output_dir | cut -d '/' -f1`
     echo "Generating for $lang passed!"
 }
 
 # Test grpc-gateway generation (only valid for Go)
 testGeneration go "gen/pb-go" --with-gateway
+
+# Test TypeScript declaration file generation (only valid for Node)
+testGeneration node "gen/pb-node" --with-typescript
 
 # Generate proto files
 for lang in ${LANGS[@]}; do

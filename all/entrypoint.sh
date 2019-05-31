@@ -6,20 +6,21 @@ printUsage() {
     echo "Usage: gen-proto -f my-service.proto -l go"
     echo " "
     echo "options:"
-    echo " -h, --help                    Show help"
-    echo " -f FILE                       The proto source file to generate"
-    echo " -d DIR                        Scans the given directory for all proto files"
-    echo " -l LANGUAGE                   The language to generate (${SUPPORTED_LANGUAGES[@]})"
-    echo " -o DIRECTORY                  The output directory for generated files. Will be automatically created."
-    echo " -i includes                   Extra includes"
-    echo " --lint CHECKS                 Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
-    echo " --with-gateway                Generate grpc-gateway files (experimental)."
-    echo " --with-docs FORMAT            Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
-    echo " --go-source-relative          Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
-    echo " --no-google-includes          Don't include Google protobufs"
-    echo " --descr_include_imports       When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
+    echo " -h, --help                     Show help"
+    echo " -f FILE                        The proto source file to generate"
+    echo " -d DIR                         Scans the given directory for all proto files"
+    echo " -l LANGUAGE                    The language to generate (${SUPPORTED_LANGUAGES[@]})"
+    echo " -o DIRECTORY                   The output directory for generated files. Will be automatically created."
+    echo " -i includes                    Extra includes"
+    echo " --lint CHECKS                  Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
+    echo " --with-gateway                 Generate grpc-gateway files (experimental)."
+    echo " --with-docs FORMAT             Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
+    echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
+    echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
+    echo " --no-google-includes           Don't include Google protobufs"
+    echo " --descr_include_imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
                                              self-contained"
-    echo " --descr_include_source_info   When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto.This results in vastly
+    echo " --descr_include_source_info    When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto.This results in vastly
                                              larger descriptors that include information about the original location of each decl in the source file as  well
                                              as surrounding comments."
 }
@@ -28,6 +29,7 @@ printUsage() {
 GEN_GATEWAY=false
 GEN_DOCS=false
 DOCS_FORMAT="html,index.html"
+GEN_TYPESCRIPT=false
 LINT=false
 LINT_CHECKS=""
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set")
@@ -92,6 +94,10 @@ while test $# -gt 0; do
             fi
             shift
             ;;
+        --with-typescript)
+            GEN_TYPESCRIPT=true
+            shift
+            ;;
         --lint)
             LINT=true
             if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
@@ -138,8 +144,13 @@ if [[ ! ${SUPPORTED_LANGUAGES[*]} =~ "$GEN_LANG" ]]; then
 fi
 
 if [[ "$GEN_GATEWAY" == true && "$GEN_LANG" != "go" ]]; then
-  echo "Generating grpc-gateway is Go specific."
-  exit 1
+    echo "Generating grpc-gateway is Go specific."
+    exit 1
+fi
+
+if [[ "$GEN_TYPESCRIPT" == true && "$GEN_LANG" != "node" ]]; then
+    echo "Generating TypeScript declaration files is Node specific."
+    exit 1
 fi
 
 PLUGIN_LANG=$GEN_LANG
@@ -209,6 +220,10 @@ esac
 if [[ $GEN_DOCS == true ]]; then
     mkdir -p $OUT_DIR/doc
     GEN_STRING="$GEN_STRING --doc_opt=$DOCS_FORMAT --doc_out=$OUT_DIR/doc"
+fi
+
+if [[ $GEN_TYPESCRIPT == true ]]; then
+    GEN_STRING="$GEN_STRING --ts_out=$OUT_DIR"
 fi
 
 LINT_STRING=''
