@@ -54,7 +54,7 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/1.0.3/protoc-ge
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
-FROM alpine:$alpine AS protoc-all
+FROM alpine:3.9 AS protoc-all
 
 RUN set -ex && apk --update --no-cache add \
     bash \
