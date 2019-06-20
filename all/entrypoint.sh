@@ -269,7 +269,7 @@ if [[ $GEN_LANG == "python" ]]; then
     find $OUT_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
     # And everything above it (i.e. gen/__init__py")
     d=`dirname $OUT_DIR`
-    while [[ "$d" != "." ]]; do
+    while [[ "$d" != "." && "$d" != "/" ]]; do
         touch "$d/__init__.py"
         d=`dirname $d`
     done
