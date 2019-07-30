@@ -18,11 +18,12 @@ printUsage() {
     echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
     echo " --no-google-includes           Don't include Google protobufs"
-    echo " --descr_include_imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
+    echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
                                              self-contained"
-    echo " --descr_include_source_info    When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto.This results in vastly
+    echo " --descr-include-source-info    When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto. This results in vastly
                                              larger descriptors that include information about the original location of each decl in the source file as  well
                                              as surrounding comments."
+    echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
 }
 
 
@@ -37,6 +38,9 @@ EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
 NO_GOOGLE_INCLUDES=false
+DESCR_INCLUDE_IMPORTS=false
+DESCR_INCLUDE_SOURCE_INFO=false
+DESCR_FILENAME="descriptor_set.pb"
 
 while test $# -gt 0; do
     case "$1" in
@@ -112,6 +116,19 @@ while test $# -gt 0; do
             ;;
         --no-google-includes)
             NO_GOOGLE_INCLUDES=true
+            shift
+            ;;
+        --descr-include-imports)
+            DESCR_INCLUDE_IMPORTS=true
+            shift
+            ;;
+        --descr-include-source-info)
+            DESCR_INCLUDE_SOURCE_INFO=true
+            shift
+            ;;
+        --descr-filename)
+            shift
+            DESCR_FILENAME=$1
             shift
             ;;
         *)
@@ -204,7 +221,7 @@ plugins=grpc+embedded\
         GEN_STRING="--grpc-web_out=import_style=typescript,mode=grpcwebtext:$OUT_DIR --js_out=import_style=commonjs:$OUT_DIR --plugin=protoc-gen-grpc-web=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
     "descriptor_set")
-        GEN_STRING="--descriptor_set_out=$OUT_DIR/descriptor_set.pb"
+        GEN_STRING="--descriptor_set_out=$OUT_DIR/$DESCR_FILENAME"
         if [[ $DESCR_INCLUDE_IMPORTS ]]; then
             GEN_STRING="$GEN_STRING --include_imports"
         fi
