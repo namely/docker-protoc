@@ -17,6 +17,8 @@ steps:
   inputs:
     containerRegistry: 'namely-protoc'
     command: 'login'
-    
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
 - script: make push-latest
   displayName: "Docker Push"
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
