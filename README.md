@@ -1,5 +1,7 @@
 # gRPC/Protocol Buffer Compiler Containers
 
+[![Build Status](https://dev.azure.com/namely/protoc-all/_apis/build/status/namely.docker-protoc?branchName=master)](https://dev.azure.com/namely/protoc-all/_build/latest?definitionId=1&branchName=master)
+
 This repository contains support for various Docker images that wrap `protoc`,
 `prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
 in a variety of languages removing the need to install and manage these commands locally. 
