@@ -17,6 +17,7 @@ printUsage() {
     echo " --with-docs FORMAT             Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
     echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
+    echo " --go-package-map               Map proto imports to go import paths"
     echo " --no-google-includes           Don't include Google protobufs"
     echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
                                              self-contained"
@@ -37,6 +38,7 @@ SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "n
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
+GO_PACKAGE_MAP=""
 NO_GOOGLE_INCLUDES=false
 DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
@@ -112,6 +114,13 @@ while test $# -gt 0; do
             ;;
          --go-source-relative)
             GO_SOURCE_RELATIVE="paths=source_relative,"
+            shift
+            ;;
+        --go-package-map)
+            if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
+                GO_PACKAGE_MAP=$2,
+		        shift
+            fi
             shift
             ;;
         --no-google-includes)
@@ -198,7 +207,7 @@ fi
 GEN_STRING=''
 case $GEN_LANG in
     "go")
-        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}plugins=grpc:$OUT_DIR"
+        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
         ;;
     "gogo")
         GEN_STRING="--gogofast_out=${GO_SOURCE_RELATIVE}\
@@ -208,6 +217,7 @@ Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,\
 Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,\
 Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,\
 Mgoogle/protobuf/field_mask.proto=github.com/gogo/protobuf/types,\
+${GO_PACKAGE_MAP}\
 plugins=grpc+embedded\
 :$OUT_DIR"
         ;;
