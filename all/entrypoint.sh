@@ -18,6 +18,7 @@ printUsage() {
     echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
     echo " --go-package-map               Map proto imports to go import paths"
+    echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
     echo " --no-google-includes           Don't include Google protobufs"
     echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
                                              self-contained"
@@ -39,6 +40,7 @@ EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
 GO_PACKAGE_MAP=""
+GO_PLUGIN="grpc"
 NO_GOOGLE_INCLUDES=false
 DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
@@ -112,7 +114,7 @@ while test $# -gt 0; do
             fi
             shift
             ;;
-         --go-source-relative)
+        --go-source-relative)
             GO_SOURCE_RELATIVE="paths=source_relative,"
             shift
             ;;
@@ -121,6 +123,10 @@ while test $# -gt 0; do
                 GO_PACKAGE_MAP=$2,
 		        shift
             fi
+            shift
+            ;;
+        --go-plugin-micro)
+            GO_PLUGIN="micro"
             shift
             ;;
         --no-google-includes)
@@ -207,7 +213,7 @@ fi
 GEN_STRING=''
 case $GEN_LANG in
     "go")
-        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
+        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_PACKAGE_MAP}plugins=${GO_PLUGIN}:$OUT_DIR"
         ;;
     "gogo")
         GEN_STRING="--gogofast_out=${GO_SOURCE_RELATIVE}\

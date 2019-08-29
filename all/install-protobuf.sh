@@ -20,7 +20,7 @@ cd /tmp
 
 git clone -b v$1.x --recursive -j8 https://github.com/grpc/grpc
 cd /tmp/grpc
-make
+CFLAGS="-Wno-cast-function-type" make
 make install
 # php support
 git submodule update --init

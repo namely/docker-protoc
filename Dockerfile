@@ -1,7 +1,8 @@
-ARG alpine=3.8
-ARG go=1.11.0
+ARG alpine=3.9
+ARG go=1.12
 ARG grpc
 ARG grpc_java
+ARG grpc_web=1.0.6
 
 FROM golang:$go-alpine$alpine AS build
 
@@ -48,9 +49,11 @@ RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
+RUN go get -u github.com/micro/protobuf/protoc-gen-go
+
 # Add grpc-web support
 
-RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/1.0.4/protoc-gen-grpc-web-1.0.4-linux-x86_64 \
+RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/protoc-gen-grpc-web-${grpc_web}-linux-x86_64 \
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
