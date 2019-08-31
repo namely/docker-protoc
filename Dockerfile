@@ -66,7 +66,7 @@ RUN set -ex && apk --update --no-cache add \
 
 # Add TypeScript support
 
-RUN npm i -g ts-protoc-gen@0.10.0
+RUN npm i -g ts-protoc-gen@0.11.0
 
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
