@@ -39,7 +39,7 @@ testGeneration() {
     if [[ "$extra_args" == *"--with-typescript"* ]]; then
         # Test that we have generated the .d.ts files.
         ts_file_count=$(find $expected_output_dir -type f -name "*.d.ts" | wc -l)
-        if [ $ts_file_count -eq 0 ]; then
+        if [ $ts_file_count -ne 2 ]; then
             echo ".d.ts files were not generated in $expected_output_dir"
             exit 1
         fi

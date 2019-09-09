@@ -250,7 +250,7 @@ if [[ $GEN_DOCS == true ]]; then
 fi
 
 if [[ $GEN_TYPESCRIPT == true ]]; then
-    GEN_STRING="$GEN_STRING --ts_out=$OUT_DIR"
+    GEN_STRING="$GEN_STRING --ts_out=service=grpc-node:$OUT_DIR"
 fi
 
 LINT_STRING=''
