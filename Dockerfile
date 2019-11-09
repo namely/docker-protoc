@@ -2,7 +2,7 @@ ARG alpine=3.9
 ARG go=1.12
 ARG grpc
 ARG grpc_java
-ARG grpc_web=1.0.6
+ARG grpc_web=1.0.7
 
 FROM golang:$go-alpine$alpine AS build
 
