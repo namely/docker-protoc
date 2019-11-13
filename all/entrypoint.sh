@@ -19,6 +19,7 @@ printUsage() {
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
     echo " --go-package-map               Map proto imports to go import paths"
     echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
+    echo " --go-proto-validator           Generate Go proto validations - see https://github.com/mwitkow/go-proto-validators"
     echo " --no-google-includes           Don't include Google protobufs"
     echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
                                              self-contained"
@@ -41,6 +42,7 @@ OUT_DIR=""
 GO_SOURCE_RELATIVE=""
 GO_PACKAGE_MAP=""
 GO_PLUGIN="grpc"
+GO_VALIDATOR=false
 NO_GOOGLE_INCLUDES=false
 DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
@@ -129,6 +131,10 @@ while test $# -gt 0; do
             GO_PLUGIN="micro"
             shift
             ;;
+        --go-proto-validator)
+            GO_VALIDATOR=true
+            shift
+            ;;
         --no-google-includes)
             NO_GOOGLE_INCLUDES=true
             shift
@@ -177,6 +183,11 @@ fi
 
 if [[ "$GEN_GATEWAY" == true && "$GEN_LANG" != "go" ]]; then
     echo "Generating grpc-gateway is Go specific."
+    exit 1
+fi
+
+if [[ "$GO_VALIDATOR" == true && "$GEN_LANG" != "go" ]]; then
+    echo "Generating proto validator is Go specific."
     exit 1
 fi
 
@@ -249,6 +260,14 @@ plugins=grpc+embedded\
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
 esac
+
+if [[ $GO_VALIDATOR == true && $GEN_LANG == "go" ]]; then
+    GEN_STRING="$GEN_STRING --govalidators_out=$OUT_DIR"
+fi
+
+if [[ $GO_VALIDATOR == true && $GEN_LANG == "gogo" ]]; then
+    GEN_STRING="$GEN_STRING --govalidators_out=gogoimport=true:$OUT_DIR"
+fi
 
 if [[ $GEN_DOCS == true ]]; then
     mkdir -p $OUT_DIR/doc
