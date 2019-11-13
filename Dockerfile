@@ -51,6 +51,8 @@ RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 RUN go get -u github.com/micro/protobuf/protoc-gen-go
 
+RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
+
 # Add grpc-web support
 
 RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/protoc-gen-grpc-web-${grpc_web}-linux-x86_64 \
