@@ -154,11 +154,11 @@ while test $# -gt 0; do
             DESCR_FILENAME=$1
             shift
             ;;
-	--csharp_opt)
-	    shift
-	    CSHARP_OPT=$1
-	    shift
-	    ;;
+        --csharp_opt)
+            shift
+            CSHARP_OPT=$1
+            shift
+            ;;
         *)
             break
             ;;
@@ -265,9 +265,10 @@ plugins=grpc+embedded\
         ;;
     "chsarp")
         GEN_STRING="--grpc_out=$OUT_DIR --csharp_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_csharp_plugin`"
-	if [[ ! -z $CSHARP_OPT ]]; then
-	    GEN_STRING="$GEN_STRING --csharp_opt=$CSHARP_OPT"
-	fi
+        if [[ ! -z $CSHARP_OPT ]]; then
+            GEN_STRING="$GEN_STRING --csharp_opt=$CSHARP_OPT"
+        fi
+        ;;
     *)
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
