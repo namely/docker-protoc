@@ -27,6 +27,7 @@ printUsage() {
                                              larger descriptors that include information about the original location of each decl in the source file as  well
                                              as surrounding comments."
     echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
+    echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
 }
 
 
@@ -47,6 +48,7 @@ NO_GOOGLE_INCLUDES=false
 DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
 DESCR_FILENAME="descriptor_set.pb"
+CSHARP_OPT=""
 
 while test $# -gt 0; do
     case "$1" in
@@ -152,6 +154,11 @@ while test $# -gt 0; do
             DESCR_FILENAME=$1
             shift
             ;;
+	--csharp_opt)
+	    shift
+	    CSHARP_OPT=$1
+	    shift
+	    ;;
         *)
             break
             ;;
@@ -256,6 +263,11 @@ plugins=grpc+embedded\
             GEN_STRING="$GEN_STRING --include_source_info"
         fi
         ;;
+    "chsarp")
+        GEN_STRING="--grpc_out=$OUT_DIR --csharp_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_csharp_plugin`"
+	if [[ ! -z $CSHARP_OPT ]]; then
+	    GEN_STRING="$GEN_STRING --csharp_opt=$CSHARP_OPT"
+	fi
     *)
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
