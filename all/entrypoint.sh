@@ -263,7 +263,7 @@ plugins=grpc+embedded\
             GEN_STRING="$GEN_STRING --include_source_info"
         fi
         ;;
-    "chsarp")
+    "csharp")
         GEN_STRING="--grpc_out=$OUT_DIR --csharp_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_csharp_plugin`"
         if [[ ! -z $CSHARP_OPT ]]; then
             GEN_STRING="$GEN_STRING --csharp_opt=$CSHARP_OPT"
