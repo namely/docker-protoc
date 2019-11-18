@@ -16,6 +16,7 @@ printUsage() {
     echo " --with-gateway                 Generate grpc-gateway files (experimental)."
     echo " --with-docs FORMAT             Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
     echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
+    echo " --with-validator               Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
     echo " --go-package-map               Map proto imports to go import paths"
     echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
@@ -33,6 +34,8 @@ printUsage() {
 
 GEN_GATEWAY=false
 GEN_DOCS=false
+GEN_VALIDATOR=false
+VALIDATOR_SUPPORTED_LANGUAGES=("go" "gogo" "cpp" "java" "python")
 DOCS_FORMAT="html,index.html"
 GEN_TYPESCRIPT=false
 LINT=false
@@ -110,6 +113,10 @@ while test $# -gt 0; do
             GEN_TYPESCRIPT=true
             shift
             ;;
+        --with-validator)
+            GEN_VALIDATOR=true
+            shift
+            ;;
         --lint)
             LINT=true
             if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
@@ -185,6 +192,16 @@ fi
 
 if [[ ! ${SUPPORTED_LANGUAGES[*]} =~ "$GEN_LANG" ]]; then
     echo "Language $GEN_LANG is not supported. Please specify one of: ${SUPPORTED_LANGUAGES[@]}"
+    exit 1
+fi
+
+if [[ "$GEN_VALIDATOR" == true && ! ${VALIDATOR_SUPPORTED_LANGUAGES[*]} =~ "$GEN_LANG" ]]; then
+    echo "Generating validations are not (yet) supported to $GEN_LANG language. Please specify one of: ${VALIDATOR_SUPPORTED_LANGUAGES[@]}"
+    exit 1
+fi
+
+if [[ "$GEN_VALIDATOR" == true && "$GO_VALIDATOR" == true ]]; then
+    echo "Hi Gopher! Please select just one of the validators (--go-proto-validator or --with-validator)."
     exit 1
 fi
 
@@ -280,6 +297,14 @@ fi
 
 if [[ $GO_VALIDATOR == true && $GEN_LANG == "gogo" ]]; then
     GEN_STRING="$GEN_STRING --govalidators_out=gogoimport=true:$OUT_DIR"
+fi
+
+if [[ $GEN_VALIDATOR == true && $GEN_LANG == "go" ]]; then
+    GEN_STRING="$GEN_STRING --validate_out=lang=go:$OUT_DIR"
+fi
+
+if [[ $GEN_VALIDATOR == true && $GEN_LANG == "gogo" ]]; then
+    GEN_STRING="$GEN_STRING --validate_out=lang=gogo:$OUT_DIR"
 fi
 
 if [[ $GEN_DOCS == true ]]; then
