@@ -51,6 +51,9 @@ RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 RUN go get -u github.com/micro/protobuf/protoc-gen-go
 
+RUN go get -d github.com/envoyproxy/protoc-gen-validate
+RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
+
 RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 
 # Add grpc-web support
@@ -84,6 +87,8 @@ COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 
 COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/ /opt/include/protoc-gen-swagger/options/
+
+COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 ADD all/entrypoint.sh /usr/local/bin
