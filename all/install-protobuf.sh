@@ -29,6 +29,8 @@ make grpc_php_plugin
 cp /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
 
 cd /tmp/grpc/third_party/protobuf
+# Manually checkout fix for ruby proto3 extensions
+git checkout fe1790c
 make
 make install
 
