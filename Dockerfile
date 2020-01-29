@@ -24,7 +24,8 @@ RUN set -ex && apk --update --no-cache add \
     openjdk8-jre \
     libstdc++ \
     ca-certificates \
-    nss
+    nss \
+    linux-headers
 
 WORKDIR /tmp
 COPY all/install-protobuf.sh /tmp
