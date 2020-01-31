@@ -59,11 +59,10 @@ RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
 RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 
 
-
 # Add scala support
-RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip
-RUN unzip protoc-gen-scala-0.9.6-linux-x86_64.zip
-RUN chmod +x /tmp/protoc-gen-scala
+RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
+    && unzip protoc-gen-scala-0.9.6-linux-x86_64.zip \
+    && chmod +x /tmp/protoc-gen-scala
 
 # Add grpc-web support
 RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/protoc-gen-grpc-web-${grpc_web}-linux-x86_64 \
