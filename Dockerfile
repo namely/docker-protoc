@@ -25,7 +25,8 @@ RUN set -ex && apk --update --no-cache add \
     libstdc++ \
     ca-certificates \
     nss \
-    linux-headers
+    linux-headers \
+    unzip
 
 WORKDIR /tmp
 COPY all/install-protobuf.sh /tmp
@@ -57,8 +58,14 @@ RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
 
 RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 
-# Add grpc-web support
 
+
+# Add scala support
+RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip
+RUN unzip protoc-gen-scala-0.9.6-linux-x86_64.zip
+RUN chmod +x /tmp/protoc-gen-scala
+
+# Add grpc-web support
 RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/protoc-gen-grpc-web-${grpc_web}-linux-x86_64 \
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
@@ -86,6 +93,8 @@ COPY --from=build /usr/local/include/google/ /opt/include/google
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
+
+COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
 COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/ /opt/include/protoc-gen-swagger/options/
 
