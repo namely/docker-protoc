@@ -9,6 +9,7 @@ FROM golang:$go-alpine$alpine AS build
 ARG grpc
 ARG grpc_java
 ARG grpc_web=1.0.7
+ARG nanopb=0.4.1
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -63,6 +64,11 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/pro
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
+RUN curl -sSL https://jpa.kapsi.fi/nanopb/download/nanopb-${nanopb}-linux-x86.tar.gz \
+    -o /tmp/nanopb.tar.gz && \
+    mkdir -p /tmp/nanopb && \
+    tar -xzf /tmp/nanopb.tar.gz --strip 1 -C /tmp/nanopb
+
 FROM alpine:3.9 AS protoc-all
 
 RUN set -ex && apk --update --no-cache add \
@@ -71,7 +77,10 @@ RUN set -ex && apk --update --no-cache add \
     libc6-compat \
     ca-certificates \
     nodejs \
-    nodejs-npm
+    nodejs-npm \
+    python \
+    py2-pip && \
+    pip install protobuf
 
 # Add TypeScript support
 
@@ -91,6 +100,9 @@ COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swag
 
 COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
+COPY --from=build /tmp/nanopb/generator/ /usr/local/lib/protoc-gen-nanopb/
+COPY --from=build /tmp/nanopb/generator/nanopb/ /opt/include/nanopb/options/
+COPY --from=build /tmp/nanopb/generator/proto/nanopb.proto /opt/include/nanopb/nanopb.proto
 
 ADD all/entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh

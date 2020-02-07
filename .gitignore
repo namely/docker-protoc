@@ -3,4 +3,5 @@ test.pb.go
 test.rb
 **/gen/*
 pb-*
+.idea/
 

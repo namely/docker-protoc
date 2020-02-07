@@ -40,7 +40,7 @@ DOCS_FORMAT="html,index.html"
 GEN_TYPESCRIPT=false
 LINT=false
 LINT_CHECKS=""
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set" "nanopb")
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
@@ -285,6 +285,9 @@ plugins=grpc+embedded\
         if [[ ! -z $CSHARP_OPT ]]; then
             GEN_STRING="$GEN_STRING --csharp_opt=$CSHARP_OPT"
         fi
+        ;;
+    "nanopb")
+        GEN_STRING="--nanopb_out=$OUT_DIR --plugin=protoc-gen-nanopb=/usr/local/lib/protoc-gen-nanopb/protoc-gen-nanopb"
         ;;
     *)
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
