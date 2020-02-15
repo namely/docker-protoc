@@ -1,0 +1,26 @@
+name: Publish Docker
+on: [push]
+
+# TODO
+# on:
+#   pull_request:
+#     branches:
+#       - master
+#       - releases/*
+#   push:
+#     branches:
+#       - master
+#       - releases/*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Publish to Registry
+      uses: HurricanKai/Publish-Docker-Github-Action@master
+      with:
+        name: docker.pkg.github.com/hurricankai/publish-docker-github-action/publish-docker-github-action
+        username: ${{ secrets.GITHUB_DOCKER_USERNAME }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        registry: docker.pkg.github.com
