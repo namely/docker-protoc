@@ -40,7 +40,7 @@ DOCS_FORMAT="html,index.html"
 GEN_TYPESCRIPT=false
 LINT=false
 LINT_CHECKS=""
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set" "scala")
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
@@ -264,6 +264,9 @@ plugins=grpc+embedded\
         ;;
     "java")
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which protoc-gen-grpc-java`"
+        ;;
+    "scala")
+        GEN_STRING="--scala_out=$OUT_DIR --plugin=`which protoc-gen-scala`"
         ;;
     "node")
         GEN_STRING="--grpc_out=$OUT_DIR --js_out=import_style=commonjs,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
