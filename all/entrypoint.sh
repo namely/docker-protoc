@@ -29,6 +29,7 @@ printUsage() {
                                              as surrounding comments."
     echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
     echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
+    echo " --web-mode MODE                Specify wire format mode (default: grpcwebtext)."
 }
 
 
@@ -52,6 +53,7 @@ DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
 DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
+WEB_MODE="grpcwebtext"
 
 while test $# -gt 0; do
     case "$1" in
@@ -166,6 +168,13 @@ while test $# -gt 0; do
             CSHARP_OPT=$1
             shift
             ;;
+        --web-mode)
+            if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
+                WEB_MODE=$2
+                shift
+            fi
+            shift
+            ;;
         *)
             break
             ;;
@@ -272,7 +281,7 @@ plugins=grpc+embedded\
         GEN_STRING="--grpc_out=$OUT_DIR --js_out=import_style=commonjs,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
     "web")
-        GEN_STRING="--grpc-web_out=import_style=typescript,mode=grpcwebtext:$OUT_DIR --js_out=import_style=commonjs:$OUT_DIR --plugin=protoc-gen-grpc-web=`which grpc_${PLUGIN_LANG}_plugin`"
+        GEN_STRING="--grpc-web_out=import_style=typescript,mode=$WEB_MODE:$OUT_DIR --js_out=import_style=commonjs:$OUT_DIR --plugin=protoc-gen-grpc-web=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
     "descriptor_set")
         GEN_STRING="--descriptor_set_out=$OUT_DIR/$DESCR_FILENAME"
