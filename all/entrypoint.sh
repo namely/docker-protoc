@@ -15,6 +15,7 @@ printUsage() {
     echo " --lint CHECKS                  Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
     echo " --with-gateway                 Generate grpc-gateway files (experimental)."
     echo " --with-docs FORMAT             Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
+    echo " --with-rbi                     Generate Sorbet type declaration files (.rbi files) - see https://github.com/coinbase/protoc-gen-rbi"
     echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
     echo " --with-validator               Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
@@ -37,6 +38,7 @@ GEN_DOCS=false
 GEN_VALIDATOR=false
 VALIDATOR_SUPPORTED_LANGUAGES=("go" "gogo" "cpp" "java" "python")
 DOCS_FORMAT="html,index.html"
+GEN_RBI=false
 GEN_TYPESCRIPT=false
 LINT=false
 LINT_CHECKS=""
@@ -107,6 +109,10 @@ while test $# -gt 0; do
                 DOCS_FORMAT=$2
                 shift
             fi
+            shift
+            ;;
+        --with-rbi)
+            GEN_RBI=true
             shift
             ;;
         --with-typescript)
@@ -215,6 +221,11 @@ if [[ "$GO_VALIDATOR" == true && "$GEN_LANG" != "go" ]]; then
     exit 1
 fi
 
+if [[ "$GEN_RBI" == true && "$GEN_LANG" != "ruby" ]]; then
+    echo "Generating RBI declaration files is a Ruby specific option."
+    exit 1
+fi
+
 if [[ "$GEN_TYPESCRIPT" == true && "$GEN_LANG" != "node" ]]; then
     echo "Generating TypeScript declaration files is Node specific."
     exit 1
@@ -313,6 +324,10 @@ fi
 if [[ $GEN_DOCS == true ]]; then
     mkdir -p $OUT_DIR/doc
     GEN_STRING="$GEN_STRING --doc_opt=$DOCS_FORMAT --doc_out=$OUT_DIR/doc"
+fi
+
+if [[ $GEN_RBI == true ]]; then
+    GEN_STRING="$GEN_STRING --rbi_out=$OUT_DIR"
 fi
 
 if [[ $GEN_TYPESCRIPT == true ]]; then
