@@ -87,6 +87,9 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 # which will generate files in a `protorepo` directory.
 ```
 
+### Ruby-specific options
+`--with-rbi` to generate Ruby Sorbet type definition .rbi files
+
 ## gRPC Gateway (Experimental)
 
 This repo also provides a docker images `namely/gen-grpc-gateway` that
