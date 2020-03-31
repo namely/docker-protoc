@@ -352,11 +352,11 @@ PROTO_INCLUDE="$PROTO_INCLUDE $EXTRA_INCLUDES"
 
 if [ ! -z $PROTO_DIR ]; then
     PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
-    FIND_DEPTH=""
-    if [[ $GEN_LANG == "go" ]]; then
-        FIND_DEPTH="-maxdepth 1"
-    fi
-    PROTO_FILES=(`find ${PROTO_DIR} ${FIND_DEPTH} -name "*.proto"`)
+#     FIND_DEPTH=""
+#     if [[ $GEN_LANG == "go" ]]; then
+#         FIND_DEPTH="-maxdepth 1"
+#     fi
+    PROTO_FILES=(`find ${PROTO_DIR} -name "*.proto"`)
 else
     PROTO_INCLUDE="-I . $PROTO_INCLUDE"
     PROTO_FILES=($FILE)
