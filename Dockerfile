@@ -1,4 +1,4 @@
-ARG alpine=3.9
+ARG alpine=3.11
 ARG go=1.12
 ARG grpc
 ARG grpc_java
@@ -61,6 +61,8 @@ RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 # Add Ruby Sorbet types support (rbi)
 RUN go get -u github.com/coinbase/protoc-gen-rbi
 
+RUN go get github.com/gomatic/renderizer/cmd/renderizer
+
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
     && unzip protoc-gen-scala-0.9.6-linux-x86_64.zip \
@@ -83,7 +85,8 @@ RUN set -ex && apk --update --no-cache add \
 
 # Add TypeScript support
 
-RUN npm i -g ts-protoc-gen@0.11.0
+RUN npm config set unsafe-perm true
+RUN npm i -g ts-protoc-gen@0.12.0
 
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/

@@ -6,17 +6,20 @@ printUsage() {
   echo "protoc-gen-gwy generates a ready-to-build gRPC gateway server."
   echo ""
   echo "Options:"
-  echo "-h, --help              Show this message."
-  echo "-i, --includes INCLUDES Extra includes (optional)."
-  echo "-f, --file FILE         Relative path to the proto file to build the gateway from."
-  echo "-s, --service SERVICE   The name of the service to build the gateway for."
-  echo "-o, --out DIRECTORY     Optional. The output directory for the gateway. By default, gen/grpc-gateway."
+  echo "-h, --help                  Show this message."
+  echo "-i, --includes INCLUDES     Extra includes (optional)."
+  echo "-f, --file FILE             Relative path to the proto file to build the gateway from."
+  echo "-s, --service SERVICE       The name of the service to build the gateway for."
+  echo "-a, --additional_interfaces The set of additional interfaces to bind to this gateway." 
+  echo "-o, --out DIRECTORY         Optional. The output directory for the gateway. By default, gen/grpc-gateway."
 }
 
 # Path to the proto file
 FILE=""
 # Name of the service.
 SERVICE=""
+# Name of additional interfaces
+ADDITIONAL_INTERFACES=""
 # Output directory.
 OUT_DIR=""
 # Extra includes.
@@ -62,6 +65,13 @@ while test $# -gt 0; do
         echo ""
         printUsage
         exit 1
+      fi
+      ;;
+    -a|--additional_interfaces)
+      shift
+      if test $# -gt 0; then
+        ADDITIONAL_INTERFACES=$1
+        shift
       fi
       ;;
     -o|--out)
@@ -112,19 +122,10 @@ PROTO_FILE=$(basename $FILE)
 SWAGGER_FILE_NAME=`basename $PROTO_FILE .proto`.swagger.json
 
 # Copy and update the templates.
-sed -e "s/\${SWAGGER_FILE_NAME}/${SWAGGER_FILE_NAME}/g" \
-  /templates/config.yaml.tmpl \
-  > $OUT_DIR/config.yaml
-
-sed -e "s/\${SWAGGER_FILE_NAME}/${SWAGGER_FILE_NAME}/g" \
-    -e "s/\${GATEWAY_IMPORT_DIR}/${GATEWAY_IMPORT_DIR//\//\\/}/g" \
-  /templates/Dockerfile.tmpl \
-  > $OUT_DIR/Dockerfile
+renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/config.yaml.tmpl > $OUT_DIR/config.yaml
+renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/Dockerfile.tmpl > $OUT_DIR/Dockerfile
 
 MAIN_DIR=$OUT_DIR/src/pkg/main
 mkdir -p $MAIN_DIR
-sed -e "s/\${SERVICE}/${SERVICE}/g" \
-    -e "s/\${GATEWAY_IMPORT_DIR}/${GATEWAY_IMPORT_DIR//\//\\/}/g" \
-  /templates/main.go.tmpl \
-  > $MAIN_DIR/main.go
+renderizer --import=${GATEWAY_IMPORT_DIR} --service=${SERVICE} --additional=${ADDITIONAL_INTERFACES} /templates/main.go.tmpl > $MAIN_DIR/main.go
 
