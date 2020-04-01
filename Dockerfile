@@ -61,6 +61,8 @@ RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 # Add Ruby Sorbet types support (rbi)
 RUN go get -u github.com/coinbase/protoc-gen-rbi
 
+RUN go get github.com/gomatic/renderizer/cmd/renderizer
+
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
     && unzip protoc-gen-scala-0.9.6-linux-x86_64.zip \

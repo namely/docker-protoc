@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc"
 
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails" // Pull in errdetails
-	gw "${GATEWAY_IMPORT_DIR}"
+	gw "{{.Import}}"
 )
 const (
 	ResponseHeaders = "RESPONSE-HEADERS"
@@ -253,11 +253,19 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	// If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
 	// does not exist, it's because you haven't added any google.api.http annotations
 	// to your proto. Add some!
-	err := gw.Register${SERVICE}HandlerFromEndpoint(ctx, gwmux, cfg.backend, opts)
+	err := gw.Register{{.Service}}HandlerFromEndpoint(ctx, gwmux, cfg.backend, opts)
 	if err != nil {
 		logrus.Fatalf("Could not register gateway: %v", err)
 	}
-
+	{{if .Additional -}}
+	{{$arr := split "," .Additional -}}
+	{{range $k, $v := $arr -}}
+	err = gw.Register{{$v}}HandlerFromEndpoint(ctx, gwmux, cfg.backend, opts)
+	if err != nil {
+		logrus.Fatalf("Could not register gateway: %v", err)
+	}
+	{{end -}}
+	{{end -}}
 	prefix := sanitizeApiPrefix(cfg.apiPrefix)
 	logrus.Infof("API prefix is: %s", prefix)
 	mux.Handle(prefix, handlers.CustomLoggingHandler(os.Stdout, http.StripPrefix(prefix[:len(prefix)-1], addRespHeaders(cfg, gwmux)), formatter))
@@ -281,7 +289,7 @@ func bindEnvVars(viper *viper.Viper, r *strings.Replacer, prefix string, secondP
 func SetupViper() *viper.Viper {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
-	viper.SetEnvPrefix("${SERVICE}")
+	viper.SetEnvPrefix("{{.Service}}")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(ViperKeySepChar, EnvVarSepChar))
 	viper.AutomaticEnv()
 
@@ -297,7 +305,7 @@ func SetupViper() *viper.Viper {
 	}
 
 	v := viper.GetViper()
-	bindEnvVars(v, strings.NewReplacer(EnvVarSepChar, ViperKeySepChar), strings.ToUpper("${SERVICE}"), ResponseHeaders)
+	bindEnvVars(v, strings.NewReplacer(EnvVarSepChar, ViperKeySepChar), strings.ToUpper("{{.Service}}"), ResponseHeaders)
 	return v
 }
 
