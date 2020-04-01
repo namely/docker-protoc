@@ -85,6 +85,7 @@ RUN set -ex && apk --update --no-cache add \
 
 # Add TypeScript support
 
+RUN npm config set unsafe-perm true
 RUN npm i -g ts-protoc-gen@0.12.0
 
 COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
