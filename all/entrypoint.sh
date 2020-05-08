@@ -30,6 +30,7 @@ printUsage() {
                                              as surrounding comments."
     echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
     echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
+    echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names."
 }
 
 
@@ -54,6 +55,7 @@ DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
 DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
+SWAGGER_JSON=false
 
 while test $# -gt 0; do
     case "$1" in
@@ -170,6 +172,10 @@ while test $# -gt 0; do
         --csharp_opt)
             shift
             CSHARP_OPT=$1
+            shift
+            ;;
+        --with-swagger-json-names)
+            SWAGGER_JSON=true
             shift
             ;;
         *)
@@ -389,6 +395,12 @@ if [ $GEN_GATEWAY = true ]; then
 
     protoc $PROTO_INCLUDE \
 		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
-    protoc $PROTO_INCLUDE  \
-		--swagger_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+    
+    if [[ $SWAGGER_JSON == true ]]; then
+        protoc $PROTO_INCLUDE  \
+		    --swagger_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+    else 
+        protoc $PROTO_INCLUDE  \
+		    --swagger_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+    fi
 fi
