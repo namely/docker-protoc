@@ -174,7 +174,7 @@ while test $# -gt 0; do
             CSHARP_OPT=$1
             shift
             ;;
-        ----with-swagger-json-names)
+        --with-swagger-json-names)
             SWAGGER_JSON=true
             shift
             ;;
