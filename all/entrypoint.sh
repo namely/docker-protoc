@@ -18,6 +18,7 @@ printUsage() {
     echo " --with-rbi                     Generate Sorbet type declaration files (.rbi files) - see https://github.com/coinbase/protoc-gen-rbi"
     echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
     echo " --with-validator               Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
+    echo " --with-kroto CONFIG_FILE       Generate kroto-plus extras for Kotlin/JVM - see https://github.com/marcoferrer/kroto-plus"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
     echo " --go-package-map               Map proto imports to go import paths"
     echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
@@ -41,6 +42,8 @@ VALIDATOR_SUPPORTED_LANGUAGES=("go" "gogo" "cpp" "java" "python")
 DOCS_FORMAT="html,index.html"
 GEN_RBI=false
 GEN_TYPESCRIPT=false
+GEN_KROTO=false
+KROTO_CONFIG="/var/kroto-default-config.yml"
 LINT=false
 LINT_CHECKS=""
 SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set" "scala")
@@ -109,6 +112,14 @@ while test $# -gt 0; do
             GEN_DOCS=true
             if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
                 DOCS_FORMAT=$2
+                shift
+            fi
+            shift
+            ;;
+        --with-kroto)
+            GEN_KROTO=true
+            if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
+                KROTO_CONFIG=$2
                 shift
             fi
             shift
@@ -338,6 +349,10 @@ fi
 
 if [[ $GEN_TYPESCRIPT == true ]]; then
     GEN_STRING="$GEN_STRING --ts_out=service=grpc-node:$OUT_DIR"
+fi
+
+if [[ $GEN_KROTO == true && $GEN_LANG = "java" ]]; then
+    GEN_STRING="$GEN_STRING --plugin=protoc-gen-kroto=`which protoc-gen-kroto-plus` --kroto_out=ConfigPath=$KROTO_CONFIG:$OUT_DIR"
 fi
 
 LINT_STRING=''

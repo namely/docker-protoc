@@ -9,6 +9,7 @@ FROM golang:$go-alpine$alpine AS build
 ARG grpc
 ARG grpc_java
 ARG grpc_web=1.0.7
+ARG kroto_plus=0.6.1
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -64,7 +65,7 @@ RUN go get -u github.com/coinbase/protoc-gen-rbi
 RUN go get github.com/gomatic/renderizer/cmd/renderizer
 
 # Add scala support
-RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
+RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \
     && unzip protoc-gen-scala-0.9.6-linux-x86_64.zip \
     && chmod +x /tmp/protoc-gen-scala
 
@@ -72,6 +73,11 @@ RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-
 RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/protoc-gen-grpc-web-${grpc_web}-linux-x86_64 \
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
+
+# Add kotlin (kroto-plus) support
+RUN curl -sSL https://github.com/marcoferrer/kroto-plus/releases/download/v${kroto_plus}/protoc-gen-kroto-plus-${kroto_plus}-linux-x86_64.exe \
+    -o /tmp/protoc-gen-kroto-plus && \
+    chmod +x /tmp/protoc-gen-kroto-plus
 
 FROM alpine:3.9 AS protoc-all
 
@@ -81,7 +87,8 @@ RUN set -ex && apk --update --no-cache add \
     libc6-compat \
     ca-certificates \
     nodejs \
-    nodejs-npm
+    nodejs-npm \
+    openjdk8-jre
 
 # Add TypeScript support
 
@@ -100,12 +107,19 @@ COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
+COPY --from=build /tmp/protoc-gen-kroto-plus /usr/local/bin/
+
 COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/ /opt/include/protoc-gen-swagger/options/
 
 COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 ADD all/entrypoint.sh /usr/local/bin
+
+# Copy a default kroto-plus config that we can use it if no other config is
+# specified.
+ADD all/kroto-default-config.yml /var/kroto-default-config.yml
+
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /defs
