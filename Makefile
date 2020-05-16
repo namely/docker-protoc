@@ -2,10 +2,6 @@
 build:
 	bash ./build.sh
 
-.PHONY: test
-test:
-	bash ./all/test.sh
-
 .PHONY: push
 push: build
 	bash ./push.sh
