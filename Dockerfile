@@ -94,12 +94,11 @@ FROM debian:$debian-slim AS grpckit
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     bash \
     libstdc++ \
-    libc6-compat \
     ca-certificates \
     nodejs \
-    nodejs-npm \
+    npm \
     zlib1g \
-    libssl \
+    libssl1.1 \
     openjdk-11-jre
 
 # Add TypeScript support
