@@ -1,11 +1,11 @@
-ARG alpine=3.11
+ARG debian=buster
 ARG go=1.14
 ARG grpc
 ARG grpc_java
 ARG buf_version
 ARG grpc_web
 
-FROM golang:$go-alpine$alpine AS build
+FROM golang:$go-$debian AS build
 
 # TIL docker arg variables need to be redefined in each build stage
 ARG grpc
@@ -13,33 +13,48 @@ ARG grpc_java
 ARG grpc_web
 ARG buf_version
 
-RUN set -ex && apk --update --no-cache add \
-    bash \
-    make \
+RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    pkg-config \
     cmake \
-    autoconf \
-    automake \
     curl \
-    tar \
-    libtool \
-    g++ \
     git \
-    openjdk8-jre \
-    libstdc++ \
-    ca-certificates \
-    nss \
-    linux-headers \
-    unzip
+    openjdk-11-jre \
+    unzip \
+    libtool \
+    autoconf \
+    zlib1g-dev    \
+    libssl-dev
 
 WORKDIR /tmp
-COPY all/install-protobuf.sh /tmp
-RUN chmod +x /tmp/install-protobuf.sh
-RUN /tmp/install-protobuf.sh ${grpc} ${grpc_java}
+
+RUN git clone -b v$grpc.x --recursive -j8 --depth 1 https://github.com/grpc/grpc
+RUN mkdir -p /tmp/grpc/cmake/build
+WORKDIR /tmp/grpc/cmake/build
+RUN cmake ../..  \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DgRPC_INSTALL=ON \
+    -DgRPC_BUILD_TESTS=OFF \
+    -DgRPC_ZLIB_PROVIDER=package \
+    -DgRPC_SSL_PROVIDER=package \
+    -DCMAKE_INSTALL_PREFIX=/opt
+RUN make -j
+RUN make install
+
+WORKDIR /tmp
+RUN git clone -b v$grpc_java.x --recursive https://github.com/grpc/grpc-java.git
+WORKDIR /tmp/grpc-java/compiler
+RUN CXXFLAGS="-I/opt/include" LDFLAGS="-L/opt/lib" ../gradlew -PskipAndroid=true java_pluginExecutable
+
+WORKDIR /tmp
 
 # Install Buf
-COPY all/install-buf.sh /tmp
-RUN chmod +x /tmp/install-buf.sh
-RUN /tmp/install-buf.sh ${buf_version}
+RUN BIN="/usr/local/bin" && \
+    BINARY_NAME="buf" && \
+    curl -sSL \
+    "https://github.com/bufbuild/buf/releases/download/v"$buf_version"/${BINARY_NAME}-$(uname -s)-$(uname -m)" \
+    -o "${BIN}/${BINARY_NAME}" && \
+    chmod +x "${BIN}/${BINARY_NAME}"
 
 # Go get go-related bins
 RUN go get -u google.golang.org/grpc
@@ -74,38 +89,40 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/pro
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
-FROM alpine:$alpine AS grpckit
+FROM debian:$debian-slim AS grpckit
 
-RUN set -ex && apk --update --no-cache add \
+RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     bash \
     libstdc++ \
     libc6-compat \
     ca-certificates \
     nodejs \
-    nodejs-npm
+    nodejs-npm \
+    zlib1g \
+    libssl \
+    openjdk-11-jre
 
 # Add TypeScript support
 
 RUN npm config set unsafe-perm true
 RUN npm i -g ts-protoc-gen@0.12.0
 
-COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
-COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
-COPY --from=build /tmp/grpc/libs/opt/ /usr/local/lib/
+COPY --from=build /opt/bin/* /usr/local/bin/
+COPY --from=build /opt/include/* /usr/local/include/
+COPY --from=build /opt/lib/* /usr/local/lib/
+COPY --from=build /opt/share/* /usr/local/share/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /usr/local/include/google/ /usr/local/include/google
 COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 COPY --from=build /usr/local/bin/buf /usr/local/bin/buf
-
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
-
-#COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/github.com/envoyproxy/protoc-gen-validate/
-#COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
+COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/github.com/envoyproxy/protoc-gen-validate/
+COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 # protoc
 FROM grpckit AS protoc
-ENTRYPOINT [ "protoc", "-I/opt/include" ]
+ENTRYPOINT [ "protoc" ]
 
 FROM grpckit as buf
 

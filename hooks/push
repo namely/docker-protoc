@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-source ./variables.sh
+source ../variables.sh
 
 for build in ${BUILDS[@]}; do
     tag=${CONTAINER}/${build}:${GRPC_VERSION}_${BUILD_VERSION}
