@@ -32,11 +32,6 @@ cd /tmp/grpc/third_party/protobuf
 make
 make install
 
-cd /tmp/grpc/third_party/protobuf
-./autogen.sh
-cd /tmp/grpc
-make grpc_cli
-
 cd /tmp
 git clone -b v$2.x --recursive https://github.com/grpc/grpc-java.git
 cd /tmp/grpc-java/compiler

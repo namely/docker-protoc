@@ -2,13 +2,16 @@ ARG alpine=3.11
 ARG go=1.14
 ARG grpc
 ARG grpc_java
+ARG buf_version
+ARG grpc_web
 
 FROM golang:$go-alpine$alpine AS build
 
 # TIL docker arg variables need to be redefined in each build stage
 ARG grpc
 ARG grpc_java
-ARG grpc_web=1.0.7
+ARG grpc_web
+ARG buf_version
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -34,9 +37,9 @@ RUN chmod +x /tmp/install-protobuf.sh
 RUN /tmp/install-protobuf.sh ${grpc} ${grpc_java}
 
 # Install Buf
-COPY all/buf.sh /tmp
-RUN chmod +x /tmp/buf.sh
-RUN /tmp/buf.sh
+COPY all/install-buf.sh /tmp
+RUN chmod +x /tmp/install-buf.sh
+RUN /tmp/install-buf.sh ${buf_version}
 
 # Go get go-related bins
 RUN go get -u google.golang.org/grpc
@@ -71,7 +74,7 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/pro
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
-FROM alpine:3.9 AS grpckit
+FROM alpine:$alpine AS grpckit
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -90,17 +93,22 @@ COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
 COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
 COPY --from=build /tmp/grpc/libs/opt/ /usr/local/lib/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
-COPY --from=build /usr/local/include/google/ /opt/include/google
+COPY --from=build /usr/local/include/google/ /usr/local/include/google
 COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
+COPY --from=build /usr/local/bin/buf /usr/local/bin/buf
 
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
-COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
-COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
+#COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/github.com/envoyproxy/protoc-gen-validate/
+#COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 # protoc
 FROM grpckit AS protoc
 ENTRYPOINT [ "protoc", "-I/opt/include" ]
+
+FROM grpckit as buf
+
+ENTRYPOINT [ "buf" ]
 
 FROM grpckit

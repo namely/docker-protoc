@@ -3,6 +3,8 @@
 # Substitute BIN for your bin directory.
 # Substitute VERSION for the current released version.
 # Substitute BINARY_NAME for "buf", "protoc-gen-buf-check-breaking", or "protoc-gen-buf-check-lint".
+echo ${BUF_VERSION}
+echo version
 BIN="/usr/local/bin" && \
 BINARY_NAME="buf" && \
   curl -sSL \

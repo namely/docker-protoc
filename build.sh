@@ -9,6 +9,8 @@ for build in ${BUILDS[@]}; do
         -f Dockerfile \
         --build-arg grpc=${GRPC_VERSION} \
         --build-arg grpc_java=${GRPC_JAVA_VERSION} \
+        --build-arg grpc_web=${GRPC_WEB_VERSION} \
+        --build-arg buf_version=${BUF_VERSION} \
         --target ${build} \
         .
 
