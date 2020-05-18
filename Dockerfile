@@ -59,7 +59,7 @@ RUN BIN="/usr/local/bin" && \
 # Go get go-related bins
 RUN go get -u google.golang.org/grpc
 
-RUN go get -u github.com/golang/protobuf/protoc-gen-go
+RUN go get -u github.com/protocolbuffers/protobuf-go/protoc-gen-go
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
@@ -67,7 +67,8 @@ RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
-RUN go get -u github.com/micro/protobuf/protoc-gen-go
+# Figure out if this is a naming collision
+# RUN go get -u github.com/micro/protobuf/protoc-gen-go
 
 RUN go get -d github.com/envoyproxy/protoc-gen-validate
 RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
