@@ -1,29 +1,37 @@
-# gRPC/Protocol Buffer Compiler Containers
+# gRPC/Protocol Buffers Container Toolkit
 
-This repository contains support for various Docker images that wrap `protoc`,
-`prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
-in a variety of languages removing the need to install and manage these commands locally.
-It relies on setting a simple volume to the docker container,
-usually mapping the current directory to `/defs`, and specifying the file and
-language you want to generate.
+This repo builds a docker container the `protoc` command line utility, several gRPC plugins, and
+several grpc tools. It is meant to provide a swiss army knife docker container for all your gRPC
+needs. In multi-team environments this is essential to provide specific configurations to teammates.
 
 ## Features
 
 - Docker images for:
   - `grpckit` a default container with all the goodies
   - `protoc` with `grpckit/protoc`
-- Support for all C based gRPC libraries with Go and Java native libraries
-
+  - `buf`, containing the https://buf.build/ toolkit.
+- Support for all C based gRPC libraries
+  - 
+- Go, including Gogo, Gogo Fast and Micro
+- Scala and Java native libraries
+- grpc-web 
+- The following additions:
+  - protoc-gen-lint
+  - protoc-gen-doc
+  - protoc-gen-validate
+  - protoc-gen-govalidators
+  - protoc-gen-rbi (Ruby Sorbet Types)
+  - renderizer 
+  
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
-
-> Note - throughout this document, commands for bash are prefixed with `$` and commands
-> for PowerShell on Windows are prefixed with `PS>`. It is not required to use "Windows
-> Subsystem for Linux" (WSL)
 
 ## Tag Conventions
 
-For `protoc` a pattern of `<GRPC\_VERSION>_<CONTAINER\_VERSION>` is used for all images.
+A  tag pattern of `<GRPC\_VERSION>_<CONTAINER\_VERSION>` is used for all images.
 Example is `grpckit/protoc-all:1.28_0` for gRPC version `1.28`. The `_0` suffix allows for inter-grpc releases as necessary. The `latest` tag will always point to the most recent version.
+
+It is highly recommend to pin to a specific gRPC version in your toolchain for repeatable builds. 
+
 
 ## Contributing
 
@@ -42,9 +50,3 @@ $ make push
 ```
 
 This will build and push the containers to the org specified in variables.sh.
-
-## Docker Troubleshooting
-
-Docker must be configured to use Linux containers.
-
-If on Windows, you must have your `C:` drive shared with Docker. Open the Docker settings (right-click Docker icon in notification area) and pick the Shared Drives tab. Ensure `C:` is listed and the box is checked. If you are still experiencing trouble, click "Reset credentials..." on that tab and re-enter your local Windows username and password.
