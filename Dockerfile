@@ -107,17 +107,19 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
 RUN npm config set unsafe-perm true
 RUN npm i -g ts-protoc-gen@0.12.0
 
-COPY --from=build /opt/bin/* /usr/local/bin/
-COPY --from=build /opt/include/* /usr/local/include/
-COPY --from=build /opt/lib/* /usr/local/lib/
-COPY --from=build /opt/share/* /usr/local/share/
+COPY --from=build /opt/bin/ /usr/local/bin/
+COPY --from=build /opt/include/ /usr/local/include/
+COPY --from=build /opt/lib/ /usr/local/lib/
+COPY --from=build /opt/share/ /usr/local/share/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
-COPY --from=build /go/bin/* /usr/local/bin/
+COPY --from=build /go/bin/ /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 COPY --from=build /usr/local/bin/buf /usr/local/bin/buf
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
-COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/github.com/envoyproxy/protoc-gen-validate/
-COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
+
+# NB(MLH) We shouldn't need to copy these to include, as protofiles should be sourced elsewhere
+# COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/github.com/envoyproxy/protoc-gen-validate/
+# COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 # protoc
 FROM grpckit AS protoc
