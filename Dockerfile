@@ -38,7 +38,7 @@ RUN cmake ../..  \
     -DgRPC_ZLIB_PROVIDER=package \
     -DgRPC_SSL_PROVIDER=package \
     -DCMAKE_INSTALL_PREFIX=/opt
-RUN make -j
+RUN make
 RUN make install
 
 WORKDIR /tmp
