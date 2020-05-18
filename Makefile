@@ -1,15 +1,15 @@
 .PHONY: build
 build:
-	bash ./hooks/build
+	bash ./build.sh
 
 .PHONY: push
 push: build
-	bash ./hooks/push
+	bash ./push.sh
 
 .PHONY: push-latest
 push-latest:
-	bash ./hooks/push true
+	bash LATEST=true ./push.sh
 
-.PHONY: tag-latest
-tag-latest:
-	bash ./hooks/build true
+.PHONY: build-latest
+build-latest:
+	bash LATEST=true ./build.sh

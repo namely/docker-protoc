@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-source "$DIR/../variables.sh"
+source ./variables.sh
 
 for build in ${BUILDS[@]}; do
     tag=${CONTAINER}/${build}:${GRPC_VERSION}_${BUILD_VERSION}
