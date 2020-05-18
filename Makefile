@@ -6,11 +6,12 @@ build:
 push: build
 	./push.sh
 
-.PHONY: export LATEST = true
-push-latest:
-	./push.sh
-
 .PHONY: build-latest
 build-latest:
 	LATEST=true \
 	./build.sh
+
+.PHONY: push-latest
+push-latest: build-latest
+	LATEST=true \
+	./push.sh
