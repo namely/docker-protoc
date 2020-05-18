@@ -91,9 +91,9 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/pro
 
 FROM debian:$debian-slim AS grpckit
 
+RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     bash \
-    libstdc++ \
     ca-certificates \
     nodejs \
     npm \
@@ -111,7 +111,6 @@ COPY --from=build /opt/include/* /usr/local/include/
 COPY --from=build /opt/lib/* /usr/local/lib/
 COPY --from=build /opt/share/* /usr/local/share/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
-COPY --from=build /usr/local/include/google/ /usr/local/include/google
 COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 COPY --from=build /usr/local/bin/buf /usr/local/bin/buf

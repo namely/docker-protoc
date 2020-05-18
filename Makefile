@@ -1,15 +1,16 @@
 .PHONY: build
 build:
-	bash ./build.sh
+	./build.sh
 
 .PHONY: push
 push: build
-	bash ./push.sh
+	./push.sh
 
-.PHONY: push-latest
+.PHONY: export LATEST = true
 push-latest:
-	bash LATEST=true ./push.sh
+	./push.sh
 
 .PHONY: build-latest
 build-latest:
-	bash LATEST=true ./build.sh
+	LATEST=true \
+	./build.sh
