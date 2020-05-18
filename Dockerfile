@@ -59,7 +59,7 @@ RUN BIN="/usr/local/bin" && \
 # Go get go-related bins
 RUN go get -u google.golang.org/grpc
 
-RUN go get -u github.com/protocolbuffers/protobuf-go/protoc-gen-go
+RUN go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
