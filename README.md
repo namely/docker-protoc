@@ -34,8 +34,8 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 
 ## Tag Conventions
 
-A tag pattern of `<GRPC\_VERSION>_<CONTAINER\_VERSION>` is used for all images.
-Example is `grpckit/protoc-all:1.28_0` for gRPC version `1.28`. The `_0` suffix allows for inter-grpc releases as necessary. The `latest` tag will always point to the most recent version.
+A tag pattern of `<GRPC_VERSION>_<CONTAINER_VERSION>` is used for all images.
+Example is `grpckit/omniproto:1.28_0` for gRPC version `1.28`. The `_0` suffix allows for inter-grpc releases as necessary. The `latest` tag will always point to the most recent version.
 
 It is highly recommend to pin to a specific gRPC version in your toolchain for repeatable builds.
 
