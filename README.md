@@ -16,7 +16,13 @@ entrypoint.
   - `grpckit` a default container with all the goodies. No cmd, args, or entrypoint defined.
   - `protoc` with `grpckit/protoc` [grpckit/omniproto](https://github.com/grpckit/omniproto)
   - `buf`, containing the [buf.build](https://buf.build/)toolkit.
-  - `omniproto`, to generate protos with
+  - `omniproto`, to generate protos with [omniproto](https://github.com/grpckit/omniproto)
+
+It is recommended to use `omniproto`:
+
+```
+docker run -v $(pwd):/workspace --rm grpckit/omniproto
+```
 
 ## Supported plugins
 
@@ -26,9 +32,9 @@ entrypoint.
 - [grpc-web](https://github.com/grpc/grpc-web)
 - The following additions:
   - [ckaznocha/protoc-gen-lint](https://github.com/ckaznocha/protoc-gen-lint)
-  - [psuedomuto/protoc-gen-doc](github.com/pseudomuto/protoc-gen-doc)
-  - [envoyproxy/protoc-gen-validate](github.com/envoyproxy/protoc-gen-validate)
-  - [coinbase/protoc-gen-rbi](github.com/coinbase/protoc-gen-rbi) (Ruby Sorbet Types)
+  - [psuedomuto/protoc-gen-doc](https://github.com/pseudomuto/protoc-gen-doc)
+  - [envoyproxy/protoc-gen-validate](https://github.com/envoyproxy/protoc-gen-validate)
+  - [coinbase/protoc-gen-rbi](https://github.com/coinbase/protoc-gen-rbi) (Ruby Sorbet Types)
 
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
 
