@@ -58,14 +58,20 @@ RUN BIN="/usr/local/bin" && \
 
 # Go get go-related bins
 RUN go get -u google.golang.org/grpc
-
 RUN go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 
+# Gogo and Gogo Fast
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
 
+# Lint
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
+
+# Docs
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+
+# Omniproto
+RUN go get -u github.com/grpckit/omniproto
 
 # Figure out if this is a naming collision
 # RUN go get -u github.com/micro/protobuf/protoc-gen-go
@@ -73,12 +79,8 @@ RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 RUN go get -d github.com/envoyproxy/protoc-gen-validate
 RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
 
-RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
-
 # Add Ruby Sorbet types support (rbi)
 RUN go get -u github.com/coinbase/protoc-gen-rbi
-
-RUN go get github.com/gomatic/renderizer/cmd/renderizer
 
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \
@@ -102,8 +104,9 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     libssl1.1 \
     openjdk-11-jre
 
-# Add TypeScript support
+WORKDIR /workspace
 
+# Add TypeScript support
 RUN npm config set unsafe-perm true
 RUN npm i -g ts-protoc-gen@0.12.0
 
@@ -125,8 +128,12 @@ COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 FROM grpckit AS protoc
 ENTRYPOINT [ "protoc" ]
 
-FROM grpckit as buf
-
+# buf
+FROM grpckit AS buf
 ENTRYPOINT [ "buf" ]
+
+# omnikit
+FROM grpckit AS omniproto
+ENTRYPOINT [ "omniproto" ]
 
 FROM grpckit

@@ -9,4 +9,4 @@ BUILD_VERSION=${BUILD_VERSION:-0}
 CONTAINER=${DOCKER_REPO}${NAMESPACE}
 LATEST=${LATEST:false}
 BUF_VERSION=${BUF_VERSION:-0.12.1}
-BUILDS=("build" "grpckit" "protoc" "buf")
+BUILDS=("build" "grpckit" "protoc" "buf", "omniproto")
