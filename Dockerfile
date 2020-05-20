@@ -70,14 +70,14 @@ RUN go get -u github.com/ckaznocha/protoc-gen-lint
 # Docs
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
-# Omniproto
-RUN go get -u github.com/grpckit/omniproto
-
 # Figure out if this is a naming collision
 # RUN go get -u github.com/micro/protobuf/protoc-gen-go
 
 RUN go get -d github.com/envoyproxy/protoc-gen-validate
 RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
+
+# Omniproto
+RUN go get -u github.com/grpckit/omniproto
 
 # Add Ruby Sorbet types support (rbi)
 RUN go get -u github.com/coinbase/protoc-gen-rbi

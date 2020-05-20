@@ -1,4 +1,4 @@
-# gRPC/Protocol Buffers Container Toolkit
+# gRPC/Protocol Buffers Containerized Toolkit
 
 This repo builds a docker container for the `protoc` command line utility, several gRPC plugins, and
 several grpc tools. It is meant to provide a swiss army knife docker container for all your gRPC
