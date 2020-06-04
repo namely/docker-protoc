@@ -30,6 +30,7 @@ printUsage() {
                                              as surrounding comments."
     echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
     echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
+    echo " --scala_opt                    The options to pass to protoc to customize the scala code generation."
     echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names."
 }
 
@@ -174,6 +175,11 @@ while test $# -gt 0; do
             CSHARP_OPT=$1
             shift
             ;;
+        --scala_opt)
+            shift
+            SCALA_OPT=$1
+            shift
+            ;;
         --with-swagger-json-names)
             SWAGGER_JSON=true
             shift
@@ -283,7 +289,13 @@ plugins=grpc+embedded\
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which protoc-gen-grpc-java`"
         ;;
     "scala")
-        GEN_STRING="--scala_out=$OUT_DIR --plugin=`which protoc-gen-scala`"
+        $SCALA_OUT=$OUT_DIR
+
+        if [[ ! -z $SCALA_OPT ]]; then
+            $SCALA_OUT="$SCALA_OPT:$OUT_DIR"
+        fi
+
+        GEN_STRING="--scala_out=$SCALA_OUT --plugin=`which protoc-gen-scala`"
         ;;
     "node")
         GEN_STRING="--grpc_out=$OUT_DIR --js_out=import_style=commonjs,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
@@ -395,11 +407,11 @@ if [ $GEN_GATEWAY = true ]; then
 
     protoc $PROTO_INCLUDE \
 		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
-    
+
     if [[ $SWAGGER_JSON == true ]]; then
         protoc $PROTO_INCLUDE  \
 		    --swagger_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
-    else 
+    else
         protoc $PROTO_INCLUDE  \
 		    --swagger_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
     fi
