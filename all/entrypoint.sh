@@ -248,6 +248,12 @@ if [[ "$GEN_TYPESCRIPT" == true && "$GEN_LANG" != "node" ]]; then
     exit 1
 fi
 
+if [[ "$GEN_KROTO" == true && "$GEN_LANG" != "java" ]]; then
+    echo "Generating Kroto+ extensions is Java specific."
+    exit 1
+fi
+
+
 PLUGIN_LANG=$GEN_LANG
 if [ $PLUGIN_LANG == 'objc' ] ; then
     PLUGIN_LANG='objective_c'
@@ -351,7 +357,7 @@ if [[ $GEN_TYPESCRIPT == true ]]; then
     GEN_STRING="$GEN_STRING --ts_out=service=grpc-node:$OUT_DIR"
 fi
 
-if [[ $GEN_KROTO == true && $GEN_LANG = "java" ]]; then
+if [[ $GEN_KROTO == true ]]; then
     GEN_STRING="$GEN_STRING --plugin=protoc-gen-kroto=`which protoc-gen-kroto-plus` --kroto_out=ConfigPath=$KROTO_CONFIG:$OUT_DIR"
 fi
 
@@ -410,11 +416,11 @@ if [ $GEN_GATEWAY = true ]; then
 
     protoc $PROTO_INCLUDE \
 		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
-    
+
     if [[ $SWAGGER_JSON == true ]]; then
         protoc $PROTO_INCLUDE  \
 		    --swagger_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
-    else 
+    else
         protoc $PROTO_INCLUDE  \
 		    --swagger_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
     fi
