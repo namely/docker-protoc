@@ -56,6 +56,7 @@ DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
 DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
+SCALA_OPT=""
 SWAGGER_JSON=false
 
 while test $# -gt 0; do
