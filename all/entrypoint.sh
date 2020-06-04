@@ -290,10 +290,10 @@ plugins=grpc+embedded\
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which protoc-gen-grpc-java`"
         ;;
     "scala")
-        $SCALA_OUT=$OUT_DIR
+        SCALA_OUT=$OUT_DIR
 
         if [[ ! -z $SCALA_OPT ]]; then
-            $SCALA_OUT="$SCALA_OPT:$OUT_DIR"
+            SCALA_OUT="$SCALA_OPT:$OUT_DIR"
         fi
 
         GEN_STRING="--scala_out=$SCALA_OUT --plugin=`which protoc-gen-scala`"
