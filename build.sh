@@ -11,9 +11,4 @@ for build in ${BUILDS[@]}; do
         --build-arg grpc_java=${GRPC_JAVA_VERSION} \
         --target ${build} \
         .
-
-    if [ "${LATEST}" = true ]; then
-        echo "setting ${tag} to latest"
-        docker tag ${tag} ${CONTAINER}/${build}:latest
-    fi
 done
