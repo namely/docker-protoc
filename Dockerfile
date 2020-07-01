@@ -41,6 +41,12 @@ RUN cmake ../..  \
 RUN make
 RUN make install
 
+# Workaround for the transition to protoc-gen-go-grpc
+# https://grpc.io/docs/languages/go/quickstart/#regenerate-grpc-code
+WORKDIR /tmp
+RUN git clone -b v$grpc.x --recursive https://github.com/grpc/grpc-go.git
+RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
+
 WORKDIR /tmp
 RUN git clone -b v$grpc_java.x --recursive https://github.com/grpc/grpc-java.git
 WORKDIR /tmp/grpc-java/compiler
