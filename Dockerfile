@@ -1,14 +1,14 @@
-ARG alpine=3.11
-ARG go=1.12
-ARG grpc
-ARG grpc_java
+ARG alpine_version=3.12
+ARG go_version=1.14
+ARG grpc_version
+ARG grpc_java_version
 
-FROM golang:$go-alpine$alpine AS build
+FROM golang:$go_version-alpine$alpine_version AS build
 
 # TIL docker arg variables need to be redefined in each build stage
-ARG grpc
-ARG grpc_java
-ARG grpc_web=1.0.7
+ARG grpc_version
+ARG grpc_java_version
+ARG grpc_web_version=1.0.7
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -31,7 +31,7 @@ RUN set -ex && apk --update --no-cache add \
 WORKDIR /tmp
 COPY all/install-protobuf.sh /tmp
 RUN chmod +x /tmp/install-protobuf.sh
-RUN /tmp/install-protobuf.sh ${grpc} ${grpc_java}
+RUN /tmp/install-protobuf.sh ${grpc_version} ${grpc_java_version}
 RUN git clone https://github.com/googleapis/googleapis
 
 RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \
@@ -69,11 +69,11 @@ RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-
     && chmod +x /tmp/protoc-gen-scala
 
 # Add grpc-web support
-RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web}/protoc-gen-grpc-web-${grpc_web}-linux-x86_64 \
+RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_version}/protoc-gen-grpc-web-${grpc_web_version}-linux-x86_64 \
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
-FROM alpine:$alpine AS protoc-all
+FROM alpine:$alpine_version AS protoc-all
 
 RUN set -ex && apk --update --no-cache add \
     bash \

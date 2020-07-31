@@ -1,7 +1,8 @@
 # Template for grpc-gateway 
 
-ARG alpine_version=3.8
-FROM golang:1.10-alpine$alpine_version AS build
+ARG alpine_version=3.11
+ARG go_version=1.14
+FROM golang:$go_version-alpine$alpine_version AS build
 
 RUN apk add --update --no-cache git
 WORKDIR /app
@@ -10,13 +11,12 @@ ENV GOPATH=/app
 # Copy all of the staged files (protos plus go source)
 COPY . /app/
 
-# Download the go dependencies.
-RUN go get ./...
-
-WORKDIR /app
+# init the module so we can actually build
+WORKDIR /app/src
+RUN go mod init gateway
 
 # Build the gateway
-RUN go build -o grpc_gateway src/pkg/main/main.go
+RUN go build -o /app/grpc_gateway pkg/main/main.go
 
 FROM alpine:$alpine_version
 WORKDIR /app
