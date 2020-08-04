@@ -12,6 +12,7 @@ printUsage() {
   echo "-s, --service SERVICE       The name of the service to build the gateway for."
   echo "-a, --additional_interfaces The set of additional interfaces to bind to this gateway." 
   echo "-o, --out DIRECTORY         Optional. The output directory for the gateway. By default, gen/grpc-gateway."
+  echo "--go-package-map            Optional. Map proto imports to go import paths"
 }
 
 # Path to the proto file
@@ -22,6 +23,7 @@ SERVICE=""
 ADDITIONAL_INTERFACES=""
 # Output directory.
 OUT_DIR=""
+GO_PACKAGE_MAP=""
 # Extra includes.
 INCLUDES=""
 
@@ -86,6 +88,13 @@ while test $# -gt 0; do
         exit 1
       fi
       ;;
+    --go-package-map)
+      if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
+        GO_PACKAGE_MAP=$2,
+      shift
+      fi
+      shift
+      ;;
     *)
       printUsage
       exit 1
@@ -112,7 +121,7 @@ fi
 # Generate the gateway files
 PROTO_DIR=$(dirname $FILE)
 GEN_PATH=${OUT_DIR}/gen/
-entrypoint.sh -d ${PROTO_DIR} -l go --with-gateway -o ${GEN_PATH} ${INCLUDES}
+entrypoint.sh -d ${PROTO_DIR} -l go --with-gateway -o ${GEN_PATH} --go-package-map ${GO_PACKAGE_MAP} ${INCLUDES}
 
 GATEWAY_IMPORT_DIR=`find ${GEN_PATH} -type f -name "*.gw.go" -print | head -n 1 | xargs -n1 dirname`
 GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/"}
