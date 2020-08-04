@@ -4,3 +4,5 @@ test.rb
 **/gen/*
 pb-*
 
+/.idea
+/.vscode

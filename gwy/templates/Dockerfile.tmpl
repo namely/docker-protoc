@@ -6,23 +6,21 @@ FROM golang:$go_version-alpine$alpine_version AS build
 
 RUN apk add --update --no-cache git
 WORKDIR /app
-ENV GOPATH=/app
 
 # Copy all of the staged files (protos plus go source)
 COPY . /app/
 
 # init the module so we can actually build
-WORKDIR /app/src
-RUN go mod init gateway
+RUN go mod init namely
 
 # Build the gateway
-RUN go build -o /app/grpc_gateway pkg/main/main.go
+RUN go build -o /app/grpc_gateway cmd/gateway/main.go
 
 FROM alpine:$alpine_version
 WORKDIR /app
 COPY --from=build /app/grpc_gateway /app/
 COPY --from=build /app/config.yaml /app/
-COPY --from=build /app/src/{{.Import}}/{{.Swagger}} /app/
+COPY --from=build /app/{{.Import}}/{{.Swagger}} /app/
 
 EXPOSE 80
 ENTRYPOINT ["/app/grpc_gateway"]

@@ -109,13 +109,13 @@ if [[ -z $OUT_DIR ]]; then
   OUT_DIR="./gen/grpc-gateway"
 fi
 
-# Generate the gateway files in src
+# Generate the gateway files
 PROTO_DIR=$(dirname $FILE)
-OUT_PATH=$OUT_DIR/src/gen/pb-go
+OUT_PATH=${OUT_DIR}/gen/pb-go
 entrypoint.sh -d $PROTO_DIR -l go --with-gateway -o $OUT_PATH $INCLUDES
 
 GATEWAY_IMPORT_DIR=`find $OUT_PATH -type f -name "*.gw.go" -print | head -n 1 | xargs -n1 dirname`
-GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/src/"}
+GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/"}
 
 # Find the Swagger file.
 PROTO_FILE=$(basename $FILE)
@@ -125,7 +125,6 @@ SWAGGER_FILE_NAME=`basename $PROTO_FILE .proto`.swagger.json
 renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/config.yaml.tmpl > $OUT_DIR/config.yaml
 renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/Dockerfile.tmpl > $OUT_DIR/Dockerfile
 
-MAIN_DIR=$OUT_DIR/src/pkg/main
-mkdir -p $MAIN_DIR
+MAIN_DIR=${OUT_DIR}/cmd/gateway
+mkdir -p ${MAIN_DIR}
 renderizer --import=${GATEWAY_IMPORT_DIR} --service=${SERVICE} --additional=${ADDITIONAL_INTERFACES} /templates/main.go.tmpl > $MAIN_DIR/main.go
-

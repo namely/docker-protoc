@@ -22,13 +22,15 @@ import (
 	"google.golang.org/grpc"
 
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails" // Pull in errdetails
-	gw "gateway/{{.Import}}"
+	gw "namely/{{.Import}}"
 )
+
 const (
 	ResponseHeaders = "RESPONSE-HEADERS"
 	EnvVarSepChar = "_"
 	ViperKeySepChar = "."
 )
+
 type proxyConfig struct {
 	// The backend gRPC service to listen to.
 	backend string
@@ -116,6 +118,7 @@ func logFormatter(cfg proxyConfig) handlers.LogFormatter {
 		logrus.WithFields(fields).WithTime(params.TimeStamp).Infof("%s %s %d", params.Request.Method, uri, params.StatusCode)
 	}
 }
+
 // addRespHeaders adds any variables with the prefix `ResponseHeaders` as headers in the http response
 // as well as setting the Access-Control headers
 func addRespHeaders(cfg proxyConfig, handler http.Handler) http.Handler {
@@ -232,6 +235,7 @@ func getResponseHeaders(cfg *viper.Viper) map[string]string {
 	}
 	return m
 }
+
 func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 
 	formatter := logFormatter(cfg)
