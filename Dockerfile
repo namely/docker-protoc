@@ -8,7 +8,7 @@ FROM golang:$go_version-alpine$alpine_version AS build
 # TIL docker arg variables need to be redefined in each build stage
 ARG grpc_version
 ARG grpc_java_version
-ARG grpc_web_version=1.0.7
+ARG grpc_web_version=1.2.0
 
 RUN set -ex && apk --update --no-cache add \
     bash \
