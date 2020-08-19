@@ -20,8 +20,13 @@ cd /tmp
 
 git clone -b v$1.x --recursive -j8 https://github.com/grpc/grpc
 cd /tmp/grpc
-cmake . -DgRPC_INSTALL=ON          \
-        -DCMAKE_BUILD_TYPE=Release
+cmake . -DgRPC_INSTALL=ON                \
+        -DCMAKE_BUILD_TYPE=Release       \
+        -DgRPC_ABSL_PROVIDER=package     \
+        -DgRPC_CARES_PROVIDER=package    \
+        -DgRPC_PROTOBUF_PROVIDER=package \
+        -DgRPC_SSL_PROVIDER=package      \
+        -DgRPC_ZLIB_PROVIDER=package
 CFLAGS="-Wno-cast-function-type" make
 make install
 # php support
