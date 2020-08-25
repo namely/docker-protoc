@@ -2,6 +2,7 @@ ARG alpine_version=3.12
 ARG go_version=1.14
 ARG grpc_version
 ARG grpc_java_version
+ARG proto_version
 
 FROM golang:$go_version-alpine$alpine_version AS build
 
@@ -9,6 +10,7 @@ FROM golang:$go_version-alpine$alpine_version AS build
 ARG grpc_version
 ARG grpc_java_version
 ARG grpc_web_version
+ARG proto_version
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -26,12 +28,21 @@ RUN set -ex && apk --update --no-cache add \
     ca-certificates \
     nss \
     linux-headers \
-    unzip
+    unzip \
+    protoc~=${proto_version} \
+    protobuf-dev~=${proto_version}
+
+RUN set -ex && apk --update --no-cache add \
+    grpc~=${grpc_version} \
+    grpc-dev~=${grpc_version} \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 WORKDIR /tmp
-COPY all/install-protobuf.sh /tmp
-RUN chmod +x /tmp/install-protobuf.sh
-RUN /tmp/install-protobuf.sh ${grpc_version} ${grpc_java_version}
+
+RUN git clone -b v${grpc_java_version}.x --recursive https://github.com/grpc/grpc-java.git
+WORKDIR /tmp/grpc-java/compiler
+RUN ../gradlew -PskipAndroid=true java_pluginExecutable
+
 RUN git clone https://github.com/googleapis/googleapis
 
 RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \
@@ -39,6 +50,7 @@ RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototo
     chmod +x /usr/local/bin/prototool
 
 # Go get go-related bins
+WORKDIR /tmp
 RUN go get -u google.golang.org/grpc
 
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
@@ -75,22 +87,28 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_vers
 
 FROM alpine:$alpine_version AS protoc-all
 
+ARG grpc_version
+ARG proto_version
+
 RUN set -ex && apk --update --no-cache add \
     bash \
     libstdc++ \
     libc6-compat \
     ca-certificates \
     nodejs \
-    nodejs-npm
+    nodejs-npm \
+    protoc~=${proto_version}
+
+RUN set -ex && apk --update --no-cache add \
+    grpc~=${grpc_version} \
+    grpc-cli~=${grpc_version} \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 # Add TypeScript support
 
 RUN npm config set unsafe-perm true
 RUN npm i -g ts-protoc-gen@0.12.0
 
-COPY --from=build /tmp/grpc/bins/opt/grpc_* /usr/local/bin/
-COPY --from=build /tmp/grpc/bins/opt/protobuf/protoc /usr/local/bin/
-COPY --from=build /tmp/grpc/libs/opt/ /usr/local/lib/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /usr/local/include/google/ /opt/include/google
