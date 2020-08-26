@@ -29,8 +29,8 @@ cmake ../..                      \
     -DCMAKE_INSTALL_PREFIX=/opt  \
 	-DBUILD_TESTING=OFF          \
 	-DgRPC_BUILD_TESTS=ON
-RUN make
-RUN make install
+make
+make install
 
 # Workaround for the transition to protoc-gen-go-grpc
 # https://grpc.io/docs/languages/go/quickstart/#regenerate-grpc-code
