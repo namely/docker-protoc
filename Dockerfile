@@ -43,6 +43,7 @@ RUN git clone -b v${grpc_java_version}.x --recursive https://github.com/grpc/grp
 WORKDIR /tmp/grpc-java/compiler
 RUN ../gradlew -PskipAndroid=true java_pluginExecutable
 
+WORKDIR /tmp
 RUN git clone https://github.com/googleapis/googleapis
 
 RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \
@@ -111,7 +112,6 @@ RUN npm i -g ts-protoc-gen@0.12.0
 
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
-COPY --from=build /usr/local/include/google/ /opt/include/google
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
