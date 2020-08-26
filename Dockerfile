@@ -26,7 +26,13 @@ RUN set -ex && apk --update --no-cache add \
     ca-certificates \
     nss \
     linux-headers \
-    unzip
+    unzip \
+    c-ares-dev \
+    openssl-dev \
+    gtest-dev \
+    zlib-dev \
+    yaml-dev \
+    libexecinfo-dev
 
 WORKDIR /tmp
 COPY all/install-protobuf.sh /tmp
