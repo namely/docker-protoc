@@ -45,6 +45,7 @@ RUN ../gradlew -PskipAndroid=true java_pluginExecutable
 
 WORKDIR /tmp
 RUN git clone https://github.com/googleapis/googleapis
+RUN git clone https://github.com/googleapis/api-common-protos
 
 RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \
     -o /usr/local/bin/prototool && \
@@ -112,6 +113,7 @@ RUN npm i -g ts-protoc-gen@0.12.0
 
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
+COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
