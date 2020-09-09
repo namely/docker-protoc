@@ -268,7 +268,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 			callOptions = append(callOptions, grpc.MaxCallSendMsgSize(cfg.maxCallSendMsgSize))
 		}
 		opts = append(opts, grpc.WithDefaultCallOptions(callOptions...))
-    }
+	}
 	
 	// If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
 	// does not exist, it's because you haven't added any google.api.http annotations
