@@ -7,6 +7,9 @@ cors:
 proxy:
   port: 80
   api-prefix: "/"
+grpc:
+  max-call-recv-msg-size: 0
+  max-call-send-msg-size: 0
 swagger:
   file: "{{.Swagger}}"
 
