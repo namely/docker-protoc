@@ -52,8 +52,12 @@ type proxyConfig struct {
 	// was "/foo/bar" in your protofile, and you wanted to run APIs under "/api",
 	// set this to "/api/".
 	apiPrefix string
-	// map of headers to send in the http response
+	// Map of headers to send in the http response
 	responseHeaders map[string]string
+	// Sets the maximum message size in bytes the client can receive.
+	maxCallRecvMsgSize int
+	// Sets the maximum message size in bytes the client can send.
+	maxCallSendMsgSize int
 }
 
 func logFormatter(cfg proxyConfig) handlers.LogFormatter {
@@ -254,6 +258,18 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	logrus.Infof("Proxying requests to gRPC service at '%s'", cfg.backend)
 
 	opts := []grpc.DialOption{grpc.WithInsecure()}
+	
+	if cfg.maxCallRecvMsgSize > 0 || cfg.maxCallSendMsgSize > 0 {
+		callOptions := []grpc.CallOption{}
+		if cfg.maxCallRecvMsgSize > 0 {
+			callOptions = append(callOptions, grpc.MaxCallRecvMsgSize(cfg.maxCallSendMsgSize))
+		}
+		if cfg.maxCallSendMsgSize > 0 {
+			callOptions = append(callOptions, grpc.MaxCallSendMsgSize(cfg.maxCallSendMsgSize))
+		}
+		opts = append(opts, grpc.WithDefaultCallOptions(callOptions...))
+    }
+	
 	// If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
 	// does not exist, it's because you haven't added any google.api.http annotations
 	// to your proto. Add some!
