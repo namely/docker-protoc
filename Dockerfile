@@ -1,10 +1,10 @@
-ARG alpine_version=3.12
+ARG debian=buster
 ARG go_version=1.14
 ARG grpc_version
 ARG grpc_java_version
 ARG proto_version
 
-FROM golang:$go_version-alpine$alpine_version AS build
+FROM golang:$go_version-$debian AS build
 
 # TIL docker arg variables need to be redefined in each build stage
 ARG grpc_version
@@ -12,36 +12,44 @@ ARG grpc_java_version
 ARG grpc_web_version
 ARG proto_version
 
-RUN set -ex && apk --update --no-cache add \
-    bash \
-    make \
+RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    pkg-config \
     cmake \
-    autoconf \
-    automake \
     curl \
-    tar \
-    libtool \
-    g++ \
     git \
-    openjdk8-jre \
-    libstdc++ \
-    ca-certificates \
-    nss \
-    linux-headers \
+    openjdk-11-jre \
     unzip \
-    protoc~=${proto_version} \
-    protobuf-dev~=${proto_version}
-
-RUN set -ex && apk --update --no-cache add \
-    grpc~=${grpc_version} \
-    grpc-dev~=${grpc_version} \
-    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    libtool \
+    autoconf \
+    zlib1g-dev \
+    libssl-dev
 
 WORKDIR /tmp
 
-RUN git clone -b v${grpc_java_version}.x --recursive https://github.com/grpc/grpc-java.git
+RUN git clone -b v$grpc_version.x --recursive -j8 --depth 1 https://github.com/grpc/grpc
+RUN mkdir -p /tmp/grpc/cmake/build
+WORKDIR /tmp/grpc/cmake/build
+RUN cmake ../..  \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DgRPC_INSTALL=ON \
+    -DgRPC_BUILD_TESTS=OFF \
+    -DgRPC_ZLIB_PROVIDER=package \
+    -DgRPC_SSL_PROVIDER=package \
+    -DCMAKE_INSTALL_PREFIX=/opt
+RUN make
+RUN make install
+
+# Workaround for the transition to protoc-gen-go-grpc
+# https://grpc.io/docs/languages/go/quickstart/#regenerate-grpc-code
+WORKDIR /tmp
+RUN git clone -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.git
+RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
+
+WORKDIR /tmp
+RUN git clone -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git
 WORKDIR /tmp/grpc-java/compiler
-RUN ../gradlew -PskipAndroid=true java_pluginExecutable
+RUN CXXFLAGS="-I/opt/include" LDFLAGS="-L/opt/lib" ../gradlew -PskipAndroid=true java_pluginExecutable
 
 WORKDIR /tmp
 RUN git clone https://github.com/googleapis/googleapis
@@ -87,24 +95,20 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_vers
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
-FROM alpine:$alpine_version AS protoc-all
+FROM debian:$debian-slim AS protoc-all
 
 ARG grpc_version
 ARG proto_version
 
-RUN set -ex && apk --update --no-cache add \
+RUN mkdir -p /usr/share/man/man1
+RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     bash \
-    libstdc++ \
-    libc6-compat \
     ca-certificates \
     nodejs \
-    nodejs-npm \
-    protoc~=${proto_version}
-
-RUN set -ex && apk --update --no-cache add \
-    grpc~=${grpc_version} \
-    grpc-cli~=${grpc_version} \
-    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    npm \
+    zlib1g \
+    libssl1.1 \
+    openjdk-11-jre
 
 # Add TypeScript support
 
