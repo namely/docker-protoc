@@ -259,14 +259,14 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 	
-	if cfg.maxCallRecvMsgSize > 0 || cfg.maxCallSendMsgSize > 0 {
-		callOptions := []grpc.CallOption{}
-		if cfg.maxCallRecvMsgSize > 0 {
-			callOptions = append(callOptions, grpc.MaxCallRecvMsgSize(cfg.maxCallRecvMsgSize))
-		}
-		if cfg.maxCallSendMsgSize > 0 {
-			callOptions = append(callOptions, grpc.MaxCallSendMsgSize(cfg.maxCallSendMsgSize))
-		}
+	callOptions := []grpc.CallOption{}
+	if cfg.maxCallRecvMsgSize > 0 {
+		callOptions = append(callOptions, grpc.MaxCallRecvMsgSize(cfg.maxCallRecvMsgSize))
+	}
+	if cfg.maxCallSendMsgSize > 0 {
+		callOptions = append(callOptions, grpc.MaxCallSendMsgSize(cfg.maxCallSendMsgSize))
+	}
+	if len(callOptions) > 0 {
 		opts = append(opts, grpc.WithDefaultCallOptions(callOptions...))
 	}
 	
@@ -364,6 +364,8 @@ func main() {
 		corsAllowHeaders:     cfg.GetString("cors.allow-headers"),
 		apiPrefix:            cfg.GetString("proxy.api-prefix"),
 		responseHeaders:      getResponseHeaders(cfg),
+		maxCallRecvMsgSize:   cfg.GetInt("grpc.max-call-recv-msg-size"),
+		maxCallSendMsgSize:   cfg.GetInt("grpc.max-call-send-msg-size"),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
