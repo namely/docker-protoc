@@ -1,8 +1,7 @@
 ARG debian=buster
-ARG go_version=1.14
+ARG go_version
 ARG grpc_version
 ARG grpc_java_version
-ARG proto_version
 
 FROM golang:$go_version-$debian AS build
 
@@ -10,7 +9,6 @@ FROM golang:$go_version-$debian AS build
 ARG grpc_version
 ARG grpc_java_version
 ARG grpc_web_version
-ARG proto_version
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -98,7 +96,6 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_vers
 FROM debian:$debian-slim AS protoc-all
 
 ARG grpc_version
-ARG proto_version
 
 RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \

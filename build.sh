@@ -11,8 +11,6 @@ for build in ${BUILDS[@]}; do
         --build-arg grpc_java_version=${GRPC_JAVA_VERSION} \
         --build-arg grpc_web_version=${GRPC_WEB_VERSION} \
         --build-arg go_version=${GO_VERSION} \
-        --build-arg alpine_version=${ALPINE_VERSION} \
-        --build-arg proto_version=${PROTO_VERSION} \
         --target ${build} \
         .
 
