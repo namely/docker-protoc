@@ -10,8 +10,8 @@ ARG grpc_version
 ARG grpc_java_version
 ARG grpc_web_version
 
-RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories \
-    && echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories && \
+    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
 
 RUN set -ex && apk --update --no-cache add \
     bash \
@@ -87,8 +87,8 @@ FROM alpine:$alpine_version AS protoc-all
 
 ARG grpc_version
 
-RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories \
-    && echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories && \
+    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
 
 RUN set -ex && apk --update --no-cache add \
     bash \
