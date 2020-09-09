@@ -262,7 +262,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	if cfg.maxCallRecvMsgSize > 0 || cfg.maxCallSendMsgSize > 0 {
 		callOptions := []grpc.CallOption{}
 		if cfg.maxCallRecvMsgSize > 0 {
-			callOptions = append(callOptions, grpc.MaxCallRecvMsgSize(cfg.maxCallSendMsgSize))
+			callOptions = append(callOptions, grpc.MaxCallRecvMsgSize(cfg.maxCallRecvMsgSize))
 		}
 		if cfg.maxCallSendMsgSize > 0 {
 			callOptions = append(callOptions, grpc.MaxCallSendMsgSize(cfg.maxCallSendMsgSize))
