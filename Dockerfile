@@ -2,7 +2,6 @@ ARG alpine_version=3.12
 ARG go_version=1.14
 ARG grpc_version
 ARG grpc_java_version
-ARG proto_version
 
 FROM golang:$go_version-alpine$alpine_version AS build
 
@@ -10,7 +9,6 @@ FROM golang:$go_version-alpine$alpine_version AS build
 ARG grpc_version
 ARG grpc_java_version
 ARG grpc_web_version
-ARG proto_version
 
 RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories \
     && echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
@@ -32,9 +30,6 @@ RUN set -ex && apk --update --no-cache add \
     nss \
     linux-headers \
     unzip \
-    protoc  \
-    protobuf~=${proto_version} \
-    protobuf-dev~=${proto_version} \
     grpc~=${grpc_version} \
     grpc-dev~=${grpc_version}
 
@@ -91,7 +86,6 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_vers
 FROM alpine:$alpine_version AS protoc-all
 
 ARG grpc_version
-ARG proto_version
 
 RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories \
     && echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
@@ -103,8 +97,6 @@ RUN set -ex && apk --update --no-cache add \
     ca-certificates \
     nodejs \
     nodejs-npm \
-    protoc~=${proto_version} \
-    protobuf~=${proto_version} \
     grpc~=${grpc_version} \
     grpc-cli~=${grpc_version}
 
