@@ -102,7 +102,7 @@ RUN set -ex && apk --update --no-cache add \
     libc6-compat \
     ca-certificates \
     nodejs \
-    nodejs-npm \
+    nodejs-npm
 
 RUN set -ex && apk --update --no-cache add \
     protoc~=${proto_version} \
