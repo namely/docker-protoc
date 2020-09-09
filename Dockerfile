@@ -103,7 +103,10 @@ RUN set -ex && apk --update --no-cache add \
     ca-certificates \
     nodejs \
     nodejs-npm \
-    protoc~=${proto_version}
+
+RUN set -ex && apk --update --no-cache add \
+    protoc~=${proto_version} \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
 
 RUN set -ex && apk --update --no-cache add \
     grpc~=${grpc_version} \
