@@ -10,9 +10,6 @@ ARG grpc_version
 ARG grpc_java_version
 ARG grpc_web_version
 
-RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories && \
-    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
-
 RUN set -ex && apk --update --no-cache add \
     bash \
     make \
@@ -29,9 +26,13 @@ RUN set -ex && apk --update --no-cache add \
     ca-certificates \
     nss \
     linux-headers \
-    unzip \
+    unzip
+
+RUN set -ex && apk  --update --no-cache add \
     grpc~=${grpc_version} \
-    grpc-dev~=${grpc_version}
+    grpc-dev~=${grpc_version} \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 WORKDIR /tmp
 
@@ -87,18 +88,19 @@ FROM alpine:$alpine_version AS protoc-all
 
 ARG grpc_version
 
-RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/main' >> /etc/apk/repositories && \
-    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories
-
 RUN set -ex && apk --update --no-cache add \
     bash \
     libstdc++ \
     libc6-compat \
     ca-certificates \
     nodejs \
-    nodejs-npm \
+    nodejs-npm
+
+RUN set -ex && apk --update --no-cache add \
     grpc~=${grpc_version} \
-    grpc-cli~=${grpc_version}
+    grpc-dev~=${grpc_version} \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 # Add TypeScript support
 
