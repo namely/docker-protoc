@@ -29,6 +29,7 @@ RUN set -ex && apk --update --no-cache add \
     unzip
 
 RUN set -ex && apk  --update --no-cache add \
+    protobuf-dev \
     grpc~=${grpc_version} \
     grpc-dev~=${grpc_version} \
     --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main \
