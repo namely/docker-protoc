@@ -32,6 +32,7 @@ printUsage() {
     echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
     echo " --scala_opt                    The options to pass to protoc to customize the scala code generation."
     echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names."
+    echo " --protoc-opts                  Options attach to protoc call"
 }
 
 
@@ -58,6 +59,7 @@ DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
 SCALA_OPT=""
 SWAGGER_JSON=false
+PROTOC_OPTS=""
 
 while test $# -gt 0; do
     case "$1" in
@@ -183,6 +185,11 @@ while test $# -gt 0; do
             ;;
         --with-swagger-json-names)
             SWAGGER_JSON=true
+            shift
+            ;;
+        --protoc-opts)
+            shift
+            PROTOC_OPTS="$PROTOC_OPTS $1"
             shift
             ;;
         *)
@@ -382,6 +389,7 @@ else
 fi
 
 protoc $PROTO_INCLUDE \
+    $PROTOC_OPTS \
     $GEN_STRING \
     $LINT_STRING \
     ${PROTO_FILES[@]}
