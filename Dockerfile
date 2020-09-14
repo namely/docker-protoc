@@ -104,9 +104,9 @@ RUN set -ex && apk --update --no-cache add \
 
 RUN set -ex && apk --update --no-cache add \
     "protoc>${proto_version}" \
-    "protobuf~=${proto_version}" \
-    "grpc~=${grpc_version}" \
-    "grpc-cli~=${grpc_version}" \
+    "protobuf>${proto_version}" \
+    "grpc>${grpc_version}" \
+    "grpc-cli>${grpc_version}" \
     --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main \
     --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
