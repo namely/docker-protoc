@@ -31,14 +31,12 @@ RUN set -ex && apk --update --no-cache add \
     unzip
 
 RUN set -ex && apk --update --no-cache add \
-    protoc~=${proto_version} \
-    protobuf~=${proto_version} \
-    protobuf-dev~=${proto_version} \
-    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
-
-RUN set -ex && apk --update --no-cache add \
-    grpc~=${grpc_version} \
-    grpc-dev~=${grpc_version} \
+    "protoc>${proto_version}" \
+    "protobuf>${proto_version}" \
+    "protobuf-dev>${proto_version}" \
+    "grpc>${grpc_version}" \
+    "grpc-dev>${grpc_version}" \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main \
     --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 WORKDIR /tmp
@@ -105,13 +103,11 @@ RUN set -ex && apk --update --no-cache add \
     nodejs-npm
 
 RUN set -ex && apk --update --no-cache add \
-    protoc~=${proto_version} \
-    protobuf~=${proto_version} \
-    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
-
-RUN set -ex && apk --update --no-cache add \
-    grpc~=${grpc_version} \
-    grpc-cli~=${grpc_version} \
+    "protoc>${proto_version}" \
+    "protobuf~=${proto_version}" \
+    "grpc~=${grpc_version}" \
+    "grpc-cli~=${grpc_version}" \
+    --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main \
     --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
 # Add TypeScript support
