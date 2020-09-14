@@ -23,20 +23,6 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     libssl-dev
 
-WORKDIR /tmp
-
-RUN git clone -b v$grpc_version.x --recursive -j8 --depth 1 https://github.com/grpc/grpc
-RUN mkdir -p /tmp/grpc/cmake/build
-WORKDIR /tmp/grpc/cmake/build
-RUN cmake ../..  \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DgRPC_INSTALL=ON \
-    -DgRPC_BUILD_TESTS=OFF \
-    -DgRPC_ZLIB_PROVIDER=package \
-    -DgRPC_SSL_PROVIDER=package \
-    -DCMAKE_INSTALL_PREFIX=/opt
-RUN make
-RUN make install
 
 # Workaround for the transition to protoc-gen-go-grpc
 # https://grpc.io/docs/languages/go/quickstart/#regenerate-grpc-code
@@ -45,9 +31,18 @@ RUN git clone -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.gi
 RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
 
 WORKDIR /tmp
+
+RUN PROTOBUF_VERSION=3.12.0 && \
+    curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOBUF_VERSION/protobuf-all-$PROTOBUF_VERSION.tar.gz && \
+    tar xzf protobuf-all-$PROTOBUF_VERSION.tar.gz && \
+    cd protobuf-$PROTOBUF_VERSION && \
+    ./configure --disable-shared && \
+    make && \
+    make install
+
 RUN git clone -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git
 WORKDIR /tmp/grpc-java/compiler
-RUN CXXFLAGS="-I/opt/include" LDFLAGS="-L/opt/lib" ../gradlew -PskipAndroid=true java_pluginExecutable
+RUN ../gradlew -PskipAndroid=true java_pluginExecutable
 
 WORKDIR /tmp
 RUN git clone https://github.com/googleapis/googleapis
@@ -105,7 +100,8 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     npm \
     zlib1g \
     libssl1.1 \
-    openjdk-11-jre
+    openjdk-11-jre \
+    protobuf-compiler-grpc
 
 # Add TypeScript support
 
@@ -115,6 +111,7 @@ RUN npm i -g ts-protoc-gen@0.12.0
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
+COPY --from=build /usr/local/include/google/protobuf/ /opt/include/google/protobuf/
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
