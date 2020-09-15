@@ -21,36 +21,36 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     libtool \
     autoconf \
     zlib1g-dev \
-    libssl-dev
-
-
-# Workaround for the transition to protoc-gen-go-grpc
-# https://grpc.io/docs/languages/go/quickstart/#regenerate-grpc-code
-WORKDIR /tmp
-RUN git clone -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.git
-RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
+    libssl-dev \
+    clang
 
 WORKDIR /tmp
 
-RUN PROTOBUF_VERSION=3.12.0 && \
-    curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOBUF_VERSION/protobuf-all-$PROTOBUF_VERSION.tar.gz && \
-    tar xzf protobuf-all-$PROTOBUF_VERSION.tar.gz && \
-    cd protobuf-$PROTOBUF_VERSION && \
-    ./configure --disable-shared && \
-    make && \
-    make install
+RUN git clone -b v$grpc_version.x --recursive -j8 --depth 1 https://github.com/grpc/grpc && \ 
+    git clone -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git && \
+    git clone -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.git && \
+    git clone https://github.com/googleapis/googleapis && \
+    git clone https://github.com/googleapis/api-common-protos
 
-RUN git clone -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git
+ARG bazel=/tmp/grpc/tools/bazel
+
+WORKDIR /tmp/grpc
+RUN $bazel build @com_google_protobuf//:protoc && \
+    $bazel build @com_github_grpc_grpc//src/compiler:all && \
+    $bazel build @com_github_grpc_grpc//test/cpp/util:grpc_cli
+
 WORKDIR /tmp/grpc-java/compiler
-RUN ../gradlew -PskipAndroid=true java_pluginExecutable
+RUN $bazel build grpc_java_plugin
 
 WORKDIR /tmp
-RUN git clone https://github.com/googleapis/googleapis
-RUN git clone https://github.com/googleapis/api-common-protos
 
 RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \
     -o /usr/local/bin/prototool && \
     chmod +x /usr/local/bin/prototool
+
+# Workaround for the transition to protoc-gen-go-grpc
+# https://grpc.io/docs/languages/go/quickstart/#regenerate-grpc-code
+RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
 
 # Go get go-related bins
 WORKDIR /tmp
@@ -100,18 +100,22 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     npm \
     zlib1g \
     libssl1.1 \
-    openjdk-11-jre \
-    protobuf-compiler-grpc
+    openjdk-11-jre
 
 # Add TypeScript support
 
 RUN npm config set unsafe-perm true
 RUN npm i -g ts-protoc-gen@0.12.0
 
-COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
-COPY --from=build /usr/local/include/google/protobuf/ /opt/include/google/protobuf/
+
+COPY --from=build /tmp/grpc/bazel-bin/external/com_google_protobuf/ /usr/local/bin/
+COPY --from=build /tmp/grpc/bazel-grpc/external/com_google_protobuf/src/google/protobuf/ /opt/include/google/protobuf/
+COPY --from=build /tmp/grpc/bazel-bin/external/com_github_grpc_grpc/src/compiler/ /usr/local/bin/
+COPY --from=build /tmp/grpc-java/bazel-bin/compiler/ /usr/local/bin/
+COPY --from=build /tmp/grpc/bazel-bin/external/com_github_grpc_grpc/test/cpp/util/ /usr/local/bin/
+
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
