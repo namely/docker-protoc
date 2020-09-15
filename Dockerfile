@@ -59,15 +59,18 @@ RUN go get -u google.golang.org/grpc
 
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-RUN go get -u github.com/golang/protobuf/protoc-gen-go
+RUN go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 
+RUN go get -u github.com/gogo/protobuf/protoc-gen-gofast
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
+RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofaster
+RUN go get -u github.com/gogo/protobuf/protoc-gen-gogoslick
 
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
-RUN go get -u github.com/micro/protobuf/protoc-gen-go
+RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro@master
 
 RUN go get -d github.com/envoyproxy/protoc-gen-validate
 RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
