@@ -35,12 +35,12 @@ RUN git clone -b v$grpc_version.x --recursive -j8 --depth 1 https://github.com/g
 ARG bazel=/tmp/grpc/tools/bazel
 
 WORKDIR /tmp/grpc
-RUN $bazel build @com_google_protobuf//:protoc && \
-    $bazel build @com_github_grpc_grpc//src/compiler:all && \
-    $bazel build @com_github_grpc_grpc//test/cpp/util:grpc_cli
+RUN $bazel build //external:protocol_compiler && \
+    $bazel build //src/compiler:all && \
+    $bazel build //test/cpp/util:grpc_cli
 
-WORKDIR /tmp/grpc-java/compiler
-RUN $bazel build grpc_java_plugin
+WORKDIR /tmp/grpc-java
+RUN $bazel build //compiler:grpc_java_plugin
 
 WORKDIR /tmp
 
@@ -110,11 +110,16 @@ RUN npm i -g ts-protoc-gen@0.12.0
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
 
-COPY --from=build /tmp/grpc/bazel-bin/external/com_google_protobuf/ /usr/local/bin/
+# Copy well known proto files
 COPY --from=build /tmp/grpc/bazel-grpc/external/com_google_protobuf/src/google/protobuf/ /opt/include/google/protobuf/
-COPY --from=build /tmp/grpc/bazel-bin/external/com_github_grpc_grpc/src/compiler/ /usr/local/bin/
+# Copy protoc
+COPY --from=build /tmp/grpc/bazel-bin/external/com_google_protobuf/ /usr/local/bin/
+# Copy protoc default plugins
+COPY --from=build /tmp/grpc/bazel-bin/src/compiler/ /usr/local/bin/
+# Copy protoc java plugin
 COPY --from=build /tmp/grpc-java/bazel-bin/compiler/ /usr/local/bin/
-COPY --from=build /tmp/grpc/bazel-bin/external/com_github_grpc_grpc/test/cpp/util/ /usr/local/bin/
+# Copy grpc_cli
+COPY --from=build /tmp/grpc/bazel-bin/test/cpp/util/ /usr/local/bin/
 
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
