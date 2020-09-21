@@ -26,11 +26,11 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /tmp
 
-RUN git clone -b v$grpc_version.x --recursive -j8 --depth 1 https://github.com/grpc/grpc && \ 
-    git clone -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git && \
-    git clone -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.git && \
-    git clone https://github.com/googleapis/googleapis && \
-    git clone https://github.com/googleapis/api-common-protos
+RUN git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc && \ 
+    git clone --depth 1 --shallow-submodules -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git && \
+    git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.git && \
+    git clone --depth 1 https://github.com/googleapis/googleapis && \
+    git clone --depth 1 https://github.com/googleapis/api-common-protos
 
 ARG bazel=/tmp/grpc/tools/bazel
 
