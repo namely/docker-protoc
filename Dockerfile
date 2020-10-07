@@ -70,7 +70,7 @@ RUN go get -u github.com/gogo/protobuf/protoc-gen-gogoslick
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
-RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro@master
+RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro
 
 RUN go get -d github.com/envoyproxy/protoc-gen-validate
 RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
