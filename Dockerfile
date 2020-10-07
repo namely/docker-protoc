@@ -25,7 +25,6 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     clang
 
 WORKDIR /tmp
-
 RUN git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc && \ 
     git clone --depth 1 --shallow-submodules -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git && \
     git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.git && \
@@ -43,7 +42,13 @@ WORKDIR /tmp/grpc-java
 RUN $bazel build //compiler:grpc_java_plugin
 
 WORKDIR /tmp
+# Install protoc required by envoyproxy/protoc-gen-validate package
+RUN cp -a /tmp/grpc/bazel-bin/external/com_google_protobuf/. /usr/local/bin/
+# Copy well known proto files required by envoyproxy/protoc-gen-validate package
+RUN mkdir -p /usr/local/include/google/protobuf && \
+    cp -a /tmp/grpc/bazel-grpc/external/com_google_protobuf/src/google/protobuf/. /usr/local/include/google/protobuf/
 
+WORKDIR /tmp
 RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \
     -o /usr/local/bin/prototool && \
     chmod +x /usr/local/bin/prototool
