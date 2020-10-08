@@ -20,7 +20,6 @@ printUsage() {
     echo " --with-validator               Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
     echo " --go-package-map               Map proto imports to go import paths"
-    echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
     echo " --go-proto-validator           Generate Go proto validations - see https://github.com/mwitkow/go-proto-validators"
     echo " --no-google-includes           Don't include Google protobufs"
     echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
@@ -147,8 +146,8 @@ while test $# -gt 0; do
             shift
             ;;
         --go-plugin-micro)
-            GO_PLUGIN="micro"
-            shift
+            echo "micro is deprecated, 1.32_0 is latest version that supports it"
+            exit 1
             ;;
         --go-proto-validator)
             GO_VALIDATOR=true
