@@ -105,7 +105,9 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     npm \
     zlib1g \
     libssl1.1 \
-    openjdk-11-jre
+    openjdk-11-jre \
+    dos2unix \
+    gawk
 
 # Add TypeScript support
 
