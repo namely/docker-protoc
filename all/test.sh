@@ -60,7 +60,7 @@ testGeneration() {
 testGeneration go "gen/pb-go" --with-gateway
 
 # Test go-micro generations
-testGeneration go "gen/pb-go-micro" --go-plugin-micro
+testGeneration go "gen/pb-go" --go-plugin-micro
 
 # Test Sorbet RBI declaration file generation (only valid for Ruby)
 testGeneration ruby "gen/pb-ruby" --with-rbi
