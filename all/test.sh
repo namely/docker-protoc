@@ -59,6 +59,9 @@ testGeneration() {
 # Test grpc-gateway generation (only valid for Go)
 testGeneration go "gen/pb-go" --with-gateway
 
+# Test go-micro generations
+testGeneration go "gen/pb-go-micro" --go-plugin-micro
+
 # Test Sorbet RBI declaration file generation (only valid for Ruby)
 testGeneration ruby "gen/pb-ruby" --with-rbi
 
