@@ -59,7 +59,6 @@ RUN go get -u google.golang.org/grpc
 
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
@@ -78,6 +77,9 @@ RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 RUN go get -u github.com/coinbase/protoc-gen-rbi
 
 RUN go get github.com/gomatic/renderizer/cmd/renderizer
+
+# Origin protoc-gen-go should be installed last, for not been overwritten by any other binaries(see #210)
+RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
