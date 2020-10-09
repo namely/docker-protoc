@@ -26,7 +26,7 @@ testGeneration() {
     fi
 
     if [[ "$lang" == "go" ]]; then
-        # Test that we have generated the test.ps.go file.
+        # Test that we have generated the test.pb.go file.
         expected_file_name="test.pb.go"
         file_count=$(find $expected_output_dir -type f -name $expected_file_name | wc -l)
         if [ $file_count -lt 1 ]; then
