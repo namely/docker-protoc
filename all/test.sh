@@ -25,6 +25,16 @@ testGeneration() {
         exit 1
     fi
 
+    if [[ "$lang" == "go" ]]; then
+        # Test that we have generated the test.ps.go file.
+        expected_file_name="test.pb.go"
+        file_count=$(find $expected_output_dir -type f -name $expected_file_name | wc -l)
+        if [ $file_count -lt 1 ]; then
+            echo "$expected_file_name file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
     if [[ "$lang" == "python" ]]; then
         # Test that we have generated the __init__.py files.
         current_path="$expected_output_dir"
@@ -52,6 +62,17 @@ testGeneration() {
             exit 1
         fi
     fi
+
+    if [[ "$extra_args" == *"--go-plugin-micro"* ]]; then
+        # Test that we have generated the test.pb.micro.go file.
+        expected_file_name="test.pb.micro.go"
+        file_count=$(find $expected_output_dir -type f -name $expected_file_name | wc -l)
+        if [ $file_count -lt 1 ]; then
+            echo "$expected_file_name file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
     rm -rf `echo $expected_output_dir | cut -d '/' -f1`
     echo "Generating for $lang passed!"
 }
