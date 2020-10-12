@@ -83,7 +83,10 @@ RUN go get -u github.com/coinbase/protoc-gen-rbi
 RUN go get github.com/gomatic/renderizer/cmd/renderizer
 
 # Origin protoc-gen-go should be installed last, for not been overwritten by any other binaries(see #210)
-RUN go get -u github.com/golang/protobuf/protoc-gen-go
+RUN set -e && \
+  GO111MODULE=on go get -u github.com/golang/protobuf/protoc-gen-go@v1.3.5 && \
+  cd /go/pkg/mod/github.com/golang/protobuf@v1.3.5/protoc-gen-go && \
+  go install .
 
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
