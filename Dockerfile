@@ -63,7 +63,6 @@ RUN go get -u google.golang.org/grpc
 
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
@@ -71,7 +70,7 @@ RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
-RUN go get -u github.com/micro/protobuf/protoc-gen-go
+RUN go get -u github.com/micro/micro/cmd/protoc-gen-micro
 
 RUN go get -d github.com/envoyproxy/protoc-gen-validate
 RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
@@ -82,6 +81,12 @@ RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 RUN go get -u github.com/coinbase/protoc-gen-rbi
 
 RUN go get github.com/gomatic/renderizer/cmd/renderizer
+
+# Origin protoc-gen-go should be installed last, for not been overwritten by any other binaries(see #210)
+RUN set -e && \
+  GO111MODULE=on go get -u github.com/golang/protobuf/protoc-gen-go@v1.3.5 && \
+  cd /go/pkg/mod/github.com/golang/protobuf@v1.3.5/protoc-gen-go && \
+  go install .
 
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
