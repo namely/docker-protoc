@@ -27,9 +27,8 @@ testGeneration() {
 
     if [[ "$lang" == "go" ]]; then
         # Test that we have generated the test.pb.go file.
-        expected_file_name="test.pb.go"
-        file_count=$(find $expected_output_dir -type f -name $expected_file_name | wc -l)
-        if [ $file_count -lt 1 ]; then
+        expected_file_name="/all/test/test.pb.go"
+        if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
             echo "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
         fi
@@ -65,9 +64,8 @@ testGeneration() {
 
     if [[ "$extra_args" == *"--go-plugin-micro"* ]]; then
         # Test that we have generated the test.pb.micro.go file.
-        expected_file_name="test.pb.micro.go"
-        file_count=$(find $expected_output_dir -type f -name $expected_file_name | wc -l)
-        if [ $file_count -lt 1 ]; then
+        expected_file_name="/all/test/test.pb.micro.go"
+        if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
             echo "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
         fi
