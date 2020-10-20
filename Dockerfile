@@ -62,7 +62,7 @@ WORKDIR /tmp
 RUN go get -u google.golang.org/grpc
 
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
+RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
@@ -136,7 +136,7 @@ COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
-COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/ /opt/include/protoc-gen-swagger/options/
+COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2/options/ /opt/include/protoc-gen-openapiv2/options/
 
 COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/

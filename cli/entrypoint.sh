@@ -9,6 +9,6 @@ set -e
 
 ln -sf /defs/* /run/
 ln -sf /opt/include/google /run/
-ln -sf /opt/include/protoc-gen-swagger /run/
+ln -sf /opt/include/protoc-gen-openapiv2 /run/
 
 grpc_cli "$@"

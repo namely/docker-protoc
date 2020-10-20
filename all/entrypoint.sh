@@ -31,7 +31,9 @@ printUsage() {
     echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
     echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
     echo " --scala_opt                    The options to pass to protoc to customize the scala code generation."
-    echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names."
+    echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names.
+                                             (deprecated. Please use --with-openapi-json-names)"
+    echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
 }
 
 
@@ -57,7 +59,7 @@ DESCR_INCLUDE_SOURCE_INFO=false
 DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
 SCALA_OPT=""
-SWAGGER_JSON=false
+OPENAPI_JSON=false
 
 while test $# -gt 0; do
     case "$1" in
@@ -182,7 +184,11 @@ while test $# -gt 0; do
             shift
             ;;
         --with-swagger-json-names)
-            SWAGGER_JSON=true
+            OPENAPI_JSON=true
+            shift
+            ;;
+        --with-openapi-json-names)
+            OPENAPI_JSON=true
             shift
             ;;
         *)
@@ -412,11 +418,11 @@ if [ $GEN_GATEWAY = true ]; then
     protoc $PROTO_INCLUDE \
 		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
 
-    if [[ $SWAGGER_JSON == true ]]; then
+    if [[ $OPENAPI_JSON == true ]]; then
         protoc $PROTO_INCLUDE  \
-		    --swagger_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+		    --openapiv2_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
     else
         protoc $PROTO_INCLUDE  \
-		    --swagger_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+		    --openapiv2_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
     fi
 fi
