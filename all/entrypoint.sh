@@ -59,7 +59,6 @@ DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
 SCALA_OPT=""
 OPENAPI_JSON=false
-DEPRICATION_MESSAGE="(deprecated. Please use --with-openapi-json-names)"
 
 while test $# -gt 0; do
     case "$1" in
