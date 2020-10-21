@@ -17,4 +17,5 @@ service Message {
 
 message ListMessageRequest {
   string query = 1;
+  string additional_param = 2;
 }

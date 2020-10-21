@@ -36,7 +36,6 @@ printUsage() {
     echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
 }
 
-
 GEN_GATEWAY=false
 GEN_DOCS=false
 GEN_VALIDATOR=false
@@ -60,6 +59,7 @@ DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
 SCALA_OPT=""
 OPENAPI_JSON=false
+DEPRICATION_MESSAGE="(deprecated. Please use --with-openapi-json-names)"
 
 while test $# -gt 0; do
     case "$1" in
@@ -185,6 +185,7 @@ while test $# -gt 0; do
             ;;
         --with-swagger-json-names)
             OPENAPI_JSON=true
+            echo "--with-swagger-json-names is deprecated. Please use --with-openapi-json-names instead"
             shift
             ;;
         --with-openapi-json-names)
@@ -423,6 +424,6 @@ if [ $GEN_GATEWAY = true ]; then
 		    --openapiv2_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
     else
         protoc $PROTO_INCLUDE  \
-		    --openapiv2_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+		    --openapiv2_out=logtostderr=true,json_names_for_fields=false:$GATEWAY_DIR ${PROTO_FILES[@]}
     fi
 fi
