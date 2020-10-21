@@ -9,6 +9,8 @@ if [ -z ${CONTAINER} ]; then
     exit 1
 fi
 
+JSON_PARAM_NAME="additionalParam"
+
 # Checks that directories were appropriately created, and deletes the generated directory.
 testGeneration() {
     lang=$1
@@ -71,12 +73,46 @@ testGeneration() {
         fi
     fi
 
+    if [[ "$extra_args" == *"--with-gateway"* ]]; then
+        # Test that we have generated the test.pb.gw.go file.
+        expected_file_name1="/all/test/test.pb.gw.go"
+        expected_file_name2="/all/test/test.swagger.json"
+        if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
+            echo "$expected_file_name1 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name2" ]]; then
+            echo "$expected_file_name2 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+
+        if [[ "$extra_args" == *"--with-openapi-json-names"* ]]; then
+            # Test that we have generated the test.swagger.json file with json params
+            if ! grep -q $JSON_PARAM_NAME "$expected_output_dir$expected_file_name2" ; then
+                echo "$expected_file_name2 file was not generated with json names"
+                exit 1
+            fi
+        elif [[ "$extra_args" == *"--with-swagger-json-names"* ]]; then
+            # Test that we have generated the test.swagger.json file with json params
+            if ! grep -q $JSON_PARAM_NAME "$expected_output_dir$expected_file_name2" ; then
+                echo "$expected_file_name2 file was not generated with json names"
+                exit 1
+            fi
+        fi
+    fi
+
     rm -rf `echo $expected_output_dir | cut -d '/' -f1`
     echo "Generating for $lang passed!"
 }
 
 # Test grpc-gateway generation (only valid for Go)
 testGeneration go "gen/pb-go" --with-gateway
+
+# Test grpc-gateway generation + json (only valid for Go)
+testGeneration go "gen/pb-go" --with-gateway --with-openapi-json-names
+
+# Test grpc-gateway generation + json (deprecated) (only valid for Go)
+testGeneration go "gen/pb-go" --with-gateway --with-swagger-json-names
 
 # Test go-micro generations
 testGeneration go "gen/pb-go" --go-plugin-micro
