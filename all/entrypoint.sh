@@ -31,9 +31,10 @@ printUsage() {
     echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
     echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
     echo " --scala_opt                    The options to pass to protoc to customize the scala code generation."
-    echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names."
+    echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names.
+                                             (deprecated. Please use --with-openapi-json-names)"
+    echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
 }
-
 
 GEN_GATEWAY=false
 GEN_DOCS=false
@@ -57,7 +58,7 @@ DESCR_INCLUDE_SOURCE_INFO=false
 DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
 SCALA_OPT=""
-SWAGGER_JSON=false
+OPENAPI_JSON=false
 
 while test $# -gt 0; do
     case "$1" in
@@ -182,7 +183,12 @@ while test $# -gt 0; do
             shift
             ;;
         --with-swagger-json-names)
-            SWAGGER_JSON=true
+            OPENAPI_JSON=true
+            echo "--with-swagger-json-names is deprecated. Please use --with-openapi-json-names instead"
+            shift
+            ;;
+        --with-openapi-json-names)
+            OPENAPI_JSON=true
             shift
             ;;
         *)
@@ -272,7 +278,10 @@ fi
 GEN_STRING=''
 case $GEN_LANG in
     "go")
-        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_PACKAGE_MAP}plugins=${GO_PLUGIN}:$OUT_DIR"
+        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
+        if [[ ${GO_PLUGIN} == "micro" ]]; then
+          GEN_STRING="$GEN_STRING --micro_out=$OUT_DIR"
+        fi
         ;;
     "gogo")
         GEN_STRING="--gogofast_out=${GO_SOURCE_RELATIVE}\
@@ -287,7 +296,7 @@ plugins=grpc+embedded\
 :$OUT_DIR"
         ;;
     "java")
-        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which protoc-gen-grpc-java`"
+        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_java_plugin`"
         ;;
     "scala")
         SCALA_OUT=$OUT_DIR
@@ -409,11 +418,11 @@ if [ $GEN_GATEWAY = true ]; then
     protoc $PROTO_INCLUDE \
 		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
 
-    if [[ $SWAGGER_JSON == true ]]; then
+    if [[ $OPENAPI_JSON == true ]]; then
         protoc $PROTO_INCLUDE  \
-		    --swagger_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+		    --openapiv2_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
     else
         protoc $PROTO_INCLUDE  \
-		    --swagger_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+		    --openapiv2_out=logtostderr=true,json_names_for_fields=false:$GATEWAY_DIR ${PROTO_FILES[@]}
     fi
 fi

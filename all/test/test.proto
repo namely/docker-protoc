@@ -5,6 +5,8 @@ import "all/test/include.proto";
 
 package Messages;
 
+option go_package = "all/test";
+
 service Message {
   rpc ListMessage (ListMessageRequest) returns (ListMessageResponse) {
     option (google.api.http) = {
@@ -15,4 +17,5 @@ service Message {
 
 message ListMessageRequest {
   string query = 1;
+  string additional_param = 2;
 }
