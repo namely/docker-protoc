@@ -138,7 +138,7 @@ while test $# -gt 0; do
             shift
             ;;
 	--validator-source-relative)
-            VALIDATOR_SOURCE_RELATIVE="paths=source_relative"
+            VALIDATOR_SOURCE_RELATIVE=",paths=source_relative"
             shift
             ;;
         --go-source-relative)
