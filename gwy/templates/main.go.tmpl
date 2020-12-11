@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails" // Pull in errdetails
 	gw "gateway/{{.Import}}"
@@ -251,9 +252,22 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 		http.ServeFile(w, r, cfg.swagger)
 	})
 
+	marshaller := &runtime.HTTPBodyMarshaler{
+		Marshaler: &runtime.JSONPb{
+			MarshalOptions: protojson.MarshalOptions{
+				UseProtoNames:   true,
+				EmitUnpopulated: true,
+			},
+			UnmarshalOptions: protojson.UnmarshalOptions{
+				DiscardUnknown: true,
+			},
+		},
+	}
+
 	gwmux := runtime.NewServeMux(
 		runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
 		runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, marshaller),
 	)
 	logrus.Infof("Proxying requests to gRPC service at '%s'", cfg.backend)
 
