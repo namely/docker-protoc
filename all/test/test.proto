@@ -5,7 +5,7 @@ import "all/test/include.proto";
 
 package Messages;
 
-option go_package = "all/test";
+option go_package = "all;all";
 
 service Message {
   rpc ListMessage (ListMessageRequest) returns (ListMessageResponse) {
