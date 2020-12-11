@@ -29,7 +29,10 @@ testGeneration() {
 
     if [[ "$lang" == "go" ]]; then
         # Test that we have generated the test.pb.go file.
-        expected_file_name="/all/test/test.pb.go"
+        expected_file_name="/all/test.pb.go"
+        if [[ "$extra_args" == *"--go-source-relative"* ]]; then
+            expected_file_name="/all/test/test.pb.go"
+        fi
         if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
             echo "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
@@ -66,7 +69,7 @@ testGeneration() {
 
     if [[ "$extra_args" == *"--go-plugin-micro"* ]]; then
         # Test that we have generated the test.pb.micro.go file.
-        expected_file_name="/all/test/test.pb.micro.go"
+        expected_file_name="/all/test.pb.micro.go"
         if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
             echo "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
@@ -75,7 +78,7 @@ testGeneration() {
 
     if [[ "$extra_args" == *"--with-gateway"* ]]; then
         # Test that we have generated the test.pb.gw.go file.
-        expected_file_name1="/all/test/test.pb.gw.go"
+        expected_file_name1="/all/test.pb.gw.go"
         expected_file_name2="/all/test/test.swagger.json"
         if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
             echo "$expected_file_name1 file was not generated in $expected_output_dir"
@@ -101,6 +104,24 @@ testGeneration() {
         fi
     fi
 
+        # Test that we have generated the test.pb.go file.
+        expected_file_name="/all/test.pb.go"
+    if [[ "$extra_args" == *"--with-validator"* ]]; then
+        expected_file_name1="/all/test.pb.go"
+        expected_file_name2="/all/test.pb.validate.go"
+        if [[ "$extra_args" == *"--validator-source-relative"* ]]; then
+            expected_file_name2="/all/test/test.pb.validate.go"
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
+            echo "$expected_file_name1 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name2" ]]; then
+            echo "$expected_file_name2 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
     rm -rf `echo $expected_output_dir | cut -d '/' -f1`
     echo "Generating for $lang passed!"
 }
@@ -113,6 +134,15 @@ testGeneration go "gen/pb-go" --with-gateway --with-openapi-json-names
 
 # Test grpc-gateway generation + json (deprecated) (only valid for Go)
 testGeneration go "gen/pb-go" --with-gateway --with-swagger-json-names
+
+# Test go source relative generation
+testGeneration go "gen/pb-go" --go-source-relative
+
+# Test go validator
+testGeneration go "gen/pb-go" --with-validator
+
+# Test go validator with source relative option
+testGeneration go "gen/pb-go" --with-validator --validator-source-relative
 
 # Test go-micro generations
 testGeneration go "gen/pb-go" --go-plugin-micro
