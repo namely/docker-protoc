@@ -30,7 +30,6 @@ const (
 	ResponseHeaders = "RESPONSE-HEADERS"
 	EnvVarSepChar = "_"
 	ViperKeySepChar = "."
-	UseProtoNames = {{.Use_proto_names}}
 )
 
 type proxyConfig struct {
@@ -60,6 +59,8 @@ type proxyConfig struct {
 	maxCallRecvMsgSize int
 	// Sets the maximum message size in bytes the client can send.
 	maxCallSendMsgSize int
+	// Use canonical JSON names for proto fields. By default will use proto names.
+	useJSONNames bool
 }
 
 func logFormatter(cfg proxyConfig) handlers.LogFormatter {
@@ -258,7 +259,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	    runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
 	}
 
-	if UseProtoNames {
+	if !cfg.useJSONNames {
 		marshaller := &runtime.HTTPBodyMarshaler{
 			Marshaler: &runtime.JSONPb{
 				MarshalOptions: protojson.MarshalOptions{
@@ -267,7 +268,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 				},
 				UnmarshalOptions: protojson.UnmarshalOptions{
 					DiscardUnknown: true,
-			}	,
+				},
 			},
 		}
 		options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, marshaller))
@@ -385,6 +386,7 @@ func main() {
 		responseHeaders:      getResponseHeaders(cfg),
 		maxCallRecvMsgSize:   cfg.GetInt("grpc.max-call-recv-msg-size"),
 		maxCallSendMsgSize:   cfg.GetInt("grpc.max-call-send-msg-size"),
+		useJSONNames:         cfg.GetBool("gateway.use-json-names"),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
