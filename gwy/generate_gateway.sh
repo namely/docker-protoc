@@ -13,6 +13,7 @@ printUsage() {
   echo "-a, --additional_interfaces The set of additional interfaces to bind to this gateway." 
   echo "-o, --out DIRECTORY         Optional. The output directory for the gateway. By default, gen/grpc-gateway."
   echo "--go-package-map            Optional. Map proto imports to go import paths"
+  echo "--use-proto-names           Optional. Use original proto field names. Default: false"
 }
 
 # Path to the proto file
@@ -26,6 +27,8 @@ OUT_DIR=""
 GO_PACKAGE_MAP=""
 # Extra includes.
 INCLUDES=""
+# Use original proto field names
+USE_PROTO_NAMES="false"
 
 while test $# -gt 0; do
   case "$1" in
@@ -95,6 +98,10 @@ while test $# -gt 0; do
       fi
       shift
       ;;
+    --use-proto-names)
+      USE_PROTO_NAMES="true"
+      shift
+      ;;
     *)
       printUsage
       exit 1
@@ -136,4 +143,4 @@ renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templa
 
 MAIN_DIR=${OUT_DIR}/cmd/gateway
 mkdir -p ${MAIN_DIR}
-renderizer --import=${GATEWAY_IMPORT_DIR} --service=${SERVICE} --additional=${ADDITIONAL_INTERFACES} /templates/main.go.tmpl > $MAIN_DIR/main.go
+renderizer --import=${GATEWAY_IMPORT_DIR} --service=${SERVICE} --additional=${ADDITIONAL_INTERFACES} --use_proto_names=${USE_PROTO_NAMES} /templates/main.go.tmpl > $MAIN_DIR/main.go

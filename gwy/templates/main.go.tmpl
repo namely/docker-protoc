@@ -30,6 +30,7 @@ const (
 	ResponseHeaders = "RESPONSE-HEADERS"
 	EnvVarSepChar = "_"
 	ViperKeySepChar = "."
+	UseProtoNames = {{.Use_proto_names}}
 )
 
 type proxyConfig struct {
@@ -252,23 +253,27 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 		http.ServeFile(w, r, cfg.swagger)
 	})
 
-	marshaller := &runtime.HTTPBodyMarshaler{
-		Marshaler: &runtime.JSONPb{
-			MarshalOptions: protojson.MarshalOptions{
-				UseProtoNames:   true,
-				EmitUnpopulated: true,
-			},
-			UnmarshalOptions: protojson.UnmarshalOptions{
-				DiscardUnknown: true,
-			},
-		},
+	options := []runtime.ServeMuxOption{
+	    runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
+	    runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
 	}
 
-	gwmux := runtime.NewServeMux(
-		runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
-		runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
-		runtime.WithMarshalerOption(runtime.MIMEWildcard, marshaller),
-	)
+	if UseProtoNames {
+		marshaller := &runtime.HTTPBodyMarshaler{
+			Marshaler: &runtime.JSONPb{
+				MarshalOptions: protojson.MarshalOptions{
+					UseProtoNames:   true,
+					EmitUnpopulated: true,
+				},
+				UnmarshalOptions: protojson.UnmarshalOptions{
+					DiscardUnknown: true,
+			}	,
+			},
+		}
+		options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, marshaller))
+	}
+
+	gwmux := runtime.NewServeMux(options...)
 	logrus.Infof("Proxying requests to gRPC service at '%s'", cfg.backend)
 
 	opts := []grpc.DialOption{grpc.WithInsecure()}
