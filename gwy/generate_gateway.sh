@@ -95,10 +95,6 @@ while test $# -gt 0; do
       fi
       shift
       ;;
-    --use-proto-names)
-      USE_PROTO_NAMES="true"
-      shift
-      ;;
     *)
       printUsage
       exit 1
