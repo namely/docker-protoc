@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails" // Pull in errdetails
 	gw "gateway/{{.Import}}"
@@ -58,6 +59,8 @@ type proxyConfig struct {
 	maxCallRecvMsgSize int
 	// Sets the maximum message size in bytes the client can send.
 	maxCallSendMsgSize int
+	// Use canonical JSON names for proto fields. By default will use proto names.
+	useJSONNames bool
 }
 
 func logFormatter(cfg proxyConfig) handlers.LogFormatter {
@@ -251,10 +254,27 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 		http.ServeFile(w, r, cfg.swagger)
 	})
 
-	gwmux := runtime.NewServeMux(
-		runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
-		runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
-	)
+	options := []runtime.ServeMuxOption{
+	    runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
+	    runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
+	}
+
+	if !cfg.useJSONNames {
+		marshaller := &runtime.HTTPBodyMarshaler{
+			Marshaler: &runtime.JSONPb{
+				MarshalOptions: protojson.MarshalOptions{
+					UseProtoNames:   true,
+					EmitUnpopulated: true,
+				},
+				UnmarshalOptions: protojson.UnmarshalOptions{
+					DiscardUnknown: true,
+				},
+			},
+		}
+		options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, marshaller))
+	}
+
+	gwmux := runtime.NewServeMux(options...)
 	logrus.Infof("Proxying requests to gRPC service at '%s'", cfg.backend)
 
 	opts := []grpc.DialOption{grpc.WithInsecure()}
@@ -366,6 +386,7 @@ func main() {
 		responseHeaders:      getResponseHeaders(cfg),
 		maxCallRecvMsgSize:   cfg.GetInt("grpc.max-call-recv-msg-size"),
 		maxCallSendMsgSize:   cfg.GetInt("grpc.max-call-send-msg-size"),
+		useJSONNames:         cfg.GetBool("gateway.use-json-names"),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))

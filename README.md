@@ -170,6 +170,9 @@ You can configure additional headers to be sent in the HTTP response.
 Set environment variable with prefix `<SERVICE>_RESPONSE-HEADERS_` (e.g `SOMESERVICE_RESPONSE-HEADERS_SOME-HEADER-KEY`).  
 You can also set headers in the your configuration file (e.g `response-headers.some-header-key`)
 
+### Proto names format
+By default, gRPC gateway will return proto names as they are in the proto messages. You can change this behavior by setting `gateway.use-json-names: true` and the gateway will use camelCase JSON names.
+
 ### Environment Variables
 
 The gateway project used [spf13/viper](https://github.com/spf13/viper) for configuration. The generated gateway code includes a config file that can be overridden with cli flags or environment variables. For environment variable overrides use a `<SERVICE>_` prefix, upcase the setting, and replace `.` with `_`.
