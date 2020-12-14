@@ -12,6 +12,9 @@ grpc:
   max-call-send-msg-size: 0
 gateway:
   use-json-names: false
+  emit-unpopulated: false
+  keep-unknown: false
+
 swagger:
   file: "{{.Swagger}}"
 

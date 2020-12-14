@@ -170,8 +170,16 @@ You can configure additional headers to be sent in the HTTP response.
 Set environment variable with prefix `<SERVICE>_RESPONSE-HEADERS_` (e.g `SOMESERVICE_RESPONSE-HEADERS_SOME-HEADER-KEY`).  
 You can also set headers in the your configuration file (e.g `response-headers.some-header-key`)
 
-### Proto names format
+### Marshalling options
+
+#### Proto names format
 By default, gRPC gateway will return proto names as they are in the proto messages. You can change this behavior by setting `gateway.use-json-names: true` and the gateway will use camelCase JSON names.
+
+#### Unpopulated fields
+By default, gRPC gateway will not emit unpopulated fields. You can change this behavior by setting `gateway.emit-unpopulated: true` and the gateway will populate these fields with default values.
+
+#### Unknown fields
+By default, gRPC gateway will discard unknown fields from requests. You can change this behavior by setting `gateway.keep-unknown: true` and the gateway will keep these fields in the requests.
 
 ### Environment Variables
 
