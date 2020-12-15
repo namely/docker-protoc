@@ -12,11 +12,11 @@ language you want to generate.
 ## Features
 
 * Docker images for:
-    * `protoc` with `namely/protoc` (automatically includes `/usr/local/include`)
-    * [Uber's Prototool](https://github.com/uber/prototool) with `namely/prototool`
-    * A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
-    * `grpc_cli` with `namely/grpc-cli`
-    * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
+  * `protoc` with `namely/protoc` (automatically includes `/usr/local/include`)
+  * [Uber's Prototool](https://github.com/uber/prototool) with `namely/prototool`
+  * A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
+  * `grpc_cli` with `namely/grpc-cli`
+  * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
 * [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
 * [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf` (NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
 
@@ -24,6 +24,7 @@ language you want to generate.
    import "google/protobuf/empty.proto";
    ...
    ```
+
 * Support for all C based gRPC libraries with Go and Java native libraries
 
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
@@ -80,7 +81,7 @@ file `protorepo/catalog/catalog.proto`. This will by default output to
 input. To remove the `protorepo` you need to add an include and change the
 import:
 
-```
+```sh
 $ docker run ... namely/protoc-all -i protorepo -f catalog/catalog.proto -l go
 # instead of
 $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
@@ -88,6 +89,7 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 ```
 
 ### Ruby-specific options
+
 `--with-rbi` to generate Ruby Sorbet type definition .rbi files
 
 ## gRPC Gateway (Experimental)
@@ -99,7 +101,7 @@ server that acts as an HTTP server, and a gRPC client to your gRPC service.
 
 Generate a gRPC Gateway docker project with
 
-```
+```sh
 docker run -v `pwd`:/defs namely/gen-grpc-gateway -f path/to/your/proto.proto -s Service
 ```
 
@@ -110,7 +112,7 @@ folder into an actual runnable grpc-gateway server.
 
 Build your gRPC Gateway server with
 
-```
+```sh
 docker build -t my-grpc-gateway gen/grpc-gateway/
 ```
 
@@ -120,7 +122,7 @@ method annotated to build a gRPC Gateway.
 
 Run this image with
 
-```
+```sh
 docker run my-grpc-gateway --backend=grpc-service:50051
 ```
 
@@ -146,32 +148,47 @@ Any headers starting with `Grpc-` will be prefixed with an `X-`, this is because
 
 All other headers will be converted to metadata as is.
 
-### CORS Configuration.
+### CORS Configuration
 
 You can configure [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for your gateway through the
 configuration. This will allow your gateway to receive requests from different origins.
 
 There are four values:
 
-- `cors.allow-origin`: Value to set for Access-Control-Allow-Origin header.
-- `cors.allow-credentials`: Value to set for Access-Control-Allow-Credentials header.
-- `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
-- `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
+* `cors.allow-origin`: Value to set for Access-Control-Allow-Origin header.
+* `cors.allow-credentials`: Value to set for Access-Control-Allow-Credentials header.
+* `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
+* `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
 
     For CORS, you will want to configure your `cors.allow-methods` to be the HTTP verbs set in your proto (i.e. `GET`, `PUT`, etc.), as well as `OPTIONS`, so that your service can handle the [preflight request](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
 
     If you are not using CORS, you can leave these configuration values at their default, and your gateway will not accept CORS requests.
+
 ### GRPC Client Configuration
-- `grpc.max-call-recv-msg-size`: Sets the maximum message size in bytes the client can receive.
-- `grpc.max-call-send-msg-size`: Sets the maximum message size in bytes the client can send.
-###  Other Response Headers
+
+* `grpc.max-call-recv-msg-size`: Sets the maximum message size in bytes the client can receive.
+
+* `grpc.max-call-send-msg-size`: Sets the maximum message size in bytes the client can send.
+
+### Other Response Headers
 
 You can configure additional headers to be sent in the HTTP response.  
 Set environment variable with prefix `<SERVICE>_RESPONSE-HEADERS_` (e.g `SOMESERVICE_RESPONSE-HEADERS_SOME-HEADER-KEY`).  
 You can also set headers in the your configuration file (e.g `response-headers.some-header-key`)
 
-### Proto names format
-By default, gRPC gateway will return proto names as they are in the proto messages. You can change this behavior by setting `gateway.use-json-names: true` and the gateway will use camelCase JSON names.
+### Marshalling options
+
+#### Proto names format
+
+By default, `gen-grpc-gateway` will return proto names as they are in the proto messages. You can change this behavior by setting `gateway.use-json-names: true` and the gateway will use camelCase JSON names.
+
+#### Unpopulated fields
+
+By default, `gen-grpc-gateway` will not emit unpopulated fields. You can change this behavior by setting `gateway.emit-unpopulated: true` and the gateway will populate these fields with default values.
+
+#### Unknown fields
+
+By default, `gen-grpc-gateway` will discard unknown fields from requests. You can change this behavior by setting `gateway.keep-unknown: true` and the gateway will keep these fields in the requests.
 
 ### Environment Variables
 
