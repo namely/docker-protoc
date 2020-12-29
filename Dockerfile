@@ -1,5 +1,6 @@
 ARG debian=buster
 ARG go_version
+ARG swift_version
 ARG grpc_version
 ARG grpc_java_version
 
@@ -95,6 +96,16 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_vers
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
+FROM swift:$swift_version AS build-swift
+
+ARG grpc_swift_version
+
+WORKDIR /tmp
+RUN git clone --depth 1 -b $grpc_swift_version https://github.com/grpc/grpc-swift.git
+
+WORKDIR /tmp/grpc-swift
+RUN make plugins
+
 FROM debian:$debian-slim AS protoc-all
 
 ARG grpc_version
@@ -127,6 +138,10 @@ COPY --from=build /tmp/grpc/bazel-bin/external/com_google_protobuf/ /usr/local/b
 COPY --from=build /tmp/grpc/bazel-bin/src/compiler/ /usr/local/bin/
 # Copy protoc java plugin
 COPY --from=build /tmp/grpc-java/bazel-bin/compiler/ /usr/local/bin/
+# Copy protoc swift plugin
+COPY --from=build-swift /tmp/grpc-swift/protoc-gen-swift /usr/local/bin/
+COPY --from=build-swift /tmp/grpc-swift/protoc-gen-grpc-swift /usr/local/bin/
+COPY --from=build-swift /usr/lib/swift/linux/* /usr/lib/swift/linux/
 # Copy grpc_cli
 COPY --from=build /tmp/grpc/bazel-bin/test/cpp/util/ /usr/local/bin/
 
