@@ -67,6 +67,7 @@ RUN BIN="/usr/local/bin" && \
 
 # Go get go-related bins
 RUN go get -u google.golang.org/grpc
+RUN go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 RUN go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 
 # Gogo and Gogo Fast
