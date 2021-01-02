@@ -126,7 +126,7 @@ COPY --from=build /opt/lib/ /usr/local/lib/
 COPY --from=build /opt/share/ /usr/local/share/
 COPY --from=build /tmp/grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin/
 COPY --from=build /go/bin/ /usr/local/bin/
-COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
+COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/protoc-gen-grpc-web
 COPY --from=build /usr/local/bin/buf /usr/local/bin/buf
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
