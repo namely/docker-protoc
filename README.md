@@ -4,7 +4,7 @@
 
 This repository contains support for various Docker images that wrap `protoc`,
 `prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
-in a variety of languages removing the need to install and manage these commands locally. 
+in a variety of languages removing the need to install and manage these commands locally.
 It relies on setting a simple volume to the docker container,
 usually mapping the current directory to `/defs`, and specifying the file and
 language you want to generate.
@@ -92,6 +92,12 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 
 `--with-rbi` to generate Ruby Sorbet type definition .rbi files
 
+### node/web specific options
+
+`--js-out <string>` to modify the `js_out=` options for node and web code generation
+
+`--grpc-web-out <string>` to modify the `grpc-web_out=` options for web code generation
+
 ## gRPC Gateway (Experimental)
 
 This repo also provides a docker images `namely/gen-grpc-gateway` that
@@ -133,7 +139,7 @@ listens on port `80` for HTTP traffic.
 
 The gateway is configured using [spf13/viper](https://github.com/spf13/viper), see [gwy/templates/config.yaml.tmpl](https://github.com/namely/docker-protoc/blob/master/gwy/templates/config.yaml.tmpl) for configuration options.
 
-To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have `(google.api.http) = '/foo/bar'`, and set `proxy.api-prefix` to `/api/'`, your gateway will listen to requests on `'/api/foo/bar'`. This can also be set with the environment variable `<SERVICE>_PROXY_API-PREFIX` where `<SERVICE>` is the name of the service generating the gateway. 
+To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have `(google.api.http) = '/foo/bar'`, and set `proxy.api-prefix` to `/api/'`, your gateway will listen to requests on `'/api/foo/bar'`. This can also be set with the environment variable `<SERVICE>_PROXY_API-PREFIX` where `<SERVICE>` is the name of the service generating the gateway.
 
 See [gwy/test.sh](https://github.com/namely/docker-protoc/blob/master/gwy/test.sh) for an example of how to set the prefix with an environment variable.
 
@@ -172,8 +178,8 @@ There are four values:
 
 ### Other Response Headers
 
-You can configure additional headers to be sent in the HTTP response.  
-Set environment variable with prefix `<SERVICE>_RESPONSE-HEADERS_` (e.g `SOMESERVICE_RESPONSE-HEADERS_SOME-HEADER-KEY`).  
+You can configure additional headers to be sent in the HTTP response.
+Set environment variable with prefix `<SERVICE>_RESPONSE-HEADERS_` (e.g `SOMESERVICE_RESPONSE-HEADERS_SOME-HEADER-KEY`).
 You can also set headers in the your configuration file (e.g `response-headers.some-header-key`)
 
 ### Marshalling options

@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "descriptor_set")
+LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "descriptor_set" "web")
 
 CONTAINER=${CONTAINER}
 
@@ -122,6 +122,47 @@ testGeneration() {
         fi
     fi
 
+    if [[ "$extra_args" == *"--js-out library=testlib"* ]]; then
+        # Test that we have generated the testlib.js file
+        testlib_count=$(find $expected_output_dir -type f -name "testlib.js" | wc -l)
+        if [ $testlib_count -ne 1 ]; then
+            echo "testlib.js file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
+    if [[ "$extra_args" == *"--grpc-web-out import_style=commonjs+dts"* ]]; then
+        # Test that we have generated the .d.ts files and .js files
+        ts_file_count=$(find $expected_output_dir -type f -name "*.d.ts" | wc -l)
+        if [ $ts_file_count -ne 2 ]; then
+            echo ".d.ts files were not generated in $expected_output_dir"
+            exit 1
+        fi
+        js_file_count=$(find $expected_output_dir -type f -name "*.js" | wc -l)
+        if [ $js_file_count -ne 2 ]; then
+            echo ".js files were not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+    if [[ "$extra_args" == *"--grpc-web-out import_style=typescript"* ]]; then
+        # Test that we have generated the .d.ts files, .ts files and .js files
+        d_ts_file_count=$(find $expected_output_dir -type f -name "*.d.ts" | wc -l)
+        if [ $d_ts_file_count -ne 1 ]; then
+            echo ".d.ts files were not generated in $expected_output_dir"
+            exit 1
+        fi
+        ts_file_count=$(find $expected_output_dir -type f -name "*Pb.ts" | wc -l)
+        if [ $ts_file_count -ne 1 ]; then
+            echo ".ts files were not generated in $expected_output_dir"
+            exit 1
+        fi
+        js_file_count=$(find $expected_output_dir -type f -name "*.js" | wc -l)
+        if [ $js_file_count -ne 1 ]; then
+            echo "More than 1 .js file was generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
     rm -rf `echo $expected_output_dir | cut -d '/' -f1`
     echo "Generating for $lang passed!"
 }
@@ -152,6 +193,13 @@ testGeneration ruby "gen/pb-ruby" --with-rbi
 
 # Test TypeScript declaration file generation (only valid for Node)
 testGeneration node "gen/pb-node" --with-typescript
+
+# Test node alternative import style (only valid for node and web)
+testGeneration node "gen/pb-node" --js-out library=testlib
+
+# Test grpc web alternative import style (only valid for web)
+testGeneration web "gen/pb-web" --grpc-web-out import_style=typescript
+testGeneration web "gen/pb-web" --grpc-web-out import_style=commonjs+dts
 
 # Generate proto files
 for lang in ${LANGS[@]}; do
