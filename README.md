@@ -124,7 +124,8 @@ docker build -t my-grpc-gateway gen/grpc-gateway/
 
 _NOTE_: If your service does not contain any `(google.api.http)` annotations, this build will
 fail with an error `...HandlerFromEndpoint is undefined`. You need to have at least one rpc
-method annotated to build a gRPC Gateway.
+method annotated to build a gRPC Gateway, or use `--generate-unbound-methods` option to expose
+all the methods in your proto file
 
 Run this image with
 
