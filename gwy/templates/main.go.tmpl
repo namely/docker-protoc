@@ -14,12 +14,13 @@ import (
 	"time"
 
 	"github.com/gorilla/handlers"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails" // Pull in errdetails
 	gw "gateway/{{.Import}}"
@@ -60,6 +61,10 @@ type proxyConfig struct {
 	maxCallSendMsgSize int
 	// Use canonical JSON names for proto fields. By default will use proto names.
 	useJSONNames bool
+	// Emit default values for unpopulated fields. By default empty fields will not be populated.
+	emitUnpopulated bool
+	// Keeps unknown fields sent in a request instead of discarding it. By default unknown fields will be discarded.
+	keepUnknown bool
 }
 
 func logFormatter(cfg proxyConfig) handlers.LogFormatter {
@@ -254,15 +259,21 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	})
 
 	options := []runtime.ServeMuxOption{
-		runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
-		runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
+	    runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
+	    runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
 	}
 
 	useProtoNames := !cfg.useJSONNames
-
+	discardUnknown := !cfg.keepUnknown
 	marshaller := &runtime.HTTPBodyMarshaler{
 		Marshaler: &runtime.JSONPb{
-			OrigName:     useProtoNames,
+			MarshalOptions: protojson.MarshalOptions{
+				UseProtoNames: useProtoNames,
+				EmitUnpopulated: cfg.emitUnpopulated,
+			},
+			UnmarshalOptions: protojson.UnmarshalOptions{
+				DiscardUnknown: discardUnknown,
+			},
 		},
 	}
 	options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, marshaller))
@@ -381,6 +392,7 @@ func main() {
 		maxCallSendMsgSize:   cfg.GetInt("grpc.max-call-send-msg-size"),
 		useJSONNames:         cfg.GetBool("gateway.use-json-names"),
 		emitUnpopulated:      cfg.GetBool("gateway.emit-unpopulated"),
+		keepUnknown:	      cfg.GetBool("gateway.keep-unknown"),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))

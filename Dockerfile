@@ -61,7 +61,7 @@ RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
 WORKDIR /tmp
 RUN go get -u google.golang.org/grpc
 
-RUN GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@v1.16.0
+RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
