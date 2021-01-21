@@ -14,13 +14,12 @@ import (
 	"time"
 
 	"github.com/gorilla/handlers"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/encoding/protojson"
 
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails" // Pull in errdetails
 	gw "gateway/{{.Import}}"
@@ -61,10 +60,6 @@ type proxyConfig struct {
 	maxCallSendMsgSize int
 	// Use canonical JSON names for proto fields. By default will use proto names.
 	useJSONNames bool
-	// Emit default values for unpopulated fields. By default empty fields will not be populated.
-	emitUnpopulated bool
-	// Keeps unknown fields sent in a request instead of discarding it. By default unknown fields will be discarded.
-	keepUnknown bool
 }
 
 func logFormatter(cfg proxyConfig) handlers.LogFormatter {
@@ -142,7 +137,7 @@ func addRespHeaders(cfg proxyConfig, handler http.Handler) http.Handler {
 		}
 
 		for header, value := range cfg.responseHeaders {
-			w.Header().Set(header, value)	
+			w.Header().Set(header, value)
 		}
 		w.Header().Set("Access-Control-Allow-Origin", corsAllowOrigin)
 		w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
@@ -231,7 +226,7 @@ func outgoingHeaderMatcher(metadata string) (string, bool) {
 	return metadata, true
 }
 
-// getResponseHeaders will identified keys and values which are response headers settings and 
+// getResponseHeaders will identified keys and values which are response headers settings and
 // translate into a map
 func getResponseHeaders(cfg *viper.Viper) map[string]string {
 	m := make(map[string]string)
@@ -259,21 +254,15 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	})
 
 	options := []runtime.ServeMuxOption{
-	    runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
-	    runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
+		runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
+		runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
 	}
 
 	useProtoNames := !cfg.useJSONNames
-	discardUnknown := !cfg.keepUnknown
+
 	marshaller := &runtime.HTTPBodyMarshaler{
 		Marshaler: &runtime.JSONPb{
-			MarshalOptions: protojson.MarshalOptions{
-				UseProtoNames: useProtoNames,
-				EmitUnpopulated: cfg.emitUnpopulated,
-			},
-			UnmarshalOptions: protojson.UnmarshalOptions{
-				DiscardUnknown: discardUnknown,
-			},
+			OrigName:     useProtoNames,
 		},
 	}
 	options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, marshaller))
@@ -282,7 +271,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	logrus.Infof("Proxying requests to gRPC service at '%s'", cfg.backend)
 
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-	
+
 	callOptions := []grpc.CallOption{}
 	if cfg.maxCallRecvMsgSize > 0 {
 		callOptions = append(callOptions, grpc.MaxCallRecvMsgSize(cfg.maxCallRecvMsgSize))
@@ -293,7 +282,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	if len(callOptions) > 0 {
 		opts = append(opts, grpc.WithDefaultCallOptions(callOptions...))
 	}
-	
+
 	// If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
 	// does not exist, it's because you haven't added any google.api.http annotations
 	// to your proto. Add some!
@@ -376,7 +365,7 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	
+
 	mux := SetupMux(ctx, proxyConfig{
 		backend:              cfg.GetString("backend"),
 		logLevel:             cfg.GetString("log_level"),
@@ -392,7 +381,6 @@ func main() {
 		maxCallSendMsgSize:   cfg.GetInt("grpc.max-call-send-msg-size"),
 		useJSONNames:         cfg.GetBool("gateway.use-json-names"),
 		emitUnpopulated:      cfg.GetBool("gateway.emit-unpopulated"),
-		keepUnknown:	      cfg.GetBool("gateway.keep-unknown"),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))

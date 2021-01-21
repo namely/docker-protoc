@@ -11,7 +11,8 @@ WORKDIR /app
 COPY . /app/
 
 # init the module so we can actually build
-RUN go mod init gateway
+# RUN go mod init gateway
+# RUN go mod download -x gateway
 
 # Build the gateway
 RUN go build -o /app/grpc_gateway cmd/gateway/main.go
