@@ -95,6 +95,16 @@ testGeneration() {
                 echo "$expected_file_name2 file was not generated with json names"
                 exit 1
             fi
+
+            # test that we generated field masks with expected output
+            # for the pinned version of grpc-gateway(v2.0.1), we expect the property type to be "array"
+            expected_field_mask_property_type="array"
+            actual_field_mask_property_type=$(cat $expected_output_dir$expected_file_name2 | jq '.definitions.MessagesUpdateMessageRequest.properties.updateMask.type' | tr -d "\042")
+            if [ ! "$actual_field_mask_property_type" == "$expected_field_mask_property_type" ]; then
+                echo "expected field mask type not found"
+                exit 1
+            fi
+
         elif [[ "$extra_args" == *"--with-swagger-json-names"* ]]; then
             # Test that we have generated the test.swagger.json file with json params
             if ! grep -q $JSON_PARAM_NAME "$expected_output_dir$expected_file_name2" ; then

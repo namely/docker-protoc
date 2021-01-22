@@ -1,12 +1,14 @@
 ARG debian=buster
 ARG go_version
 ARG grpc_version
+ARG grpc_gateway_version
 ARG grpc_java_version
 
 FROM golang:$go_version-$debian AS build
 
 # TIL docker arg variables need to be redefined in each build stage
 ARG grpc_version
+ARG grpc_gateway_version
 ARG grpc_java_version
 ARG grpc_web_version
 
@@ -61,8 +63,16 @@ RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
 WORKDIR /tmp
 RUN go get -u google.golang.org/grpc
 
-RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2
+# install protoc-gen-grpc-gateway and protoc-gen-openapiv2
+RUN set -e && \
+    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v${grpc_gateway_version} && \
+    cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-grpc-gateway && \
+    go install .
+
+RUN set -e && \
+    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v${grpc_gateway_version} && \
+    cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2 && \
+    go install .
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
@@ -98,6 +108,7 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_vers
 FROM debian:$debian-slim AS protoc-all
 
 ARG grpc_version
+ARG grpc_gateway_version
 
 RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
@@ -136,7 +147,7 @@ COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
-COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2/options/ /opt/include/protoc-gen-openapiv2/options/
+COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
 
 COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/

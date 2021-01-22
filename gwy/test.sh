@@ -57,5 +57,3 @@ if [ "$status" -ne "404" ]; then
 fi
 
 kill $!
-
-
