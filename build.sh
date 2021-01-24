@@ -10,6 +10,7 @@ for build in ${BUILDS[@]}; do
         --build-arg grpc_version=${GRPC_VERSION} \
         --build-arg grpc_java_version=${GRPC_JAVA_VERSION} \
         --build-arg grpc_web_version=${GRPC_WEB_VERSION} \
+        --build-arg grpc_gateway_version=${GRPC_GATEWAY_VERSION} \
         --build-arg go_version=${GO_VERSION} \
         --target ${build} \
         .

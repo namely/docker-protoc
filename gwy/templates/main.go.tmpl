@@ -142,7 +142,7 @@ func addRespHeaders(cfg proxyConfig, handler http.Handler) http.Handler {
 		}
 
 		for header, value := range cfg.responseHeaders {
-			w.Header().Set(header, value)	
+			w.Header().Set(header, value)
 		}
 		w.Header().Set("Access-Control-Allow-Origin", corsAllowOrigin)
 		w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
@@ -231,7 +231,7 @@ func outgoingHeaderMatcher(metadata string) (string, bool) {
 	return metadata, true
 }
 
-// getResponseHeaders will identified keys and values which are response headers settings and 
+// getResponseHeaders will identified keys and values which are response headers settings and
 // translate into a map
 func getResponseHeaders(cfg *viper.Viper) map[string]string {
 	m := make(map[string]string)
@@ -282,7 +282,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	logrus.Infof("Proxying requests to gRPC service at '%s'", cfg.backend)
 
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-	
+
 	callOptions := []grpc.CallOption{}
 	if cfg.maxCallRecvMsgSize > 0 {
 		callOptions = append(callOptions, grpc.MaxCallRecvMsgSize(cfg.maxCallRecvMsgSize))
@@ -293,7 +293,7 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 	if len(callOptions) > 0 {
 		opts = append(opts, grpc.WithDefaultCallOptions(callOptions...))
 	}
-	
+
 	// If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
 	// does not exist, it's because you haven't added any google.api.http annotations
 	// to your proto. Add some!
@@ -376,7 +376,7 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	
+
 	mux := SetupMux(ctx, proxyConfig{
 		backend:              cfg.GetString("backend"),
 		logLevel:             cfg.GetString("log_level"),
