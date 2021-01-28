@@ -60,7 +60,7 @@ type proxyConfig struct {
 	maxCallRecvMsgSize int
 	// Sets the maximum message size in bytes the client can send.
 	maxCallSendMsgSize int
-	// Use protobuf json marshaller instead of legacy marshaler.
+	// Use protobuf json marshaler instead of legacy marshaler.
 	// The new marshaler uses protojson vs. legacy marshaler which uses jsonpb.
 	useJSONPBV2Marshaler bool
 	// Use canonical JSON names for proto fields. By default will use proto names.
