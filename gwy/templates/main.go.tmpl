@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gorilla/handlers"
+	legacyruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
@@ -59,12 +60,51 @@ type proxyConfig struct {
 	maxCallRecvMsgSize int
 	// Sets the maximum message size in bytes the client can send.
 	maxCallSendMsgSize int
+	// Use protobuf json marshaler instead of legacy marshaler.
+	// The new marshaler uses protojson vs. legacy marshaler which uses jsonpb.
+	useJSONPBV2Marshaler bool
 	// Use canonical JSON names for proto fields. By default will use proto names.
 	useJSONNames bool
 	// Emit default values for unpopulated fields. By default empty fields will not be populated.
 	emitUnpopulated bool
 	// Keeps unknown fields sent in a request instead of discarding it. By default unknown fields will be discarded.
 	keepUnknown bool
+}
+
+type JSONPbLegacy struct {
+	jsonpb *legacyruntime.JSONPb
+}
+
+func NewJSONPbLegacy(useJSONNames bool, emitUnpopulated bool, keepUnknown bool) *JSONPbLegacy {
+	j := &JSONPbLegacy{
+			jsonpb: &legacyruntime.JSONPb{},
+	}
+	j.jsonpb.OrigName = !useJSONNames
+	j.jsonpb.EmitDefaults = emitUnpopulated
+	if keepUnknown {
+		legacyruntime.DisallowUnknownFields()
+	}
+	return j
+}
+
+func (j *JSONPbLegacy) Marshal(v interface{}) ([]byte, error) {
+	return j.jsonpb.Marshal(v)
+}
+
+func (j *JSONPbLegacy) Unmarshal(data []byte, v interface{}) error {
+	return j.jsonpb.Unmarshal(data, v)
+}
+
+func (j *JSONPbLegacy) NewDecoder(r io.Reader) runtime.Decoder {
+	return j.jsonpb.NewDecoder(r)
+}
+
+func (j *JSONPbLegacy) NewEncoder(w io.Writer) runtime.Encoder {
+	return j.jsonpb.NewEncoder(w)
+}
+
+func (j *JSONPbLegacy) ContentType(v interface{}) string {
+	return j.jsonpb.ContentType()
 }
 
 func logFormatter(cfg proxyConfig) handlers.LogFormatter {
@@ -265,8 +305,9 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 
 	useProtoNames := !cfg.useJSONNames
 	discardUnknown := !cfg.keepUnknown
-	marshaller := &runtime.HTTPBodyMarshaler{
-		Marshaler: &runtime.JSONPb{
+	var marshaler runtime.Marshaler
+	if cfg.useJSONPBV2Marshaler {
+		marshaler = &runtime.JSONPb{
 			MarshalOptions: protojson.MarshalOptions{
 				UseProtoNames: useProtoNames,
 				EmitUnpopulated: cfg.emitUnpopulated,
@@ -274,9 +315,15 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 			UnmarshalOptions: protojson.UnmarshalOptions{
 				DiscardUnknown: discardUnknown,
 			},
-		},
+		}
+	} else {
+		marshaler = NewJSONPbLegacy(cfg.useJSONNames, cfg.emitUnpopulated, cfg.keepUnknown)
 	}
-	options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, marshaller))
+
+	httpMarshaler := &runtime.HTTPBodyMarshaler{
+		Marshaler: marshaler,
+	}
+	options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, httpMarshaler))
 
 	gwmux := runtime.NewServeMux(options...)
 	logrus.Infof("Proxying requests to gRPC service at '%s'", cfg.backend)
@@ -390,9 +437,10 @@ func main() {
 		responseHeaders:      getResponseHeaders(cfg),
 		maxCallRecvMsgSize:   cfg.GetInt("grpc.max-call-recv-msg-size"),
 		maxCallSendMsgSize:   cfg.GetInt("grpc.max-call-send-msg-size"),
+		useJSONPBV2Marshaler: cfg.GetBool("gateway.use-jsonpb-v2-marshaler"),
 		useJSONNames:         cfg.GetBool("gateway.use-json-names"),
 		emitUnpopulated:      cfg.GetBool("gateway.emit-unpopulated"),
-		keepUnknown:	      cfg.GetBool("gateway.keep-unknown"),
+		keepUnknown:	        cfg.GetBool("gateway.keep-unknown"),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))
