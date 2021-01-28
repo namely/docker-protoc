@@ -184,6 +184,10 @@ You can also set headers in the your configuration file (e.g `response-headers.s
 
 ### Marshalling options
 
+#### Setting Marshler version
+
+By default, `gen-grpc-gateway` will use a marshaler/unmarshaler based on [jsonpb](https://pkg.go.dev/github.com/golang/protobuf/jsonpb). You can change this behavior by setting `gateway.use-jsonpb-v2-marshaler: true`, which will use [protojson](https://pkg.go.dev/google.golang.org/protobuf/encoding/protojson) - a newer version which is more aligned with [proto <=> json mapping](https://developers.google.com/protocol-buffers/docs/proto3#json).
+
 #### Proto names format
 
 By default, `gen-grpc-gateway` will return proto names as they are in the proto messages. You can change this behavior by setting `gateway.use-json-names: true` and the gateway will use camelCase JSON names.
