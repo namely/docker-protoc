@@ -184,7 +184,7 @@ You can also set headers in the your configuration file (e.g `response-headers.s
 
 ### Marshalling options
 
-#### Setting Marshler version
+#### Setting Marshaler version
 
 By default, `gen-grpc-gateway` will use a marshaler/unmarshaler based on [jsonpb](https://pkg.go.dev/github.com/golang/protobuf/jsonpb). You can change this behavior by setting `gateway.use-jsonpb-v2-marshaler: true`, which will use [protojson](https://pkg.go.dev/google.golang.org/protobuf/encoding/protojson) - a newer version which is more aligned with [proto <=> json mapping](https://developers.google.com/protocol-buffers/docs/proto3#json).
 
