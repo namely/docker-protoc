@@ -125,7 +125,7 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
 # Add TypeScript support
 
 RUN npm config set unsafe-perm true
-RUN npm i -g ts-protoc-gen@0.12.0
+RUN npm i -g ts-protoc-gen@0.14.0
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
