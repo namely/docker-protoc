@@ -30,6 +30,7 @@ printUsage() {
                                              larger descriptors that include information about the original location of each decl in the source file as  well
                                              as surrounding comments."
     echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
+    echo " --go_opt                       The options to pass to protoc to customize the csharp code generation."
     echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
     echo " --scala_opt                    The options to pass to protoc to customize the scala code generation."
     echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names.
@@ -59,6 +60,7 @@ NO_GOOGLE_INCLUDES=false
 DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
 DESCR_FILENAME="descriptor_set.pb"
+GO_OPT=""
 CSHARP_OPT=""
 SCALA_OPT=""
 OPENAPI_JSON=false
@@ -181,6 +183,11 @@ while test $# -gt 0; do
             DESCR_FILENAME=$1
             shift
             ;;
+        --go_opt)
+            shift
+            GO_OPT=$1
+            shift
+            ;;
         --csharp_opt)
             shift
             CSHARP_OPT=$1
@@ -300,6 +307,9 @@ case $GEN_LANG in
         GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
         if [[ ${GO_PLUGIN} == "micro" ]]; then
           GEN_STRING="$GEN_STRING --micro_out=$OUT_DIR"
+        fi
+        if [[ ! -z $GO_OPT ]]; then
+            GEN_STRING="$GEN_STRING --go_opt=$GO_OPT"
         fi
         ;;
     "gogo")
