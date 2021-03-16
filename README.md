@@ -98,7 +98,7 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 
 `--grpc-web-out <string>` to modify the `grpc-web_out=` options for web code generation
 
-`--grpc_out <string>` to modify the `grpc_out=` options for node and web code generation
+`--grpc-out <string>` to modify the `grpc_out=` options for node and web code generation.  See https://www.npmjs.com/package/grpc-tools for more details.
 
 ## gRPC Gateway (Experimental)
 
