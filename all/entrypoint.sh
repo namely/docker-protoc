@@ -36,7 +36,8 @@ printUsage() {
                                              (deprecated. Please use --with-openapi-json-names)"
     echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
     echo " --js-out                       This option overrides the 'js_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
-    echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation. Defaults to 'import_style=typescript'."
+    echo " --grpc-out                     This option allows overriding the left-half of the 'grpc_out=' argument (before the colon) with grpc-node and grpc-web code generation. Defaults to generate_package_definition"
+    echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation.  Defaults to 'import_style=typescript'."
 }
 
 GEN_GATEWAY=false
@@ -64,6 +65,7 @@ SCALA_OPT=""
 OPENAPI_JSON=false
 JS_OUT="import_style=commonjs"
 WEB_OUT="import_style=typescript"
+GRPC_OUT="generate_package_definition"
 
 while test $# -gt 0; do
     case "$1" in
@@ -210,6 +212,11 @@ while test $# -gt 0; do
             WEB_OUT=$1
             shift
             ;;
+        --grpc-out)
+            shift
+            GRPC_OUT=$1
+            shift
+            ;;
         *)
             break
             ;;
@@ -327,10 +334,10 @@ plugins=grpc+embedded\
         GEN_STRING="--scala_out=$SCALA_OUT --plugin=`which protoc-gen-scala`"
         ;;
     "node")
-        GEN_STRING="--grpc_out=$OUT_DIR --js_out=$JS_OUT,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
+        GEN_STRING="--grpc_out=$GRPC_OUT:$OUT_DIR --js_out=$JS_OUT,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
     "web")
-        GEN_STRING="--grpc-web_out=$WEB_OUT,mode=grpcwebtext:$OUT_DIR --js_out=$JS_OUT:$OUT_DIR --plugin=protoc-gen-grpc-web=`which grpc_${PLUGIN_LANG}_plugin`"
+        GEN_STRING="--grpc-web_out=$WEB_OUT,mode=grpcwebtext:$OUT_DIR --grpc_out=$GRPC_OUT:$OUT_DIR --js_out=$JS_OUT:$OUT_DIR --plugin=protoc-gen-grpc-web=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
     "descriptor_set")
         GEN_STRING="--descriptor_set_out=$OUT_DIR/$DESCR_FILENAME"

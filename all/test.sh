@@ -141,6 +141,15 @@ testGeneration() {
         fi
     fi
 
+    if [[ "$extra_args" == *"--grpc-out grpc-js"* ]]; then
+        # Test that we have generated the testlib.js file
+        testlib_count=$(find $expected_output_dir -type f -name "testlib.js" | wc -l)
+        if [ $testlib_count -ne 1 ]; then
+            echo "testlib.js file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
     if [[ "$extra_args" == *"--grpc-web-out import_style=commonjs+dts"* ]]; then
         # Test that we have generated the .d.ts files and .js files
         ts_file_count=$(find $expected_output_dir -type f -name "*.d.ts" | wc -l)
@@ -206,6 +215,9 @@ testGeneration node "gen/pb-node" --with-typescript
 
 # Test node alternative import style (only valid for node and web)
 testGeneration node "gen/pb-node" --js-out library=testlib
+
+# Test node grpc-out alternative import style (only valid for node and web)
+testGeneration node "gen/pb-node" --grpc-out grpc-js
 
 # Test grpc web alternative import style (only valid for web)
 testGeneration web "gen/pb-web" --grpc-web-out import_style=typescript
