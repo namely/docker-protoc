@@ -36,7 +36,7 @@ printUsage() {
                                              (deprecated. Please use --with-openapi-json-names)"
     echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
     echo " --js-out                       This option overrides the 'js_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
-    echo " --grpc-out                     This option overrides the 'grpc_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
+    echo " --grpc-out                     This option allows overriding the left-half of the 'grpc_out=' argument (before the colon) with grpc-node and grpc-web code generation. Defaults to generate_package_definition"
     echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation.  Defaults to 'import_style=typescript'."
 }
 
