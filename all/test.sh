@@ -29,7 +29,7 @@ testGeneration() {
 
     if [[ "$lang" == "go" ]]; then
         # Test that we have generated the test.pb.go file.
-        expected_file_name="/all/test.pb.go"
+        expected_file_name="/all/test/test.pb.go"
         if [[ "$extra_args" == *"--go-source-relative"* ]]; then
             expected_file_name="/all/test/test.pb.go"
         fi
@@ -43,11 +43,11 @@ testGeneration() {
         # Test that we have generated the __init__.py files.
         current_path="$expected_output_dir"
         while [[ $current_path != "." ]]; do
-          if [[ ! -f "$current_path/__init__.py" ]]; then
-              echo "__init__.py files were not generated in $current_path"
-              exit 1
-          fi
-          current_path=$(dirname $current_path)
+            if [[ ! -f "$current_path/__init__.py" ]]; then
+                echo "__init__.py files were not generated in $current_path"
+                exit 1
+            fi
+            current_path=$(dirname $current_path)
         done
     fi
     if [[ "$extra_args" == *"--with-rbi"* ]]; then
@@ -69,7 +69,7 @@ testGeneration() {
 
     if [[ "$extra_args" == *"--go-plugin-micro"* ]]; then
         # Test that we have generated the test.pb.micro.go file.
-        expected_file_name="/all/test.pb.micro.go"
+        expected_file_name="/all/test/test.pb.micro.go"
         if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
             echo "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
@@ -78,7 +78,7 @@ testGeneration() {
 
     if [[ "$extra_args" == *"--with-gateway"* ]]; then
         # Test that we have generated the test.pb.gw.go file.
-        expected_file_name1="/all/test.pb.gw.go"
+        expected_file_name1="/all/test/test.pb.gw.go"
         expected_file_name2="/all/test/test.swagger.json"
         if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
             echo "$expected_file_name1 file was not generated in $expected_output_dir"
@@ -115,10 +115,10 @@ testGeneration() {
     fi
 
         # Test that we have generated the test.pb.go file.
-        expected_file_name="/all/test.pb.go"
+        expected_file_name="/all/test/test.pb.go"
     if [[ "$extra_args" == *"--with-validator"* ]]; then
-        expected_file_name1="/all/test.pb.go"
-        expected_file_name2="/all/test.pb.validate.go"
+        expected_file_name1="/all/test/test.pb.go"
+        expected_file_name2="/all/test/test.pb.validate.go"
         if [[ "$extra_args" == *"--validator-source-relative"* ]]; then
             expected_file_name2="/all/test/test.pb.validate.go"
         fi
@@ -142,10 +142,10 @@ testGeneration() {
     fi
 
     if [[ "$extra_args" == *"--grpc-out grpc-js"* ]]; then
-        # Test that we have generated the testlib.js file
-        testlib_count=$(find $expected_output_dir -type f -name "testlib.js" | wc -l)
-        if [ $testlib_count -ne 1 ]; then
-            echo "testlib.js file was not generated in $expected_output_dir"
+        # Test that we have generated the .d.ts files and .js files
+        js_file_count=$(find $expected_output_dir -type f -name "*.js" | wc -l)
+        if [ $js_file_count -ne 2 ]; then
+            echo ".js files were not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -247,3 +247,4 @@ if [[ ! -f gen/test.jar ]]; then
   echo "Expected gen/test.jar to be a jar file."
   exit 1
 fi
+rm -rf gen
