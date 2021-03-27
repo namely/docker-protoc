@@ -113,19 +113,22 @@ ARG grpc_gateway_version
 RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     bash \
+    curl \
+    software-properties-common \
     ca-certificates \
-    nodejs \
-    npm \
     zlib1g \
     libssl1.1 \
     openjdk-11-jre \
     dos2unix \
     gawk
 
-# Add TypeScript support
+# Install latest Node version
+RUN curl -fsSL https://deb.nodesource.com/setup_15.x | bash -
+RUN apt-get install -y nodejs
 
+# Add TypeScript support
 RUN npm config set unsafe-perm true
-RUN npm i -g ts-protoc-gen@0.14.0
+RUN npm i -g grpc_tools_node_protoc_ts@5.1.3 grpc-tools@1.11.1 protoc-gen-grpc-web@1.2.1
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
