@@ -73,6 +73,7 @@ RUN go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 # Gogo and Gogo Fast
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
+RUN go get -u github.com/gogo/protobuf/protoc-gen-gogoslick
 
 # Lint
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
