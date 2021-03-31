@@ -6,9 +6,9 @@ ARG grpc_java_version
 ARG uber_prototool_version
 ARG scala_pb_version
 ARG node_version
-ARG grpc_tools_node_protoc_ts_version 
-ARG grpc_tools_version
-ARG protoc_gen_grpc_web_version
+ARG node_grpc_tools_node_protoc_ts_version 
+ARG node_grpc_tools_version
+ARG node_protoc_gen_grpc_web_version
 
 FROM golang:$go_version-$debian AS build
 
@@ -118,9 +118,9 @@ ARG grpc_version
 ARG grpc_gateway_version
 
 ARG node_version
-ARG grpc_tools_node_protoc_ts_version
-ARG grpc_tools_version
-ARG protoc_gen_grpc_web_version
+ARG node_grpc_tools_node_protoc_ts_version
+ARG node_grpc_tools_version
+ARG node_protoc_gen_grpc_web_version
 
 RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
@@ -140,7 +140,7 @@ RUN apt-get install -y nodejs
 
 # Add TypeScript support
 RUN npm config set unsafe-perm true
-RUN npm i -g grpc_tools_node_protoc_ts@$grpc_tools_node_protoc_ts_version grpc-tools@$grpc_tools_version protoc-gen-grpc-web@$protoc_gen_grpc_web_version
+RUN npm i -g grpc_tools_node_protoc_ts@$node_grpc_tools_node_protoc_ts_version grpc-tools@$node_grpc_tools_version protoc-gen-grpc-web@$node_protoc_gen_grpc_web_version
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
