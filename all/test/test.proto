@@ -6,9 +6,7 @@ import "all/test/include.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 
-option go_package = "all/test";
-
-
+option go_package = "all/;all";
 
 service Message {
   rpc ListMessage (ListMessageRequest) returns (ListMessageResponse) {
