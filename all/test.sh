@@ -43,11 +43,11 @@ testGeneration() {
         # Test that we have generated the __init__.py files.
         current_path="$expected_output_dir"
         while [[ $current_path != "." ]]; do
-          if [[ ! -f "$current_path/__init__.py" ]]; then
-              echo "__init__.py files were not generated in $current_path"
-              exit 1
-          fi
-          current_path=$(dirname $current_path)
+            if [[ ! -f "$current_path/__init__.py" ]]; then
+                echo "__init__.py files were not generated in $current_path"
+                exit 1
+            fi
+            current_path=$(dirname $current_path)
         done
     fi
     if [[ "$extra_args" == *"--with-rbi"* ]]; then
@@ -142,10 +142,10 @@ testGeneration() {
     fi
 
     if [[ "$extra_args" == *"--grpc-out grpc-js"* ]]; then
-        # Test that we have generated the testlib.js file
-        testlib_count=$(find $expected_output_dir -type f -name "testlib.js" | wc -l)
-        if [ $testlib_count -ne 1 ]; then
-            echo "testlib.js file was not generated in $expected_output_dir"
+        # Test that we have generated the .d.ts files and .js files
+        js_file_count=$(find $expected_output_dir -type f -name "*.js" | wc -l)
+        if [ $js_file_count -ne 2 ]; then
+            echo ".js files were not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -247,3 +247,4 @@ if [[ ! -f gen/test.jar ]]; then
   echo "Expected gen/test.jar to be a jar file."
   exit 1
 fi
+rm -rf gen

@@ -3,6 +3,12 @@ ARG go_version
 ARG grpc_version
 ARG grpc_gateway_version
 ARG grpc_java_version
+ARG uber_prototool_version
+ARG scala_pb_version
+ARG node_version
+ARG node_grpc_tools_node_protoc_ts_version 
+ARG node_grpc_tools_version
+ARG node_protoc_gen_grpc_web_version
 
 FROM golang:$go_version-$debian AS build
 
@@ -11,6 +17,7 @@ ARG grpc_version
 ARG grpc_gateway_version
 ARG grpc_java_version
 ARG grpc_web_version
+ARG scala_pb_version
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -51,7 +58,7 @@ RUN mkdir -p /usr/local/include/google/protobuf && \
     cp -a /tmp/grpc/bazel-grpc/external/com_google_protobuf/src/google/protobuf/. /usr/local/include/google/protobuf/
 
 WORKDIR /tmp
-RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \
+RUN curl -sSL https://github.com/uber/prototool/releases/download/v${uber_prototool_version}/prototool-$(uname -s)-$(uname -m) \
     -o /usr/local/bin/prototool && \
     chmod +x /usr/local/bin/prototool
 
@@ -96,8 +103,8 @@ RUN go get github.com/gomatic/renderizer/cmd/renderizer
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 # Add scala support
-RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
-    && unzip protoc-gen-scala-0.9.6-linux-x86_64.zip \
+RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \ 
+    && unzip protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \
     && chmod +x /tmp/protoc-gen-scala
 
 # Add grpc-web support
@@ -110,22 +117,30 @@ FROM debian:$debian-slim AS protoc-all
 ARG grpc_version
 ARG grpc_gateway_version
 
+ARG node_version
+ARG node_grpc_tools_node_protoc_ts_version
+ARG node_grpc_tools_version
+ARG node_protoc_gen_grpc_web_version
+
 RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     bash \
+    curl \
+    software-properties-common \
     ca-certificates \
-    nodejs \
-    npm \
     zlib1g \
     libssl1.1 \
     openjdk-11-jre \
     dos2unix \
     gawk
 
-# Add TypeScript support
+# Install latest Node version
+RUN curl -fsSL https://deb.nodesource.com/setup_${node_version}.x | bash -
+RUN apt-get install -y nodejs
 
+# Add TypeScript support
 RUN npm config set unsafe-perm true
-RUN npm i -g ts-protoc-gen@0.14.0
+RUN npm i -g grpc_tools_node_protoc_ts@$node_grpc_tools_node_protoc_ts_version grpc-tools@$node_grpc_tools_version protoc-gen-grpc-web@$node_protoc_gen_grpc_web_version
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
