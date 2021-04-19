@@ -31,7 +31,7 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 
 > Note - throughout this document, commands for bash are prefixed with `$` and commands
 > for PowerShell on Windows are prefixed with `PS>`. It is not required to use "Windows
-> Subsystem for Linux" (WSL)
+> Subsystem for Linux" (WSL) except for development work on docker-protoc itself
 
 ## Tag Conventions
 
@@ -100,10 +100,10 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 
 `--grpc-out <string>` to modify the `grpc_out=` options for node and web code generation.  See https://www.npmjs.com/package/grpc-tools for more details.
 
-## gRPC Gateway (Experimental)
+## gRPC Gateway
 
-This repo also provides a docker images `namely/gen-grpc-gateway` that
-generates a [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server.
+This repo also provides a docker image `namely/gen-grpc-gateway` to generate a 
+[grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server.
 By annotating your proto (see the grpc-gateway documentation), you can generate a
 server that acts as an HTTP server, and a gRPC client to your gRPC service.
 
@@ -269,6 +269,9 @@ $ CONTAINER=namely/protoc-all:VVV make test
 
 (`VVV` is your version from the tag in the console output when running `make build`). Running this will
 demonstrate that your new image can successfully build containers for each language.
+
+Open a PR and ping one of the Namely employees who have worked on this repo recently.  We will take
+a look as soon as we can.  Thank you!!
 
 Namely employees can merge PRs and the latest version will be pushed up via CI.  It is also possible to
 do this manually by running this:
