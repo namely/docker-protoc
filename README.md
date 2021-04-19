@@ -11,27 +11,27 @@ language you want to generate.
 
 ## Features
 
-* Docker images for:
-  * `protoc` with `namely/protoc` (automatically includes `/usr/local/include`)
-  * [Uber's Prototool](https://github.com/uber/prototool) with `namely/prototool`
-  * A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
-  * `grpc_cli` with `namely/grpc-cli`
-  * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
-* [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
-* [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf` (NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
+  * Docker images for:
+    * `protoc` with `namely/protoc` (automatically includes `/usr/local/include`)
+    * [Uber's Prototool](https://github.com/uber/prototool) with `namely/prototool`
+    * A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
+    * `grpc_cli` with `namely/grpc-cli`
+    * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
+  * [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
+  * [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf` (NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
 
    ```proto
    import "google/protobuf/empty.proto";
    ...
    ```
 
-* Support for all C based gRPC libraries with Go and Java native libraries
+  * Support for all C based gRPC libraries with Go and Java native libraries
 
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
 
 > Note - throughout this document, commands for bash are prefixed with `$` and commands
 > for PowerShell on Windows are prefixed with `PS>`. It is not required to use "Windows
-> Subsystem for Linux" (WSL)
+> Subsystem for Linux" (WSL) except for development work on docker-protoc itself
 
 ## Tag Conventions
 
@@ -100,10 +100,10 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 
 `--grpc-out <string>` to modify the `grpc_out=` options for node and web code generation.  See https://www.npmjs.com/package/grpc-tools for more details.
 
-## gRPC Gateway (Experimental)
+## gRPC Gateway
 
-This repo also provides a docker images `namely/gen-grpc-gateway` that
-generates a [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server.
+This repo also provides a docker image `namely/gen-grpc-gateway` to generate a 
+[grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server.
 By annotating your proto (see the grpc-gateway documentation), you can generate a
 server that acts as an HTTP server, and a gRPC client to your gRPC service.
 
@@ -239,21 +239,42 @@ grpc_cli call docker.for.mac.localhost:50051 LinkShortener.ResolveShortLink "sho
 
 ## Contributing
 
-If you make changes, or add a container for another language compiler, this repo
-has simple scripts that can build projects. You can run the following within the
-all/ folder:
+Thank you for considering a contribution to namely/docker-protoc!
+
+If you'd like to make an enhancement, or add a container for another language compiler, you will
+need to run one of the build scripts in this repo.  You will also need to be running Mac, Linux,
+or WSL 2, and have Docker installed.  From the repository root, run this command to build all the
+known containers:
 
 ```sh
 $ make build
 ```
 
-This will build all of the known containers.
+Note the version tag in Docker's console output - this image tag is required to run the tests using
+the container with your changes.
+
+You can change some environment variables relevant to the build by setting them as prefixes to the
+make command.  For example, this would build the containers using Node.js 15 and gRPC 1.35.  See some
+interesting variables in [variables.sh](./variables.sh) and [entrypoint.sh](./all/entrypoint.sh).
+
+```sh
+$ NODE_VERSION=15 GRPC_VERSION=1.35 make build
+```
+
+To run the tests, identify your image tag from the build step and run `make test` as below:
 
 ```sh
 $ CONTAINER=namely/protoc-all:VVV make test
 ```
 
-Where `VVV` is your version. This will run tests that containers can build for each language.
+(`VVV` is your version from the tag in the console output when running `make build`). Running this will
+demonstrate that your new image can successfully build containers for each language.
+
+Open a PR and ping one of the Namely employees who have worked on this repo recently.  We will take
+a look as soon as we can.  Thank you!!
+
+Namely employees can merge PRs and the latest version will be pushed up via CI.  It is also possible to
+do this manually by running this:
 
 ```sh
 $ make push
