@@ -217,7 +217,7 @@ testGeneration go "gen/pb-go" 0 --go-source-relative
 # Test go module prefix
 testGeneration go "gen/pb-go" 0 --go-module-prefix all
 
-# Test expected failure for soruce relative and module prefix combination
+# Test expected failure for source relative and module prefix combination
 testGeneration go "gen/pb-go" 1 --go-module-prefix all --go-source-relative
 testGeneration go "gen/pb-go" 1 --go-source-relative --go-module-prefix all
 
