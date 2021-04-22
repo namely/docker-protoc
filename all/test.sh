@@ -17,11 +17,25 @@ testGeneration() {
     shift
     expected_output_dir=$1
     shift
+    expectedExitCode=$1
+    shift
     extra_args=$@
     echo "Testing language $lang $expected_output_dir $extra_args"
 
     # Test calling a file directly.
-    docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args
+    docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args > /dev/null
+
+    exitCode=$?
+
+    if [[ $expectedExitCode != $exitCode ]]; then
+        echo "exit code must be $expectedExitCode but is $exitCode instead"
+        exit 1
+    elif [[ "$expectedExitCode" != 0 ]]; then
+        # no need to continue test of expected failure
+        echo "expected failure passed!"
+        return
+    fi
+
     if [[ ! -d "$expected_output_dir" ]]; then
         echo "generated directory $expected_output_dir does not exist"
         exit 1
@@ -32,6 +46,8 @@ testGeneration() {
         expected_file_name="/all/test.pb.go"
         if [[ "$extra_args" == *"--go-source-relative"* ]]; then
             expected_file_name="/all/test/test.pb.go"
+        elif [[ "$extra_args" == *"--go-module-prefix"* ]]; then
+            expected_file_name="/test.pb.go"
         fi
         if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
             echo "$expected_file_name file was not generated in $expected_output_dir"
@@ -187,41 +203,48 @@ testGeneration() {
 }
 
 # Test grpc-gateway generation (only valid for Go)
-testGeneration go "gen/pb-go" --with-gateway
+testGeneration go "gen/pb-go" 0 --with-gateway
 
 # Test grpc-gateway generation + json (only valid for Go)
-testGeneration go "gen/pb-go" --with-gateway --with-openapi-json-names
+testGeneration go "gen/pb-go" 0 --with-gateway --with-openapi-json-names
 
 # Test grpc-gateway generation + json (deprecated) (only valid for Go)
-testGeneration go "gen/pb-go" --with-gateway --with-swagger-json-names
+testGeneration go "gen/pb-go" 0 --with-gateway --with-swagger-json-names
 
 # Test go source relative generation
-testGeneration go "gen/pb-go" --go-source-relative
+testGeneration go "gen/pb-go" 0 --go-source-relative
+
+# Test go module prefix
+testGeneration go "gen/pb-go" 0 --go-module-prefix all
+
+# Test expected failure for soruce relative and module prefix combination
+testGeneration go "gen/pb-go" 1 --go-module-prefix all --go-source-relative
+testGeneration go "gen/pb-go" 1 --go-source-relative --go-module-prefix all
 
 # Test go validator
-testGeneration go "gen/pb-go" --with-validator
+testGeneration go "gen/pb-go" 0 --with-validator
 
 # Test go validator with source relative option
-testGeneration go "gen/pb-go" --with-validator --validator-source-relative
+testGeneration go "gen/pb-go" 0 --with-validator --validator-source-relative
 
 # Test go-micro generations
-testGeneration go "gen/pb-go" --go-plugin-micro
+testGeneration go "gen/pb-go" 0 --go-plugin-micro
 
 # Test Sorbet RBI declaration file generation (only valid for Ruby)
-testGeneration ruby "gen/pb-ruby" --with-rbi
+testGeneration ruby "gen/pb-ruby" 0 --with-rbi
 
 # Test TypeScript declaration file generation (only valid for Node)
-testGeneration node "gen/pb-node" --with-typescript
+testGeneration node "gen/pb-node" 0 --with-typescript
 
 # Test node alternative import style (only valid for node and web)
-testGeneration node "gen/pb-node" --js-out library=testlib
+testGeneration node "gen/pb-node" 0 --js-out library=testlib
 
 # Test node grpc-out alternative import style (only valid for node and web)
-testGeneration node "gen/pb-node" --grpc-out grpc-js
+testGeneration node "gen/pb-node" 0 --grpc-out grpc-js
 
 # Test grpc web alternative import style (only valid for web)
-testGeneration web "gen/pb-web" --grpc-web-out import_style=typescript
-testGeneration web "gen/pb-web" --grpc-web-out import_style=commonjs+dts
+testGeneration web "gen/pb-web" 0 --grpc-web-out import_style=typescript
+testGeneration web "gen/pb-web" 0 --grpc-web-out import_style=commonjs+dts
 
 # Generate proto files
 for lang in ${LANGS[@]}; do
@@ -233,11 +256,11 @@ for lang in ${LANGS[@]}; do
     fi
 
     # Test without an output directory.
-    testGeneration "$lang" "$expected_output_dir"
+    testGeneration "$lang" "$expected_output_dir" 0
 
     # Test with an output directory.
     test_dir="gen/foo/bar"
-    testGeneration "$lang" "$test_dir" -o "$test_dir"
+    testGeneration "$lang" "$test_dir" 0 -o "$test_dir"
 done
 
 
