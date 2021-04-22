@@ -20,6 +20,7 @@ printUsage() {
     echo " --with-validator               Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
     echo " --validator-source-relative    Make the output dirctory for protoc-gen-validate 'source relative' - see https://github.com/envoyproxy/protoc-gen-validate#go"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
+    echo " --go-module-prefix             Specify the module prefix to remove from the import path - see https://developers.google.com/protocol-buffers/docs/reference/go-generated#invocation"
     echo " --go-package-map               Map proto imports to go import paths"
     echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
     echo " --go-proto-validator           Generate Go proto validations - see https://github.com/mwitkow/go-proto-validators"
@@ -52,6 +53,7 @@ SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "n
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
+GO_MODULE_PREFIX=""
 GO_PACKAGE_MAP=""
 GO_PLUGIN="grpc"
 GO_VALIDATOR=false
@@ -147,6 +149,11 @@ while test $# -gt 0; do
             ;;
         --go-source-relative)
             GO_SOURCE_RELATIVE="paths=source_relative,"
+            shift
+            ;;
+        --go-module-prefix) 
+            shift
+            GO_MODULE_PREFIX="module=$1,"
             shift
             ;;
         --go-package-map)
@@ -274,6 +281,12 @@ if [[ "$GEN_TYPESCRIPT" == true && "$GEN_LANG" != "node" ]]; then
     exit 1
 fi
 
+if [[ ! -z $GO_SOURCE_RELATIVE && ! -z $GO_MODULE_PREFIX ]]; then
+    echo "Error: You may specifiy --go-source-relative or --go-module-prefix but not both"
+    printUsage
+    exit 1
+fi
+
 PLUGIN_LANG=$GEN_LANG
 if [ $PLUGIN_LANG == 'objc' ] ; then
     PLUGIN_LANG='objective_c'
@@ -302,7 +315,7 @@ fi
 GEN_STRING=''
 case $GEN_LANG in
     "go")
-        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
+        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_MODULE_PREFIX}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
         if [[ ${GO_PLUGIN} == "micro" ]]; then
           GEN_STRING="$GEN_STRING --micro_out=$OUT_DIR"
         fi
