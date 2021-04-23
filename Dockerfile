@@ -1,5 +1,5 @@
 ARG debian=buster
-ARG go=1.14
+ARG go=1.16
 ARG grpc
 ARG grpc_java
 ARG buf_version
@@ -73,6 +73,7 @@ RUN go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 # Gogo and Gogo Fast
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
+RUN go get -u github.com/gogo/protobuf/protoc-gen-gogoslick
 
 # Lint
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
@@ -83,8 +84,12 @@ RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 # Figure out if this is a naming collision
 # RUN go get -u github.com/micro/protobuf/protoc-gen-go
 
-RUN go get -d github.com/envoyproxy/protoc-gen-validate
-RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
+# RUN go get -d github.com/envoyproxy/protoc-gen-validate
+RUN git clone --recursive -j8 --depth 1 https://github.com/envoyproxy/protoc-gen-validate.git
+WORKDIR /tmp/protoc-gen-validate
+RUN make -C /tmp/protoc-gen-validate build
+
+WORKDIR /tmp
 
 # Omniproto
 RUN go get -u github.com/grpckit/omniproto
