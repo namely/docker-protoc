@@ -94,6 +94,8 @@ WORKDIR /tmp
 # Omniproto
 RUN go get -u github.com/grpckit/omniproto
 
+RUN go get -u github.com/GoogleCloudPlatform/protoc-gen-bq-schema
+
 # Add Ruby Sorbet types support (rbi)
 RUN go get -u github.com/coinbase/protoc-gen-rbi
 
