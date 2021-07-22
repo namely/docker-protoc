@@ -458,7 +458,7 @@ if [ $GEN_GATEWAY = true ]; then
     mkdir -p ${GATEWAY_DIR}
 
     protoc $PROTO_INCLUDE \
-		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+		--grpc-gateway_out=${GO_SOURCE_RELATIVE}logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
 
     if [[ $OPENAPI_JSON == true ]]; then
         protoc $PROTO_INCLUDE  \
