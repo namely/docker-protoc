@@ -1,0 +1,29 @@
+
+# .github/workflows/branch.yml
+
+name: PR
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: nelonoel/branch-name@v1.0.1
+
+      - name: Docker Login
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: docker login --username "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_TOKEN"
+
+      - name: Build
+        env:
+          COMMIT_HASH: ${{ github.sha }}
+          BUILD_VERSION: ${{ github.sha }}
+        run: make build
