@@ -9,6 +9,7 @@ ARG node_version
 ARG node_grpc_tools_node_protoc_ts_version 
 ARG node_grpc_tools_version
 ARG node_protoc_gen_grpc_web_version
+ARG buf_cli_version
 
 FROM golang:$go_version-$debian AS build
 
@@ -18,6 +19,7 @@ ARG grpc_gateway_version
 ARG grpc_java_version
 ARG grpc_web_version
 ARG scala_pb_version
+ARG buf_cli_version
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -112,6 +114,11 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_vers
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
+# Add buf support
+RUN curl -sSL https://github.com/bufbuild/buf/releases/download/v${buf_cli_version}/buf-Linux-x86_64 \
+    -o /tmp/buf && \
+    chmod +x /tmp/buf
+
 FROM debian:$debian-slim AS protoc-all
 
 ARG grpc_version
@@ -155,6 +162,8 @@ COPY --from=build /tmp/grpc/bazel-bin/src/compiler/ /usr/local/bin/
 COPY --from=build /tmp/grpc-java/bazel-bin/compiler/ /usr/local/bin/
 # Copy grpc_cli
 COPY --from=build /tmp/grpc/bazel-bin/test/cpp/util/ /usr/local/bin/
+# Copy buf
+COPY --from=build /tmp/buf /usr/local/bin/
 
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
@@ -199,3 +208,8 @@ RUN chmod +x /usr/local/bin/generate_gateway.sh
 
 WORKDIR /defs
 ENTRYPOINT [ "generate_gateway.sh" ]
+
+# buf-cli
+FROM protoc-all AS buf-cli
+WORKDIR /workspace
+ENTRYPOINT ["buf"]
