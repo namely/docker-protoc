@@ -1,10 +1,8 @@
 #!/bin/bash -e
 
-source ./variables.sh
-
 LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "descriptor_set" "web")
 
-CONTAINER="namely/protoc-all:${GRPC_VERSION}_${BUILD_VERSION}"
+CONTAINER=${CONTAINER}
 
 if [ -z ${CONTAINER} ]; then
     echo "You must specify a build container with \${CONTAINER} to test"

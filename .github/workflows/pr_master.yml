@@ -5,6 +5,9 @@ name: PR
 
 on:
   pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -28,9 +31,3 @@ jobs:
         env:
           BUILD_VERSION: ${{ env.COMMIT_HASH }}
         run: make build
-      
-      - name: Test
-        if: success()
-        env:
-          BUILD_VERSION: ${{ env.COMMIT_HASH }}
-        run: sudo make test
