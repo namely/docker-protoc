@@ -32,5 +32,5 @@ jobs:
       - name: Test
         if: success()
         env:
-          BUILD_VERSION: ${{ env.  }}
+          BUILD_VERSION: ${{ env.COMMIT_HASH }}
         run: sudo make test
