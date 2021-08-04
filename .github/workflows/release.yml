@@ -1,4 +1,4 @@
-# .github/workflows/release.yml
+# Build, Tag & Push a new release to dockerhub off of a tag
 
 name: Release
 
