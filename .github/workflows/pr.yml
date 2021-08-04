@@ -25,11 +25,11 @@ jobs:
       - name: Build
         env:
           COMMIT_HASH: ${{ github.sha }}
-          BUILD_VERSION: ${{ env.COMMIT_HASH }}
+          BUILD_VERSION: "COMMIT_HASH"
         run: make build
       
       - name: Test
         env:
           COMMIT_HASH: ${{ github.sha }}
-          BUILD_VERSION: ${{ env.COMMIT_HASH }}
+          BUILD_VERSION: "COMMIT_HASH"
         run: make test
