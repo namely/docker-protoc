@@ -35,8 +35,8 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 
 ## Tag Conventions
 
-For `protoc`, `grpc_cli` and `prototool` a pattern of `<GRPC\_VERSION>_<CONTAINER\_VERSION>` is used for all images.
-Example is `namely/protoc-all:1.15_0` for gRPC version `1.15`. The `latest` tag will always point to the most recent version.
+For `protoc`, `grpc_cli` and `prototool` a pattern of `<GRPC_VERSION>_<CONTAINER_VERSION>` is used for all images (or `<GRPC_VERSION>_<CONTAINER_VERSION>-rc.<PRERELEASE_NUMBER>`) for pre-releases).
+Example is `namely/protoc-all:1.15_0` for gRPC version `1.15` (or `namely/protoc-all:1.15_0-rc.1` for a pre-release). The `latest` tag will always point to the most recent version.
 
 ## Usage
 
@@ -273,16 +273,7 @@ demonstrate that your new image can successfully build containers for each langu
 Open a PR and ping one of the Namely employees who have worked on this repo recently.  We will take
 a look as soon as we can.  Thank you!!
 
-Namely employees can merge PRs and the latest version will be pushed up via CI.  It is also possible to
-do this manually by running this:
-
-```sh
-$ make push
-```
-
-This will build and push the containers to the Namely registry located on
-[DockerHub](https://hub.docker.com/u/namely/). You must be authorized to push to
-this repo.
+Namely employees can merge PRs and cut a release/pre-release which will build & push a new image to [DockerHub](https://hub.docker.com/u/namely/) via CI.  
 
 ## Docker Troubleshooting
 
