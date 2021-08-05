@@ -243,11 +243,15 @@ Thank you for considering a contribution to namely/docker-protoc!
 
 If you'd like to make an enhancement, or add a container for another language compiler, you will
 need to run one of the build scripts in this repo.  You will also need to be running Mac, Linux,
-or WSL 2, and have Docker installed.  From the repository root, run this command to build all the
+or WSL 2, and have Docker installed.  
+
+### Build
+
+From the repository root, run this command to build all the
 known containers:
 
 ```sh
-$ make build
+make build
 ```
 
 Note the version tag in Docker's console output - this image tag is required to run the tests using
@@ -258,22 +262,33 @@ make command.  For example, this would build the containers using Node.js 15 and
 interesting variables in [variables.sh](./variables.sh) and [entrypoint.sh](./all/entrypoint.sh).
 
 ```sh
-$ NODE_VERSION=15 GRPC_VERSION=1.35 make build
+NODE_VERSION=15 GRPC_VERSION=1.35 make build
 ```
+
+### Test
 
 To run the tests, identify your image tag from the build step and run `make test` as below:
 
 ```sh
-$ CONTAINER=namely/protoc-all:VVV make test
+CONTAINER=namely/protoc-all:VVV make test
 ```
 
 (`VVV` is your version from the tag in the console output when running `make build`). Running this will
 demonstrate that your new image can successfully build containers for each language.
 
-Open a PR and ping one of the Namely employees who have worked on this repo recently.  We will take
-a look as soon as we can.  Thank you!!
+### Release
 
-Namely employees can merge PRs and cut a release/pre-release which will build & push a new image to [DockerHub](https://hub.docker.com/u/namely/) via CI.  
+#### Contributors
+
+Open a PR and ping one of the Namely employees who have worked on this repo recently.  We will take a look as soon as we can.  
+Thank you!!
+
+#### Namely Employees
+
+Namely employees can merge PRs and cut a release/pre-release by drafting a new Github release and publishing them.  
+The release name should follow the same tag conventions described in  [this doc](#tag-conventions) and the gRPC version in the release name  
+must match the `GRPC_VERSION` configured in [variables.sh](./variables.sh).  
+Once a new Github release is published, new images will be published to [DockerHub](https://hub.docker.com/u/namely/) via CI.  
 
 ## Docker Troubleshooting
 
