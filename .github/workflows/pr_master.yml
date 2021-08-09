@@ -27,8 +27,8 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: docker login --username "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_TOKEN"
 
-      - name: Create Build Version
-        id: build_version
+      - name: Create Short Commit Sha
+        id: sha_short
         if: success()
         run: |
           echo ::set-output name=SHA_SHORT::$(git rev-parse --short HEAD)
