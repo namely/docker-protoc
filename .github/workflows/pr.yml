@@ -1,21 +1,18 @@
 
-# build the image on PRs and master
+# build the image on PRs
 
 name: PR
 
 on:
   pull_request:
-  push:
-    branches:
-      - master
     paths-ignore:
       - 'README.md'
+      - '.github/workflows/master.yml'
+      - '.github/workflows/*release.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      COMMIT_HASH: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -29,7 +26,13 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: docker login --username "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_TOKEN"
 
+      - name: Create Short Commit Sha
+        id: sha_short
+        if: success()
+        run: echo ::set-output name=SHA_SHORT::$(git rev-parse --short HEAD)
+
       - name: Build
+        if: success()
         env:
-          BUILD_VERSION: ${{ env.COMMIT_HASH }}
+          BUILD_VERSION: ${{ steps.sha_short.outputs.SHA_SHORT }}
         run: make build
