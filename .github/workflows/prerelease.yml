@@ -40,7 +40,7 @@ jobs:
         if: success()
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
-        run: make tag
+        run: make build
       
       - name: Push
         if: success()
