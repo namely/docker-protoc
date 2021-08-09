@@ -14,8 +14,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      COMMIT_HASH: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v2
         with:
