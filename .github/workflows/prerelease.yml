@@ -1,11 +1,11 @@
 # Build, Tag & Push a new release to dockerhub off of a tag
 
-name: Release
+name: Pre-release
 
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+_[0-9]+"'
+      - 'v[0-9]+.[0-9]+_[0-9]+-rc.[0-9]+"'
 
 
 jobs:
@@ -40,10 +40,10 @@ jobs:
         if: success()
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
-        run: make tag-latest
+        run: make tag
       
       - name: Push
         if: success()
         env:
           VERSION: ${{ steps.version.outputs.VERSION }}
-        run: make push-latest
+        run: make push

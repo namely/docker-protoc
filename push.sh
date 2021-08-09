@@ -3,7 +3,7 @@
 source ./variables.sh
 
 for build in ${BUILDS[@]}; do
-    tag=${CONTAINER}/${build}:${BUILD_VERSION}
+    tag=${CONTAINER}/${build}:${VERSION}
     echo "pushing ${tag}"
     docker push ${tag}
 

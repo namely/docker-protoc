@@ -1,0 +1,38 @@
+
+# build the image on master
+
+name: Master
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: nelonoel/branch-name@v1.0.1
+
+      - name: Docker Login
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: docker login --username "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_TOKEN"
+
+      - name: Create Short Commit Sha
+        id: sha_short
+        if: success()
+        run: echo ::set-output name=SHA_SHORT::$(git rev-parse --short HEAD)
+
+      - name: Build
+        if: success()
+        env:
+          BUILD_VERSION: ${{ steps.sha_short.outputs.SHA_SHORT }}
+        run: make build
