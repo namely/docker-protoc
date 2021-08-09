@@ -1,10 +1,9 @@
 
-# build the image on PRs and master
+# build the image on master
 
-name: PR
+name: Master
 
 on:
-  pull_request:
   push:
     branches:
       - master
