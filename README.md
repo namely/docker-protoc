@@ -101,6 +101,38 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 
 `--grpc-out <string>` to modify the `grpc_out=` options for node and web code generation.  See https://www.npmjs.com/package/grpc-tools for more details.
 
+## buf cli
+
+This repo also provides a docker image `namely/buf-cli` to support the [buf](https://github.com/bufbuild/buf) build tool.
+You can mount your local buf workspace into the image and have full access to all the various plugins you would need to generate your desired output.
+
+Lint a project with
+```sh
+docker run -v `pwd`:/workspace namely/buf-cli lint
+```
+
+Build a project with
+```sh
+docker run -v `pwd`:/workspace namely/buf-cli build
+```
+
+An example `buf.gen.yaml` file would be
+```yaml
+version: v1beta1
+plugins:
+  - name: go
+    out: gen/go
+    opt: paths=source_relative
+  - name: go-grpc
+    out: gen/go
+    opt:
+      - paths=source_relative
+```
+And to generate the output for that config would be like so
+```sh
+docker run -v `pwd`:/workspace namely/buf-cli generate
+```
+
 ## gRPC Gateway
 
 This repo also provides a docker image `namely/gen-grpc-gateway` to generate a 
