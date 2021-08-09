@@ -29,11 +29,10 @@ jobs:
       - name: Create Short Commit Sha
         id: sha_short
         if: success()
-        run: |
-          echo ::set-output name=SHA_SHORT::$(git rev-parse --short HEAD)
+        run: echo ::set-output name=SHA_SHORT::$(git rev-parse --short HEAD)
 
       - name: Build
         if: success()
         env:
-          BUILD_VERSION: ${{ steps.version.outputs.SHA_SHORT }}
+          BUILD_VERSION: ${{ steps.sha_short.outputs.SHA_SHORT }}
         run: make build

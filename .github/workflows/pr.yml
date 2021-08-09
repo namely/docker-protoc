@@ -28,12 +28,9 @@ jobs:
         id: sha_short
         if: success()
         run: echo ::set-output name=SHA_SHORT::$(git rev-parse --short HEAD)
-      - name: Check outputs
-        run: echo ${{ steps.sha_short.outputs.sha_short }}
 
       - name: Build
         if: success()
         env:
           BUILD_VERSION: ${{ steps.sha_short.outputs.SHA_SHORT }}
-        run: echo ${{ env.BUILD_VERSION }}
-        #run: make build
+        run: make build
