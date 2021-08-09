@@ -1,0 +1,47 @@
+# Build, Tag & Push a new release to dockerhub off of a tag
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: nelonoel/branch-name@v1.0.1
+
+      - name: Docker Login
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: docker login --username "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_TOKEN"
+
+      - name: Create Version
+        id: version
+        run: |
+          # TODO: find a better way to version from tags
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # set to output var
+          echo ::set-output name=VERSION::${VERSION}
+
+      - name: Build and Tag
+        env:
+          BUILD_VERSION: ${{ steps.version.outputs.VERSION }}
+        run: make tag-latest
+      
+      - name: Push
+        if: success()
+        env:
+          BUILD_VERSION: ${{ steps.version.outputs.VERSION }}
+        run: make push-latest

@@ -1,0 +1,35 @@
+
+# build the image on PRs and master
+
+name: PR
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      COMMIT_HASH: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: nelonoel/branch-name@v1.0.1
+
+      - name: Docker Login
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: docker login --username "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_TOKEN"
+
+      - name: Build
+        env:
+          BUILD_VERSION: ${{ env.COMMIT_HASH }}
+        run: make build

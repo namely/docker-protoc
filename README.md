@@ -1,6 +1,6 @@
 # gRPC/Protocol Buffer Compiler Containers
 
-[![Build Status](https://dev.azure.com/namely/protoc-all/_apis/build/status/namely.docker-protoc?branchName=master)](https://dev.azure.com/namely/protoc-all/_build/latest?definitionId=1&branchName=master)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/namely/docker-protoc/Build/master?style=flat-square)](https://github.com/namely/docker-protoc/actions?query=workflow%3ABuild)
 
 This repository contains support for various Docker images that wrap `protoc`,
 `prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
@@ -35,8 +35,8 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 
 ## Tag Conventions
 
-For `protoc`, `grpc_cli` and `prototool` a pattern of `<GRPC\_VERSION>_<CONTAINER\_VERSION>` is used for all images.
-Example is `namely/protoc-all:1.15_0` for gRPC version `1.15`. The `latest` tag will always point to the most recent version.
+For `protoc`, `grpc_cli` and `prototool` a pattern of `<GRPC_VERSION>_<CONTAINER_VERSION>` is used for all images (or `<GRPC_VERSION>_<CONTAINER_VERSION>-rc.<PRERELEASE_NUMBER>`) for pre-releases).
+Example is `namely/protoc-all:1.15_0` for gRPC version `1.15` (or `namely/protoc-all:1.15_0-rc.1` for a pre-release). The `latest` tag will always point to the most recent version.
 
 ## Usage
 
@@ -275,11 +275,15 @@ Thank you for considering a contribution to namely/docker-protoc!
 
 If you'd like to make an enhancement, or add a container for another language compiler, you will
 need to run one of the build scripts in this repo.  You will also need to be running Mac, Linux,
-or WSL 2, and have Docker installed.  From the repository root, run this command to build all the
+or WSL 2, and have Docker installed.  
+
+### Build
+
+From the repository root, run this command to build all the
 known containers:
 
 ```sh
-$ make build
+make build
 ```
 
 Note the version tag in Docker's console output - this image tag is required to run the tests using
@@ -290,31 +294,33 @@ make command.  For example, this would build the containers using Node.js 15 and
 interesting variables in [variables.sh](./variables.sh) and [entrypoint.sh](./all/entrypoint.sh).
 
 ```sh
-$ NODE_VERSION=15 GRPC_VERSION=1.35 make build
+NODE_VERSION=15 GRPC_VERSION=1.35 make build
 ```
+
+### Test
 
 To run the tests, identify your image tag from the build step and run `make test` as below:
 
 ```sh
-$ CONTAINER=namely/protoc-all:VVV make test
+CONTAINER=namely/protoc-all:VVV make test
 ```
 
 (`VVV` is your version from the tag in the console output when running `make build`). Running this will
 demonstrate that your new image can successfully build containers for each language.
 
-Open a PR and ping one of the Namely employees who have worked on this repo recently.  We will take
-a look as soon as we can.  Thank you!!
+### Release
 
-Namely employees can merge PRs and the latest version will be pushed up via CI.  It is also possible to
-do this manually by running this:
+#### Contributors
 
-```sh
-$ make push
-```
+Open a PR and ping one of the Namely employees who have worked on this repo recently.  We will take a look as soon as we can.  
+Thank you!!
 
-This will build and push the containers to the Namely registry located on
-[DockerHub](https://hub.docker.com/u/namely/). You must be authorized to push to
-this repo.
+#### Namely Employees
+
+Namely employees can merge PRs and cut a release/pre-release by drafting a new Github release and publishing them.  
+The release name should follow the same tag conventions described in  [this doc](#tag-conventions) and the gRPC version in the release name  
+must match the `GRPC_VERSION` configured in [variables.sh](./variables.sh).  
+Once a new Github release is published, new images will be published to [DockerHub](https://hub.docker.com/u/namely/) via CI.  
 
 ## Docker Troubleshooting
 
