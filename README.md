@@ -1,6 +1,6 @@
 # gRPC/Protocol Buffer Compiler Containers
 
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/namely/docker-protoc/Build/master?style=flat-square)](https://github.com/namely/docker-protoc/actions?query=workflow%3ABuild)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/namely/docker-protoc/Build/master?style=flat-square)](https://github.com/namely/docker-protoc/actions?query=workflow%3AMaster)
 
 This repository contains support for various Docker images that wrap `protoc`,
 `prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
@@ -288,7 +288,9 @@ Thank you!!
 Namely employees can merge PRs and cut a release/pre-release by drafting a new Github release and publishing them.  
 The release name should follow the same tag conventions described in  [this doc](#tag-conventions) and the gRPC version in the release name  
 must match the `GRPC_VERSION` configured in [variables.sh](./variables.sh).  
-Once a new Github release is published, new images will be published to [DockerHub](https://hub.docker.com/u/namely/) via CI.  
+A valid release/pre-release will be of the form `v${GRPC_VERSION}_${BUILD_VERSION}`/`v${GRPC_VERSION}_${BUILD_VERSION}-rc.${RC_VERSION}` respectively.  
+e.g `1.37_2`, `1.38_0-rc.3`.  
+Once a new **valid** Github release is published, new images will be published to [DockerHub](https://hub.docker.com/u/namely/) via CI.
 
 ## Docker Troubleshooting
 
