@@ -1,6 +1,7 @@
 # gRPC/Protocol Buffer Compiler Containers
 
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/namely/docker-protoc/Build/master?style=flat-square)](https://github.com/namely/docker-protoc/actions?query=workflow%3AMaster)
+[![GitHub Workflow Status (branch)](https://github.com/namely/docker-protoc/actions/workflows/master.yml/badge.svg)](https://github.com/namely/docker-protoc/actions?query=workflow%3AMaster)
+[![Docker Pulls](https://img.shields.io/docker/pulls/namely/protoc-all?style=flat-square)](https://hub.docker.com/repository/docker/namely/protoc-all)
 
 This repository contains support for various Docker images that wrap `protoc`,
 `prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
