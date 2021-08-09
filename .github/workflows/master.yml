@@ -9,6 +9,8 @@ on:
       - master
     paths-ignore:
       - 'README.md'
+      - '.github/workflows/pr.yml'
+      - '.github/workflows/*release.yml'
 
 jobs:
   build:

@@ -7,6 +7,8 @@ on:
   pull_request:
     paths-ignore:
       - 'README.md'
+      - '.github/workflows/master.yml'
+      - '.github/workflows/*release.yml'
 
 jobs:
   build:
