@@ -33,8 +33,7 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     autoconf \
     zlib1g-dev \
     libssl-dev \
-    clang \ 
-    leiningen
+    clang 
 
 WORKDIR /tmp
 RUN git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc && \ 
