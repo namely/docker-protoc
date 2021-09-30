@@ -90,8 +90,8 @@ RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 RUN go get -u github.com/micro/micro/cmd/protoc-gen-micro
 
-RUN go get -d github.com/envoyproxy/protoc-gen-validate
-RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
+# RUN go get -d github.com/envoyproxy/protoc-gen-validate
+# RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
 
 RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 
@@ -179,7 +179,7 @@ COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
 COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
 
-COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
+# COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 ADD all/entrypoint.sh /usr/local/bin
