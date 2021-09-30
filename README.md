@@ -1,41 +1,43 @@
 # gRPC/Protocol Buffer Compiler Containers
 
-[![Build Status](https://dev.azure.com/namely/protoc-all/_apis/build/status/namely.docker-protoc?branchName=master)](https://dev.azure.com/namely/protoc-all/_build/latest?definitionId=1&branchName=master)
+[![GitHub Workflow Status (branch)](https://github.com/namely/docker-protoc/actions/workflows/master.yml/badge.svg)](https://github.com/namely/docker-protoc/actions?query=workflow%3AMaster)
+[![Docker Pulls](https://img.shields.io/docker/pulls/namely/protoc-all?style=flat-square)](https://hub.docker.com/repository/docker/namely/protoc-all)
 
 This repository contains support for various Docker images that wrap `protoc`,
 `prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
-in a variety of languages removing the need to install and manage these commands locally. 
+in a variety of languages removing the need to install and manage these commands locally.
 It relies on setting a simple volume to the docker container,
 usually mapping the current directory to `/defs`, and specifying the file and
 language you want to generate.
 
 ## Features
 
-* Docker images for:
+  * Docker images for:
     * `protoc` with `namely/protoc` (automatically includes `/usr/local/include`)
     * [Uber's Prototool](https://github.com/uber/prototool) with `namely/prototool`
     * A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
     * `grpc_cli` with `namely/grpc-cli`
     * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
-* [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
-* [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf` (NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
+  * [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
+  * [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf` (NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
 
    ```proto
    import "google/protobuf/empty.proto";
    ...
    ```
-* Support for all C based gRPC libraries with Go and Java native libraries
+
+  * Support for all C based gRPC libraries with Go and Java native libraries
 
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
 
 > Note - throughout this document, commands for bash are prefixed with `$` and commands
 > for PowerShell on Windows are prefixed with `PS>`. It is not required to use "Windows
-> Subsystem for Linux" (WSL)
+> Subsystem for Linux" (WSL) except for development work on docker-protoc itself
 
 ## Tag Conventions
 
-For `protoc`, `grpc_cli` and `prototool` a pattern of `<GRPC\_VERSION>_<CONTAINER\_VERSION>` is used for all images.
-Example is `namely/protoc-all:1.15_0` for gRPC version `1.15`. The `latest` tag will always point to the most recent version.
+For `protoc`, `grpc_cli` and `prototool` a pattern of `<GRPC_VERSION>_<CONTAINER_VERSION>` is used for all images (or `<GRPC_VERSION>_<CONTAINER_VERSION>-rc.<PRERELEASE_NUMBER>`) for pre-releases).
+Example is `namely/protoc-all:1.15_0` for gRPC version `1.15` (or `namely/protoc-all:1.15_0-rc.1` for a pre-release). The `latest` tag will always point to the most recent version.
 
 ## Usage
 
@@ -80,7 +82,7 @@ file `protorepo/catalog/catalog.proto`. This will by default output to
 input. To remove the `protorepo` you need to add an include and change the
 import:
 
-```
+```sh
 $ docker run ... namely/protoc-all -i protorepo -f catalog/catalog.proto -l go
 # instead of
 $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
@@ -88,18 +90,27 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 ```
 
 ### Ruby-specific options
+
 `--with-rbi` to generate Ruby Sorbet type definition .rbi files
 
-## gRPC Gateway (Experimental)
+### node/web specific options
 
-This repo also provides a docker images `namely/gen-grpc-gateway` that
-generates a [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server.
+`--js-out <string>` to modify the `js_out=` options for node and web code generation
+
+`--grpc-web-out <string>` to modify the `grpc-web_out=` options for web code generation
+
+`--grpc-out <string>` to modify the `grpc_out=` options for node and web code generation.  See https://www.npmjs.com/package/grpc-tools for more details.
+
+## gRPC Gateway
+
+This repo also provides a docker image `namely/gen-grpc-gateway` to generate a 
+[grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) server.
 By annotating your proto (see the grpc-gateway documentation), you can generate a
 server that acts as an HTTP server, and a gRPC client to your gRPC service.
 
 Generate a gRPC Gateway docker project with
 
-```
+```sh
 docker run -v `pwd`:/defs namely/gen-grpc-gateway -f path/to/your/proto.proto -s Service
 ```
 
@@ -110,7 +121,7 @@ folder into an actual runnable grpc-gateway server.
 
 Build your gRPC Gateway server with
 
-```
+```sh
 docker build -t my-grpc-gateway gen/grpc-gateway/
 ```
 
@@ -120,7 +131,7 @@ method annotated to build a gRPC Gateway.
 
 Run this image with
 
-```
+```sh
 docker run my-grpc-gateway --backend=grpc-service:50051
 ```
 
@@ -131,7 +142,7 @@ listens on port `80` for HTTP traffic.
 
 The gateway is configured using [spf13/viper](https://github.com/spf13/viper), see [gwy/templates/config.yaml.tmpl](https://github.com/namely/docker-protoc/blob/master/gwy/templates/config.yaml.tmpl) for configuration options.
 
-To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have `(google.api.http) = '/foo/bar'`, and set `proxy.api-prefix` to `/api/'`, your gateway will listen to requests on `'/api/foo/bar'`. This can also be set with the environment variable `<SERVICE>_PROXY_API-PREFIX` where `<SERVICE>` is the name of the service generating the gateway. 
+To configure your gateway to run under a prefix, set proxy.api-prefix to that prefix. For example, if you have `(google.api.http) = '/foo/bar'`, and set `proxy.api-prefix` to `/api/'`, your gateway will listen to requests on `'/api/foo/bar'`. This can also be set with the environment variable `<SERVICE>_PROXY_API-PREFIX` where `<SERVICE>` is the name of the service generating the gateway.
 
 See [gwy/test.sh](https://github.com/namely/docker-protoc/blob/master/gwy/test.sh) for an example of how to set the prefix with an environment variable.
 
@@ -146,29 +157,51 @@ Any headers starting with `Grpc-` will be prefixed with an `X-`, this is because
 
 All other headers will be converted to metadata as is.
 
-### CORS Configuration.
+### CORS Configuration
 
 You can configure [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for your gateway through the
 configuration. This will allow your gateway to receive requests from different origins.
 
 There are four values:
 
-- `cors.allow-origin`: Value to set for Access-Control-Allow-Origin header.
-- `cors.allow-credentials`: Value to set for Access-Control-Allow-Credentials header.
-- `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
-- `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
+* `cors.allow-origin`: Value to set for Access-Control-Allow-Origin header.
+* `cors.allow-credentials`: Value to set for Access-Control-Allow-Credentials header.
+* `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
+* `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
 
     For CORS, you will want to configure your `cors.allow-methods` to be the HTTP verbs set in your proto (i.e. `GET`, `PUT`, etc.), as well as `OPTIONS`, so that your service can handle the [preflight request](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
 
     If you are not using CORS, you can leave these configuration values at their default, and your gateway will not accept CORS requests.
-### GRPC Client Configuration
-- `grpc.max-call-recv-msg-size`: Sets the maximum message size in bytes the client can receive.
-- `grpc.max-call-send-msg-size`: Sets the maximum message size in bytes the client can send.
-###  Other Response Headers
 
-You can configure additional headers to be sent in the HTTP response.  
-Set environment variable with prefix `<SERVICE>_RESPONSE-HEADERS_` (e.g `SOMESERVICE_RESPONSE-HEADERS_SOME-HEADER-KEY`).  
+### GRPC Client Configuration
+
+* `grpc.max-call-recv-msg-size`: Sets the maximum message size in bytes the client can receive.
+
+* `grpc.max-call-send-msg-size`: Sets the maximum message size in bytes the client can send.
+
+### Other Response Headers
+
+You can configure additional headers to be sent in the HTTP response.
+Set environment variable with prefix `<SERVICE>_RESPONSE-HEADERS_` (e.g `SOMESERVICE_RESPONSE-HEADERS_SOME-HEADER-KEY`).
 You can also set headers in the your configuration file (e.g `response-headers.some-header-key`)
+
+### Marshalling options
+
+#### Setting Marshaler version
+
+By default, `gen-grpc-gateway` will use a marshaler/unmarshaler based on [jsonpb](https://pkg.go.dev/github.com/golang/protobuf/jsonpb). You can change this behavior by setting `gateway.use-jsonpb-v2-marshaler: true`, which will use [protojson](https://pkg.go.dev/google.golang.org/protobuf/encoding/protojson) - a newer version which is more aligned with [proto <=> json mapping](https://developers.google.com/protocol-buffers/docs/proto3#json).
+
+#### Proto names format
+
+By default, `gen-grpc-gateway` will return proto names as they are in the proto messages. You can change this behavior by setting `gateway.use-json-names: true` and the gateway will use camelCase JSON names.
+
+#### Unpopulated fields
+
+By default, `gen-grpc-gateway` will not emit unpopulated fields. You can change this behavior by setting `gateway.emit-unpopulated: true` and the gateway will populate these fields with default values.
+
+#### Unknown fields
+
+By default, `gen-grpc-gateway` will discard unknown fields from requests. You can change this behavior by setting `gateway.keep-unknown: true` and the gateway will keep these fields in the requests.
 
 ### Environment Variables
 
@@ -207,29 +240,58 @@ grpc_cli call docker.for.mac.localhost:50051 LinkShortener.ResolveShortLink "sho
 
 ## Contributing
 
-If you make changes, or add a container for another language compiler, this repo
-has simple scripts that can build projects. You can run the following within the
-all/ folder:
+Thank you for considering a contribution to namely/docker-protoc!
+
+If you'd like to make an enhancement, or add a container for another language compiler, you will
+need to run one of the build scripts in this repo.  You will also need to be running Mac, Linux,
+or WSL 2, and have Docker installed.  
+
+### Build
+
+From the repository root, run this command to build all the
+known containers:
 
 ```sh
-$ make build
+make build
 ```
 
-This will build all of the known containers.
+Note the version tag in Docker's console output - this image tag is required to run the tests using
+the container with your changes.
+
+You can change some environment variables relevant to the build by setting them as prefixes to the
+make command.  For example, this would build the containers using Node.js 15 and gRPC 1.35.  See some
+interesting variables in [variables.sh](./variables.sh) and [entrypoint.sh](./all/entrypoint.sh).
 
 ```sh
-$ CONTAINER=namely/protoc-all:VVV make test
+NODE_VERSION=15 GRPC_VERSION=1.35 make build
 ```
 
-Where `VVV` is your version. This will run tests that containers can build for each language.
+### Test
+
+To run the tests, identify your image tag from the build step and run `make test` as below:
 
 ```sh
-$ make push
+CONTAINER=namely/protoc-all:VVV make test
 ```
 
-This will build and push the containers to the Namely registry located on
-[DockerHub](https://hub.docker.com/u/namely/). You must be authorized to push to
-this repo.
+(`VVV` is your version from the tag in the console output when running `make build`). Running this will
+demonstrate that your new image can successfully build containers for each language.
+
+### Release
+
+#### Contributors
+
+Open a PR and ping one of the Namely employees who have worked on this repo recently.  We will take a look as soon as we can.  
+Thank you!!
+
+#### Namely Employees
+
+Namely employees can merge PRs and cut a release/pre-release by drafting a new Github release and publishing them.  
+The release name should follow the same tag conventions described in  [this doc](#tag-conventions) and the gRPC version in the release name  
+must match the `GRPC_VERSION` configured in [variables.sh](./variables.sh).  
+A valid release/pre-release will be of the form `v${GRPC_VERSION}_${BUILD_VERSION}`/`v${GRPC_VERSION}_${BUILD_VERSION}-rc.${RC_VERSION}` respectively.  
+e.g `1.37_2`, `1.38_0-rc.3`.  
+Once a new **valid** Github release is published, new images will be published to [DockerHub](https://hub.docker.com/u/namely/) via CI.
 
 ## Docker Troubleshooting
 

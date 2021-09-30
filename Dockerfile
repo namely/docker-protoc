@@ -2,14 +2,23 @@ ARG debian=buster
 ARG go_version
 ARG swift_version
 ARG grpc_version
+ARG grpc_gateway_version
 ARG grpc_java_version
+ARG uber_prototool_version
+ARG scala_pb_version
+ARG node_version
+ARG node_grpc_tools_node_protoc_ts_version 
+ARG node_grpc_tools_version
+ARG node_protoc_gen_grpc_web_version
 
 FROM golang:$go_version-$debian AS build
 
 # TIL docker arg variables need to be redefined in each build stage
 ARG grpc_version
+ARG grpc_gateway_version
 ARG grpc_java_version
 ARG grpc_web_version
+ARG scala_pb_version
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -50,7 +59,7 @@ RUN mkdir -p /usr/local/include/google/protobuf && \
     cp -a /tmp/grpc/bazel-grpc/external/com_google_protobuf/src/google/protobuf/. /usr/local/include/google/protobuf/
 
 WORKDIR /tmp
-RUN curl -sSL https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(uname -s)-$(uname -m) \
+RUN curl -sSL https://github.com/uber/prototool/releases/download/v${uber_prototool_version}/prototool-$(uname -s)-$(uname -m) \
     -o /usr/local/bin/prototool && \
     chmod +x /usr/local/bin/prototool
 
@@ -62,8 +71,16 @@ RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
 WORKDIR /tmp
 RUN go get -u google.golang.org/grpc
 
-RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2
+# install protoc-gen-grpc-gateway and protoc-gen-openapiv2
+RUN set -e && \
+    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v${grpc_gateway_version} && \
+    cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-grpc-gateway && \
+    go install .
+
+RUN set -e && \
+    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v${grpc_gateway_version} && \
+    cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2 && \
+    go install .
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
@@ -87,8 +104,8 @@ RUN go get github.com/gomatic/renderizer/cmd/renderizer
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 # Add scala support
-RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v0.9.6/protoc-gen-scala-0.9.6-linux-x86_64.zip \ 
-    && unzip protoc-gen-scala-0.9.6-linux-x86_64.zip \
+RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \ 
+    && unzip protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \
     && chmod +x /tmp/protoc-gen-scala
 
 # Add grpc-web support
@@ -109,23 +126,32 @@ RUN make plugins
 FROM debian:$debian-slim AS protoc-all
 
 ARG grpc_version
+ARG grpc_gateway_version
+
+ARG node_version
+ARG node_grpc_tools_node_protoc_ts_version
+ARG node_grpc_tools_version
+ARG node_protoc_gen_grpc_web_version
 
 RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     bash \
+    curl \
+    software-properties-common \
     ca-certificates \
-    nodejs \
-    npm \
     zlib1g \
     libssl1.1 \
     openjdk-11-jre \
     dos2unix \
     gawk
 
-# Add TypeScript support
+# Install latest Node version
+RUN curl -fsSL https://deb.nodesource.com/setup_${node_version}.x | bash -
+RUN apt-get install -y nodejs
 
+# Add TypeScript support
 RUN npm config set unsafe-perm true
-RUN npm i -g ts-protoc-gen@0.12.0
+RUN npm i -g grpc_tools_node_protoc_ts@$node_grpc_tools_node_protoc_ts_version grpc-tools@$node_grpc_tools_version protoc-gen-grpc-web@$node_protoc_gen_grpc_web_version
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
@@ -151,7 +177,7 @@ COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
-COPY --from=build /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2/options/ /opt/include/protoc-gen-openapiv2/options/
+COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
 
 COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/

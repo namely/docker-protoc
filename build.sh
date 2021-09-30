@@ -3,7 +3,7 @@
 source ./variables.sh
 
 for build in ${BUILDS[@]}; do
-    tag=${CONTAINER}/${build}:${GRPC_VERSION}_${BUILD_VERSION}
+    tag=${CONTAINER}/${build}:${VERSION}
     echo "building ${build} container with tag ${tag}"
     docker build -t ${tag} \
         -f Dockerfile \
@@ -12,7 +12,14 @@ for build in ${BUILDS[@]}; do
         --build-arg grpc_web_version=${GRPC_WEB_VERSION} \
         --build-arg grpc_swift_version=${GRPC_SWIFT_VERSION} \
         --build-arg swift_version=${SWIFT_VERSION} \
+        --build-arg grpc_gateway_version=${GRPC_GATEWAY_VERSION} \
         --build-arg go_version=${GO_VERSION} \
+        --build-arg uber_prototool_version=${UBER_PROTOTOOL_VERSION} \
+        --build-arg scala_pb_version=${SCALA_PB_VERSION} \
+        --build-arg node_version=${NODE_VERSION} \
+        --build-arg node_grpc_tools_node_protoc_ts_version=${NODE_GRPC_TOOLS_NODE_PROTOC_TS_VERSION} \
+        --build-arg node_grpc_tools_version=${NODE_GRPC_TOOLS_VERSION} \
+        --build-arg node_protoc_gen_grpc_web_version=${NODE_PROTOC_GET_GRPC_WEB_VERSION} \
         --target ${build} \
         .
 
