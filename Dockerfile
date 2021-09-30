@@ -1,5 +1,6 @@
 ARG debian=buster
 ARG go_version
+ARG swift_version
 ARG grpc_version
 ARG grpc_gateway_version
 ARG grpc_java_version
@@ -89,8 +90,8 @@ RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 RUN go get -u github.com/micro/micro/cmd/protoc-gen-micro
 
-RUN go get -d github.com/envoyproxy/protoc-gen-validate
-RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
+# RUN go get -d github.com/envoyproxy/protoc-gen-validate
+# RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
 
 RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 
@@ -111,6 +112,16 @@ RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_ve
 RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_version}/protoc-gen-grpc-web-${grpc_web_version}-linux-x86_64 \
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
+
+FROM swift:$swift_version AS build-swift
+
+ARG grpc_swift_version
+
+WORKDIR /tmp
+RUN git clone --depth 1 -b $grpc_swift_version https://github.com/grpc/grpc-swift.git
+
+WORKDIR /tmp/grpc-swift
+RUN make plugins
 
 FROM debian:$debian-slim AS protoc-all
 
@@ -153,6 +164,10 @@ COPY --from=build /tmp/grpc/bazel-bin/external/com_google_protobuf/ /usr/local/b
 COPY --from=build /tmp/grpc/bazel-bin/src/compiler/ /usr/local/bin/
 # Copy protoc java plugin
 COPY --from=build /tmp/grpc-java/bazel-bin/compiler/ /usr/local/bin/
+# Copy protoc swift plugin
+COPY --from=build-swift /tmp/grpc-swift/protoc-gen-swift /usr/local/bin/
+COPY --from=build-swift /tmp/grpc-swift/protoc-gen-grpc-swift /usr/local/bin/
+COPY --from=build-swift /usr/lib/swift/linux/* /usr/lib/swift/linux/
 # Copy grpc_cli
 COPY --from=build /tmp/grpc/bazel-bin/test/cpp/util/ /usr/local/bin/
 
@@ -164,7 +179,7 @@ COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
 COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
 
-COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
+# COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 ADD all/entrypoint.sh /usr/local/bin
