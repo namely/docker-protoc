@@ -10,6 +10,7 @@ ARG node_version
 ARG node_grpc_tools_node_protoc_ts_version 
 ARG node_grpc_tools_version
 ARG node_protoc_gen_grpc_web_version
+ARG go_envoyproxy_pgv_version
 
 FROM golang:$go_version-$debian AS build
 
@@ -20,6 +21,7 @@ ARG grpc_java_version
 ARG grpc_web_version
 ARG scala_pb_version
 ARG clojure_protoc_plugin_version
+ARG go_envoyproxy_pgv_version
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -91,8 +93,8 @@ RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 RUN go get -u github.com/micro/micro/cmd/protoc-gen-micro
 
-RUN go get -d github.com/envoyproxy/protoc-gen-validate
-RUN make -C /go/src/github.com/envoyproxy/protoc-gen-validate/ build
+RUN GO111MODULE=on go get -d github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
+RUN make -C /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ build
 
 RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 
@@ -130,6 +132,8 @@ ARG node_version
 ARG node_grpc_tools_node_protoc_ts_version
 ARG node_grpc_tools_version
 ARG node_protoc_gen_grpc_web_version
+
+ARG go_envoyproxy_pgv_version
 
 RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
@@ -175,7 +179,7 @@ COPY --from=build /tmp/protoc-gen-clojure /usr/local/bin/
 
 COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
 
-COPY --from=build /go/src/github.com/envoyproxy/protoc-gen-validate/ /opt/include/
+COPY --from=build /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ /opt/include/
 COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 ADD all/entrypoint.sh /usr/local/bin
