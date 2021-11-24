@@ -130,6 +130,17 @@ testGeneration() {
         fi
     fi
 
+    if [[ "$extra_args" == *"--with-docs"* ]]; then
+        expected_file_name="/doc/index.html"
+        if [[ "$extra_args" == *"markdown,index.md"* ]]; then
+            expected_file_name="/doc/index.md"
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
+            echo "$expected_file_name file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
         # Test that we have generated the test.pb.go file.
         expected_file_name="/all/test.pb.go"
     if [[ "$extra_args" == *"--with-validator"* ]]; then
@@ -201,6 +212,10 @@ testGeneration() {
     rm -rf `echo $expected_output_dir | cut -d '/' -f1`
     echo "Generating for $lang passed!"
 }
+
+# Test docs generation
+testGeneration go "gen/pb-go" 0 --with-docs
+testGeneration go "gen/pb-go" 0 --with-docs markdown,index.md
 
 # Test grpc-gateway generation (only valid for Go)
 testGeneration go "gen/pb-go" 0 --with-gateway
