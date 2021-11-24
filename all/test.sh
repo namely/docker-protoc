@@ -23,9 +23,8 @@ testGeneration() {
     echo "Testing language $lang $expected_output_dir $extra_args"
 
     # Test calling a file directly.
-    docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args > /dev/null
-
-    exitCode=$?
+    exitCode=0
+    docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args > /dev/null || exitCode=$?
 
     if [[ $expectedExitCode != $exitCode ]]; then
         echo "exit code must be $expectedExitCode but is $exitCode instead"
