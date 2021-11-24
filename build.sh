@@ -19,6 +19,7 @@ for build in ${BUILDS[@]}; do
         --build-arg node_grpc_tools_version=${NODE_GRPC_TOOLS_VERSION} \
         --build-arg node_protoc_gen_grpc_web_version=${NODE_PROTOC_GET_GRPC_WEB_VERSION} \
         --build-arg go_envoyproxy_pgv_version=${GO_ENVOYPROXY_PGV_VERSION} \
+        --build-arg go_mwitkow_gpv_version=${GO_MWITKOW_GPV_VERSION} \
         --target ${build} \
         .
 
