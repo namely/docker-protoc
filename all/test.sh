@@ -5,7 +5,7 @@ LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "de
 CONTAINER=${CONTAINER}
 
 if [ -z ${CONTAINER} ]; then
-    echo "You must specify a build container with \${CONTAINER} to test"
+    echo "You must specify a build container with \${CONTAINER} to test (see my README.md)"
     exit 1
 fi
 
@@ -112,11 +112,11 @@ testGeneration() {
             fi
 
             # test that we generated field masks with expected output
-            # for the pinned version of grpc-gateway(v2.0.1), we expect the property type to be "array"
-            expected_field_mask_property_type="array"
+            # for the pinned version of grpc-gateway(v2.7.0), we expect the property type to be "string"
+            expected_field_mask_property_type="string"
             actual_field_mask_property_type=$(cat $expected_output_dir$expected_file_name2 | jq '.definitions.MessagesUpdateMessageRequest.properties.updateMask.type' | tr -d "\042")
             if [ ! "$actual_field_mask_property_type" == "$expected_field_mask_property_type" ]; then
-                echo "expected field mask type not found"
+                echo "expected field mask type not found ($actual_field_mask_property_type != $expected_field_mask_property_type)"
                 exit 1
             fi
 
