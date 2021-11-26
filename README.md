@@ -268,7 +268,7 @@ NODE_VERSION=15 GRPC_VERSION=1.35 make build
 
 ### Test
 
-Note that testing currently requires `jq` to be locally installed, e.g. via `brew instal jq`.
+Note that testing currently requires [jq](https://stedolan.github.io/jq/) to be locally installed.
 
 To run the tests, identify your image tag from the build step and run `make test` as below:
 
