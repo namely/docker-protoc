@@ -19,7 +19,7 @@ language you want to generate.
     * `grpc_cli` with `namely/grpc-cli`
     * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
   * [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
-  * [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf` (NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:)
+  * [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf`.  NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
 
    ```proto
    import "google/protobuf/empty.proto";
