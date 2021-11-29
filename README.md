@@ -19,14 +19,14 @@ language you want to generate.
     * `grpc_cli` with `namely/grpc-cli`
     * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
   * [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
-  * [Protobuf library artificats](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf`.  NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
+  * [Protobuf library artifacts](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf`.  NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
 
    ```proto
    import "google/protobuf/empty.proto";
    ...
    ```
 
-  * Support for all C based gRPC libraries with Go and Java native libraries
+  * Support for all C-based gRPC libraries with Go and Java native libraries
 
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
 
@@ -54,7 +54,7 @@ So if you have a directory: `~/my_project/protobufs/` that has: `myproto.proto`,
 
 ```sh
 $ cd ~/my_project/protobufs
-$ docker run -v `pwd`:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csharp, etc
+$ docker run -v $PWD:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 ```powershell
@@ -93,7 +93,7 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 
 `--with-rbi` to generate Ruby Sorbet type definition .rbi files
 
-### node/web specific options
+### node/web-specific options
 
 `--js-out <string>` to modify the `js_out=` options for node and web code generation
 
@@ -151,11 +151,11 @@ See [gwy/test.sh](https://github.com/namely/docker-protoc/blob/master/gwy/test.s
 The gateway will turn any HTTP headers that it receives into gRPC metadata. Any
 [permanent HTTP headers](https://github.com/namely/docker-protoc/blob/2e7f0c921984c9d9fc7e42e6a7b9474292f11751/gwy/templates/main.go.tmpl#L61)
 will be prefixed with `grpcgateway-` in the metadata, so that your server receives both
-the HTTP client to gateway headers, as well as the gateway to gRPC server headers.
+the HTTP client-to-gateway headers, as well as the gateway-to-gRPC server headers.
 
-Any headers starting with `Grpc-` will be prefixed with an `X-`, this is because `grpc-` is a reserved metadata prefix.
+Any headers starting with `Grpc-` will be prefixed with an `X-`; this is because `grpc-` is a reserved metadata prefix.
 
-All other headers will be converted to metadata as is.
+All other headers will be converted to metadata as-is.
 
 ### CORS Configuration
 
@@ -169,9 +169,9 @@ There are four values:
 * `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
 * `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
 
-    For CORS, you will want to configure your `cors.allow-methods` to be the HTTP verbs set in your proto (i.e. `GET`, `PUT`, etc.), as well as `OPTIONS`, so that your service can handle the [preflight request](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
+For CORS, you will want to configure your `cors.allow-methods` to be the HTTP verbs set in your proto (i.e. `GET`, `PUT`, etc.), as well as `OPTIONS`, so that your service can handle the [preflight request](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
 
-    If you are not using CORS, you can leave these configuration values at their default, and your gateway will not accept CORS requests.
+If you are not using CORS, you can leave these configuration values at their default, and your gateway will not accept CORS requests.
 
 ### GRPC Client Configuration
 
@@ -205,7 +205,7 @@ By default, `gen-grpc-gateway` will discard unknown fields from requests. You ca
 
 ### Environment Variables
 
-The gateway project used [spf13/viper](https://github.com/spf13/viper) for configuration. The generated gateway code includes a config file that can be overridden with cli flags or environment variables. For environment variable overrides use a `<SERVICE>_` prefix, upcase the setting, and replace `.` with `_`.
+The gateway project used [spf13/viper](https://github.com/spf13/viper) for configuration. The generated gateway code includes a config file that can be overridden with cli flags or environment variables. For environment-variable overrides, use a `<SERVICE>_` prefix, upcase the setting, and replace `.` with `_`.
 
 ## grpc_cli
 
@@ -226,10 +226,10 @@ See the [grpc_cli documentation](https://github.com/grpc/grpc/blob/master/doc/co
 for more information. You may find it useful to bind this to an alias:
 
 ```sh
-alias grpc_cli='docker run -v `pwd`:/defs --rm -it namely/grpc-cli'
+alias grpc_cli='docker run -v $PWD:/defs --rm -it namely/grpc-cli'
 ```
 
-Note the use of single quotes in the alias, which avoids expanding the `pwd` parameter when the alias
+Note the use of single quotes in the alias, which avoids expanding the `$PWD` parameter when the alias
 is created.
 
 Now you can call it with
@@ -276,10 +276,14 @@ To run the tests, identify your image tag from the build step and run `make test
 CONTAINER=namely/protoc-all:VVV make test
 ```
 
-(`VVV` is your version from the tag in the console output when running `make build`). Running this will
+(`VVV` is your version from the tag in the console output when running `make build`.) Running this will
 demonstrate that your new image can successfully build containers for each language.
 
 ### Release
+
+```sh
+$ make push
+```
 
 #### Contributors
 
