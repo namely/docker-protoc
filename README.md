@@ -281,9 +281,7 @@ demonstrate that your new image can successfully build containers for each langu
 
 ### Release
 
-```sh
-$ make push
-```
+Handled automatically via CI (using `make push`).
 
 #### Contributors
 
