@@ -117,7 +117,7 @@ RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_ve
 
 # Add clojure support
 RUN curl -LO https://github.com/protojure/protoc-plugin/releases/download/v${clojure_protoc_plugin_version}/protoc-gen-clojure \
-    -o /tmp/protoc-gen-clojure && \
+    -o /tmp/protoc-gen-clojure  \
     && chmod +x /tmp/protoc-gen-clojure
 
 
