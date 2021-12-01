@@ -72,7 +72,8 @@ RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
 
 # Go get go-related bins
 WORKDIR /tmp
-RUN go get -u google.golang.org/grpc
+RUN set -e && \
+    GO111MODULE=on go get google.golang.org/grpc@v$grpc_version
 
 # install protoc-gen-grpc-gateway and protoc-gen-openapiv2
 RUN set -e && \
@@ -89,7 +90,9 @@ RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
 
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
-RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+
+RUN set -e && \
+    GO111MODULE=on go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 RUN go get -u github.com/micro/micro/cmd/protoc-gen-micro
 
