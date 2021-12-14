@@ -99,8 +99,6 @@ RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro
 RUN GO111MODULE=on go get -d github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
 RUN make -C /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ build
 
-RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
-
 # Add Ruby Sorbet types support (rbi)
 RUN go get -u github.com/coinbase/protoc-gen-rbi
 
@@ -110,7 +108,7 @@ RUN go get github.com/gomatic/renderizer/v2/cmd/renderizer
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
 # Need to get this too:
-RUN go get -u github.com/mwitkow/go-proto-validators
+RUN go get -u github.com/mwitkow/go-proto-validators/@v${go_mwitkow_gpv_version}
 
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \ 
