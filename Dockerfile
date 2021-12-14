@@ -107,8 +107,9 @@ RUN go get github.com/gomatic/renderizer/v2/cmd/renderizer
 # Origin protoc-gen-go should be installed last, for not been overwritten by any other binaries(see #210)
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
 
-# Need to get this too:
+# Need to get these too:
 RUN go get -u github.com/mwitkow/go-proto-validators/@v${go_mwitkow_gpv_version}
+RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators@v${go_mwitkow_gpv_version}
 
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \ 

@@ -158,6 +158,22 @@ testGeneration() {
         fi
     fi
 
+    if [[ "$extra_args" == *"--with-go-proto-validator"* ]]; then
+        expected_file_name1="/all/test.pb.go"
+        expected_file_name2="/all/test.pb.validate.go"
+        if [[ "$extra_args" == *"--validator-source-relative"* ]]; then
+            expected_file_name2="/all/test/test.pb.validate.go"
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
+            echo "$expected_file_name1 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name2" ]]; then
+            echo "$expected_file_name2 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
     if [[ "$extra_args" == *"--js-out library=testlib"* ]]; then
         # Test that we have generated the testlib.js file
         testlib_count=$(find $expected_output_dir -type f -name "testlib.js" | wc -l)
@@ -240,6 +256,12 @@ testGeneration go "gen/pb-go" 0 --with-validator
 
 # Test go validator with source relative option
 testGeneration go "gen/pb-go" 0 --with-validator --validator-source-relative
+
+# Test the other go validator
+testGeneration go "gen/pb-go" 0 --go-proto-validator
+
+# Test the other  go validator with source relative option
+testGeneration go "gen/pb-go" 0 ---go-proto-validator --validator-source-relative
 
 # Test go-micro generations
 testGeneration go "gen/pb-go" 0 --go-plugin-micro
