@@ -10,6 +10,7 @@ ARG node_grpc_tools_node_protoc_ts_version
 ARG node_grpc_tools_version
 ARG node_protoc_gen_grpc_web_version
 ARG go_envoyproxy_pgv_version
+ARG go_mwitkow_gpv_version
 
 FROM golang:$go_version-$debian AS build
 
@@ -20,6 +21,7 @@ ARG grpc_java_version
 ARG grpc_web_version
 ARG scala_pb_version
 ARG go_envoyproxy_pgv_version
+ARG go_mwitkow_gpv_version
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -92,20 +94,22 @@ RUN go get -u github.com/ckaznocha/protoc-gen-lint
 RUN set -e && \
     GO111MODULE=on go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
-RUN go get -u github.com/micro/micro/cmd/protoc-gen-micro
+RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro
 
 RUN GO111MODULE=on go get -d github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
 RUN make -C /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ build
 
-RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
-
 # Add Ruby Sorbet types support (rbi)
 RUN go get -u github.com/coinbase/protoc-gen-rbi
 
-RUN go get github.com/gomatic/renderizer/cmd/renderizer
+RUN go get github.com/gomatic/renderizer/v2/cmd/renderizer
 
 # Origin protoc-gen-go should be installed last, for not been overwritten by any other binaries(see #210)
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
+
+# Need to get these too:
+RUN go get -u github.com/mwitkow/go-proto-validators/@v${go_mwitkow_gpv_version}
+RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators@v${go_mwitkow_gpv_version}
 
 # Add scala support
 RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \ 
@@ -128,6 +132,7 @@ ARG node_grpc_tools_version
 ARG node_protoc_gen_grpc_web_version
 
 ARG go_envoyproxy_pgv_version
+ARG go_mwitkow_gpv_version
 
 RUN mkdir -p /usr/share/man/man1
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
@@ -172,7 +177,8 @@ COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
 
 COPY --from=build /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ /opt/include/
-COPY --from=build /go/src/github.com/mwitkow/go-proto-validators/ /opt/include/github.com/mwitkow/go-proto-validators/
+
+COPY --from=build /go/pkg/mod/github.com/mwitkow/go-proto-validators@v${go_mwitkow_gpv_version}/ /opt/include/github.com/mwitkow/go-proto-validators/
 
 ADD all/entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
