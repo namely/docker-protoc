@@ -5,7 +5,7 @@ LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "de
 CONTAINER=${CONTAINER}
 
 if [ -z ${CONTAINER} ]; then
-    echo "You must specify a build container with \${CONTAINER} to test"
+    echo "You must specify a build container with \${CONTAINER} to test (see my README.md)"
     exit 1
 fi
 
@@ -116,7 +116,7 @@ testGeneration() {
             expected_field_mask_property_type="array"
             actual_field_mask_property_type=$(cat $expected_output_dir$expected_file_name2 | jq '.definitions.MessagesUpdateMessageRequest.properties.updateMask.type' | tr -d "\042")
             if [ ! "$actual_field_mask_property_type" == "$expected_field_mask_property_type" ]; then
-                echo "expected field mask type not found"
+                echo "expected field mask type not found ($actual_field_mask_property_type != $expected_field_mask_property_type)"
                 exit 1
             fi
 
@@ -143,6 +143,22 @@ testGeneration() {
         # Test that we have generated the test.pb.go file.
         expected_file_name="/all/test.pb.go"
     if [[ "$extra_args" == *"--with-validator"* ]]; then
+        expected_file_name1="/all/test.pb.go"
+        expected_file_name2="/all/test.pb.validate.go"
+        if [[ "$extra_args" == *"--validator-source-relative"* ]]; then
+            expected_file_name2="/all/test/test.pb.validate.go"
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
+            echo "$expected_file_name1 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name2" ]]; then
+            echo "$expected_file_name2 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
+    if [[ "$extra_args" == *"--with-go-proto-validator"* ]]; then
         expected_file_name1="/all/test.pb.go"
         expected_file_name2="/all/test.pb.validate.go"
         if [[ "$extra_args" == *"--validator-source-relative"* ]]; then
@@ -240,6 +256,12 @@ testGeneration go "gen/pb-go" 0 --with-validator
 
 # Test go validator with source relative option
 testGeneration go "gen/pb-go" 0 --with-validator --validator-source-relative
+
+# Test the other go validator
+testGeneration go "gen/pb-go" 0 --go-proto-validator
+
+# Test the other  go validator with source relative option
+testGeneration go "gen/pb-go" 0 ---go-proto-validator --validator-source-relative
 
 # Test go-micro generations
 testGeneration go "gen/pb-go" 0 --go-plugin-micro

@@ -96,6 +96,8 @@ while test $# -gt 0; do
       shift
       ;;
     *)
+      echo "Unrecognized option or argument: $1 in $@"
+      echo ""
       printUsage
       exit 1
       ;;
