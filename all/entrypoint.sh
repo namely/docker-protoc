@@ -13,7 +13,7 @@ printUsage() {
     echo " -o DIRECTORY                   The output directory for generated files. Will be automatically created."
     echo " -i includes                    Extra includes"
     echo " --lint CHECKS                  Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
-    echo " --with-gateway                 Generate grpc-gateway files (experimental)."
+    echo " --with-gateway OPTS            Generate grpc-gateway files (experimental, OPTS are optional - see https://github.com/grpc-ecosystem/grpc-gateway)."
     echo " --with-docs FORMAT             Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
     echo " --with-rbi                     Generate Sorbet type declaration files (.rbi files) - see https://github.com/coinbase/protoc-gen-rbi"
     echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
@@ -113,6 +113,10 @@ while test $# -gt 0; do
             ;;
         --with-gateway)
             GEN_GATEWAY=true
+            if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
+                GATEWAY_OPTS=",$2"
+                shift
+            fi
             shift
             ;;
         --with-docs)
@@ -458,7 +462,7 @@ if [ $GEN_GATEWAY = true ]; then
     mkdir -p ${GATEWAY_DIR}
 
     protoc $PROTO_INCLUDE \
-		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+		--grpc-gateway_out=logtostderr=true${GATEWAY_OPTS}:$GATEWAY_DIR ${PROTO_FILES[@]}
 
     if [[ $OPENAPI_JSON == true ]]; then
         protoc $PROTO_INCLUDE  \
