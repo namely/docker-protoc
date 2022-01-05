@@ -1,16 +1,23 @@
 syntax = "proto3";
 
-import "google/api/annotations.proto";
-import "all/test/include.proto";
-
 package Messages;
 
-option go_package = "all;all";
+import "all/test/include.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
+
+option go_package = "all/;all";
 
 service Message {
   rpc ListMessage (ListMessageRequest) returns (ListMessageResponse) {
     option (google.api.http) = {
       get: "/messages"
+    };
+  }
+  rpc UpdateMessage (UpdateMessageRequest) returns (UpdateMessageResponse) {
+    option (google.api.http) = {
+      put: "/messages"
+      body: "*"
     };
   }
 }
@@ -19,3 +26,10 @@ message ListMessageRequest {
   string query = 1;
   string additional_param = 2;
 }
+
+message UpdateMessageRequest {
+  string name = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateMessageResponse {}

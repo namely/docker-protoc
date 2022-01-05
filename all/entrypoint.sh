@@ -20,24 +20,25 @@ printUsage() {
     echo " --with-validator               Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
     echo " --validator-source-relative    Make the output dirctory for protoc-gen-validate 'source relative' - see https://github.com/envoyproxy/protoc-gen-validate#go"
     echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
+    echo " --go-module-prefix             Specify the module prefix to remove from the import path - see https://developers.google.com/protocol-buffers/docs/reference/go-generated#invocation"
     echo " --go-package-map               Map proto imports to go import paths"
     echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
     echo " --go-proto-validator           Generate Go proto validations - see https://github.com/mwitkow/go-proto-validators"
     echo " --no-google-includes           Don't include Google protobufs"
-    echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is
-                                             self-contained"
+    echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is self-contained"
     echo " --descr-include-source-info    When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto. This results in vastly
-                                             larger descriptors that include information about the original location of each decl in the source file as  well
-                                             as surrounding comments."
+                                          larger descriptors that include information about the original location of each decl in the source file as  well
+                                          as surrounding comments."
     echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
     echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
     echo " --scala_opt                    The options to pass to protoc to customize the scala code generation."
     echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names.
-                                             (deprecated. Please use --with-openapi-json-names)"
+                                          (deprecated. Please use --with-openapi-json-names)"
     echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
     echo " --generate-unbound-methods     Use with --with-gateway flag. Produce the HTTP mapping even for methods without any HttpRule annotation."
     echo " --js-out                       This option overrides the 'js_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
-    echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation. Defaults to 'import_style=typescript'."
+    echo " --grpc-out                     This option allows overriding the left-half of the 'grpc_out=' argument (before the colon) with grpc-node and grpc-web code generation. Options are: generate_package_definition, grpc_js or grpc(depricated from April 2021). Defaults to grpc_js."
+    echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation.  Defaults to 'import_style=typescript'."
 }
 
 GEN_GATEWAY=false
@@ -53,6 +54,7 @@ SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "n
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
+GO_MODULE_PREFIX=""
 GO_PACKAGE_MAP=""
 GO_PLUGIN="grpc"
 GO_VALIDATOR=false
@@ -66,7 +68,7 @@ OPENAPI_JSON=false
 GENERATE_UNBOUND_METHODS=false
 JS_OUT="import_style=commonjs"
 WEB_OUT="import_style=typescript"
-
+GRPC_OUT="grpc_js"
 while test $# -gt 0; do
     case "$1" in
         -h|--help)
@@ -151,6 +153,11 @@ while test $# -gt 0; do
             GO_SOURCE_RELATIVE="paths=source_relative,"
             shift
             ;;
+        --go-module-prefix) 
+            shift
+            GO_MODULE_PREFIX="module=$1,"
+            shift
+            ;;
         --go-package-map)
             if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
                 GO_PACKAGE_MAP=$2,
@@ -216,6 +223,11 @@ while test $# -gt 0; do
             WEB_OUT=$1
             shift
             ;;
+        --grpc-out)
+            shift
+            GRPC_OUT=$1
+            shift
+            ;;
         *)
             break
             ;;
@@ -275,6 +287,12 @@ if [[ "$GEN_TYPESCRIPT" == true && "$GEN_LANG" != "node" ]]; then
     exit 1
 fi
 
+if [[ ! -z $GO_SOURCE_RELATIVE && ! -z $GO_MODULE_PREFIX ]]; then
+    echo "Error: You may specifiy --go-source-relative or --go-module-prefix but not both"
+    printUsage
+    exit 1
+fi
+
 PLUGIN_LANG=$GEN_LANG
 if [ $PLUGIN_LANG == 'objc' ] ; then
     PLUGIN_LANG='objective_c'
@@ -303,7 +321,7 @@ fi
 GEN_STRING=''
 case $GEN_LANG in
     "go")
-        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
+        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_MODULE_PREFIX}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
         if [[ ${GO_PLUGIN} == "micro" ]]; then
           GEN_STRING="$GEN_STRING --micro_out=$OUT_DIR"
         fi
@@ -333,10 +351,14 @@ plugins=grpc+embedded\
         GEN_STRING="--scala_out=$SCALA_OUT --plugin=`which protoc-gen-scala`"
         ;;
     "node")
-        GEN_STRING="--grpc_out=$OUT_DIR --js_out=$JS_OUT,binary:$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
+        # add plugin
+        GEN_STRING="--plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin`"
+        GEN_STRING="$GEN_STRING --js_out=$JS_OUT,binary:$OUT_DIR --grpc_out=$GRPC_OUT:$OUT_DIR"
         ;;
     "web")
-        GEN_STRING="--grpc-web_out=$WEB_OUT,mode=grpcwebtext:$OUT_DIR --js_out=$JS_OUT:$OUT_DIR --plugin=protoc-gen-grpc-web=`which grpc_${PLUGIN_LANG}_plugin`"
+        # add plugins
+        GEN_STRING=" --plugin=protoc-gen-grpc-web=`which protoc-gen-grpc-web`"
+        GEN_STRING="$GEN_STRING --js_out=$JS_OUT,binary:$OUT_DIR --grpc-web_out=$WEB_OUT,mode=grpcwebtext:$OUT_DIR"
         ;;
     "descriptor_set")
         GEN_STRING="--descriptor_set_out=$OUT_DIR/$DESCR_FILENAME"
@@ -384,7 +406,7 @@ if [[ $GEN_RBI == true ]]; then
 fi
 
 if [[ $GEN_TYPESCRIPT == true ]]; then
-    GEN_STRING="$GEN_STRING --ts_out=service=grpc-node:$OUT_DIR"
+    GEN_STRING="$GEN_STRING --plugin=protoc-gen-ts=`which protoc-gen-ts` --ts_out=$GRPC_OUT:$OUT_DIR"
 fi
 
 LINT_STRING=''
@@ -415,6 +437,7 @@ else
     PROTO_FILES=($FILE)
 fi
 
+# Run protoc
 protoc $PROTO_INCLUDE \
     $GEN_STRING \
     $LINT_STRING \
