@@ -6,10 +6,12 @@ build:
 test:
 	bash ./all/test.sh
 
+# Not for manual invocation.
 .PHONY: push
 push: build
 	bash ./push.sh
 
+# Not for manual invocation; see .github/workflows/release.yml.
 .PHONY: push-latest
 push-latest:
 	bash ./push.sh true
