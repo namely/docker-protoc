@@ -46,7 +46,6 @@ if ! grep -qi "$SOME_RESP_HEADER" "$HEADERS_FILE"; then
 fi
 rm $HEADERS_FILE
 
-#curl -i -s -o './ido' localhost:8080/api/messages
 # If we call an endpoint that does not exist (say just messages), we should
 # get a 404, since there's no handler for that endpoint.
 status=`curl -s -o /dev/null -w "%{http_code}" localhost:8080/messages`
@@ -57,5 +56,3 @@ if [ "$status" -ne "404" ]; then
 fi
 
 kill $!
-
-

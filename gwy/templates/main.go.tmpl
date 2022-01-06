@@ -14,12 +14,14 @@ import (
 	"time"
 
 	"github.com/gorilla/handlers"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	legacyruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails" // Pull in errdetails
 	gw "gateway/{{.Import}}"
@@ -52,8 +54,57 @@ type proxyConfig struct {
 	// was "/foo/bar" in your protofile, and you wanted to run APIs under "/api",
 	// set this to "/api/".
 	apiPrefix string
-	// map of headers to send in the http response
+	// Map of headers to send in the http response
 	responseHeaders map[string]string
+	// Sets the maximum message size in bytes the client can receive.
+	maxCallRecvMsgSize int
+	// Sets the maximum message size in bytes the client can send.
+	maxCallSendMsgSize int
+	// Use protobuf json marshaler instead of legacy marshaler.
+	// The new marshaler uses protojson vs. legacy marshaler which uses jsonpb.
+	useJSONPBV2Marshaler bool
+	// Use canonical JSON names for proto fields. By default will use proto names.
+	useJSONNames bool
+	// Emit default values for unpopulated fields. By default empty fields will not be populated.
+	emitUnpopulated bool
+	// Keeps unknown fields sent in a request instead of discarding it. By default unknown fields will be discarded.
+	keepUnknown bool
+}
+
+type JSONPbLegacy struct {
+	jsonpb *legacyruntime.JSONPb
+}
+
+func NewJSONPbLegacy(useJSONNames bool, emitUnpopulated bool, keepUnknown bool) *JSONPbLegacy {
+	j := &JSONPbLegacy{
+			jsonpb: &legacyruntime.JSONPb{},
+	}
+	j.jsonpb.OrigName = !useJSONNames
+	j.jsonpb.EmitDefaults = emitUnpopulated
+	if keepUnknown {
+		legacyruntime.DisallowUnknownFields()
+	}
+	return j
+}
+
+func (j *JSONPbLegacy) Marshal(v interface{}) ([]byte, error) {
+	return j.jsonpb.Marshal(v)
+}
+
+func (j *JSONPbLegacy) Unmarshal(data []byte, v interface{}) error {
+	return j.jsonpb.Unmarshal(data, v)
+}
+
+func (j *JSONPbLegacy) NewDecoder(r io.Reader) runtime.Decoder {
+	return j.jsonpb.NewDecoder(r)
+}
+
+func (j *JSONPbLegacy) NewEncoder(w io.Writer) runtime.Encoder {
+	return j.jsonpb.NewEncoder(w)
+}
+
+func (j *JSONPbLegacy) ContentType(v interface{}) string {
+	return j.jsonpb.ContentType()
 }
 
 func logFormatter(cfg proxyConfig) handlers.LogFormatter {
@@ -131,7 +182,7 @@ func addRespHeaders(cfg proxyConfig, handler http.Handler) http.Handler {
 		}
 
 		for header, value := range cfg.responseHeaders {
-			w.Header().Set(header, value)	
+			w.Header().Set(header, value)
 		}
 		w.Header().Set("Access-Control-Allow-Origin", corsAllowOrigin)
 		w.Header().Set("Access-Control-Allow-Credentials", cfg.corsAllowCredentials)
@@ -220,7 +271,7 @@ func outgoingHeaderMatcher(metadata string) (string, bool) {
 	return metadata, true
 }
 
-// getResponseHeaders will identified keys and values which are response headers settings and 
+// getResponseHeaders will identified keys and values which are response headers settings and
 // translate into a map
 func getResponseHeaders(cfg *viper.Viper) map[string]string {
 	m := make(map[string]string)
@@ -247,13 +298,49 @@ func SetupMux(ctx context.Context, cfg proxyConfig) *http.ServeMux {
 		http.ServeFile(w, r, cfg.swagger)
 	})
 
-	gwmux := runtime.NewServeMux(
-		runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
-		runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
-	)
+	options := []runtime.ServeMuxOption{
+	    runtime.WithIncomingHeaderMatcher(incomingHeaderMatcher),
+	    runtime.WithOutgoingHeaderMatcher(outgoingHeaderMatcher),
+	}
+
+	useProtoNames := !cfg.useJSONNames
+	discardUnknown := !cfg.keepUnknown
+	var marshaler runtime.Marshaler
+	if cfg.useJSONPBV2Marshaler {
+		marshaler = &runtime.JSONPb{
+			MarshalOptions: protojson.MarshalOptions{
+				UseProtoNames: useProtoNames,
+				EmitUnpopulated: cfg.emitUnpopulated,
+			},
+			UnmarshalOptions: protojson.UnmarshalOptions{
+				DiscardUnknown: discardUnknown,
+			},
+		}
+	} else {
+		marshaler = NewJSONPbLegacy(cfg.useJSONNames, cfg.emitUnpopulated, cfg.keepUnknown)
+	}
+
+	httpMarshaler := &runtime.HTTPBodyMarshaler{
+		Marshaler: marshaler,
+	}
+	options = append(options, runtime.WithMarshalerOption(runtime.MIMEWildcard, httpMarshaler))
+
+	gwmux := runtime.NewServeMux(options...)
 	logrus.Infof("Proxying requests to gRPC service at '%s'", cfg.backend)
 
 	opts := []grpc.DialOption{grpc.WithInsecure()}
+
+	callOptions := []grpc.CallOption{}
+	if cfg.maxCallRecvMsgSize > 0 {
+		callOptions = append(callOptions, grpc.MaxCallRecvMsgSize(cfg.maxCallRecvMsgSize))
+	}
+	if cfg.maxCallSendMsgSize > 0 {
+		callOptions = append(callOptions, grpc.MaxCallSendMsgSize(cfg.maxCallSendMsgSize))
+	}
+	if len(callOptions) > 0 {
+		opts = append(opts, grpc.WithDefaultCallOptions(callOptions...))
+	}
+
 	// If you get a compilation error that gw.Register${SERVICE}HandlerFromEndpoint
 	// does not exist, it's because you haven't added any google.api.http annotations
 	// to your proto. Add some!
@@ -336,7 +423,7 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	
+
 	mux := SetupMux(ctx, proxyConfig{
 		backend:              cfg.GetString("backend"),
 		logLevel:             cfg.GetString("log_level"),
@@ -348,6 +435,12 @@ func main() {
 		corsAllowHeaders:     cfg.GetString("cors.allow-headers"),
 		apiPrefix:            cfg.GetString("proxy.api-prefix"),
 		responseHeaders:      getResponseHeaders(cfg),
+		maxCallRecvMsgSize:   cfg.GetInt("grpc.max-call-recv-msg-size"),
+		maxCallSendMsgSize:   cfg.GetInt("grpc.max-call-send-msg-size"),
+		useJSONPBV2Marshaler: cfg.GetBool("gateway.use-jsonpb-v2-marshaler"),
+		useJSONNames:         cfg.GetBool("gateway.use-json-names"),
+		emitUnpopulated:      cfg.GetBool("gateway.emit-unpopulated"),
+		keepUnknown:	        cfg.GetBool("gateway.keep-unknown"),
 	})
 
 	addr := fmt.Sprintf(":%v", cfg.GetInt("proxy.port"))

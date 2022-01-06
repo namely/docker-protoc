@@ -96,6 +96,8 @@ while test $# -gt 0; do
       shift
       ;;
     *)
+      echo "Unrecognized option or argument: $1 in $@"
+      echo ""
       printUsage
       exit 1
       ;;
@@ -132,6 +134,8 @@ SWAGGER_FILE_NAME=`basename $PROTO_FILE .proto`.swagger.json
 
 # Copy and update the templates.
 renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/config.yaml.tmpl > $OUT_DIR/config.yaml
+renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/go.mod.tmpl > $OUT_DIR/go.mod
+renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/go.sum.tmpl > $OUT_DIR/go.sum
 renderizer --import=${GATEWAY_IMPORT_DIR} --swagger=${SWAGGER_FILE_NAME} /templates/Dockerfile.tmpl > $OUT_DIR/Dockerfile
 
 MAIN_DIR=${OUT_DIR}/cmd/gateway

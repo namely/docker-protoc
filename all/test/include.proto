@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package Messages;
 
-message ListMessageResponse {
-    repeated string messages = 1;
-}
+option go_package = "all/;all";
 
-  
+message ListMessageResponse {
+  repeated string messages = 1;
+}
