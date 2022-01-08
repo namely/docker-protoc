@@ -134,6 +134,13 @@ testGeneration() {
                 echo "$expected_file_name1 does not contain the expected method $UNBOUND_METHOD"
                 exit 1
             fi
+        else
+            # No extra arguments
+            # Test that we haven't mapped the unbound method
+            if grep -q $UNBOUND_METHOD "$expected_output_dir$expected_file_name1" ; then
+                echo "$expected_file_name1 should not contain the unexpected method $UNBOUND_METHOD"
+                exit 1
+            fi
         fi
     fi
 

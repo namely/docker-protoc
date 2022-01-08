@@ -280,6 +280,12 @@ CONTAINER=namely/protoc-all:VVV make test
 (`VVV` is your version from the tag in the console output when running `make build`.) Running this will
 demonstrate that your new image can successfully build containers for each language.
 
+#### gRPC Gateway test
+```sh
+cd gwy
+./test.sh namely/gen-grpc-gateway:VVV
+```
+
 ### Release
 
 Handled automatically via CI (githubaction).
