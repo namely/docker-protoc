@@ -3,7 +3,9 @@ syntax = "proto3";
 package Messages;
 
 import "google/api/annotations.proto";
-import "include.proto";
+import "test/include.proto";
+
+option go_package = "test/;test";
 
 service Message {
   rpc ListMessage (ListMessageRequest) returns (ListMessageResponse) {
@@ -11,8 +13,12 @@ service Message {
       get: "/messages"
     };
   }
+  rpc UnboundUnary (UnboundUnaryRequest) returns (UnboundUnaryResponse) {}
 }
 
 message ListMessageRequest {
   string query = 1;
 }
+
+message UnboundUnaryRequest {}
+message UnboundUnaryResponse {}

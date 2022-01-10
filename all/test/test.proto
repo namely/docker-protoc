@@ -20,6 +20,7 @@ service Message {
       body: "*"
     };
   }
+  rpc UnboundUnary (UnboundUnaryRequest) returns (UnboundUnaryResponse) {}
 }
 
 message ListMessageRequest {
@@ -33,3 +34,6 @@ message UpdateMessageRequest {
 }
 
 message UpdateMessageResponse {}
+
+message UnboundUnaryRequest {}
+message UnboundUnaryResponse {}

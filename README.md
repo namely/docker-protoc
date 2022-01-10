@@ -127,7 +127,8 @@ docker build -t my-grpc-gateway gen/grpc-gateway/
 
 _NOTE_: If your service does not contain any `(google.api.http)` annotations, this build will
 fail with an error `...HandlerFromEndpoint is undefined`. You need to have at least one rpc
-method annotated to build a gRPC Gateway.
+method annotated to build a gRPC Gateway, or use `--generate-unbound-methods` option to expose
+all the methods in your proto file
 
 Run this image with
 
@@ -278,6 +279,12 @@ CONTAINER=namely/protoc-all:VVV make test
 
 (`VVV` is your version from the tag in the console output when running `make build`.) Running this will
 demonstrate that your new image can successfully build containers for each language.
+
+#### gRPC Gateway test
+```sh
+cd gwy
+./test.sh namely/gen-grpc-gateway:VVV
+```
 
 ### Release
 

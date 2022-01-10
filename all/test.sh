@@ -11,6 +11,8 @@ fi
 
 JSON_PARAM_NAME="additionalParam"
 
+UNBOUND_METHOD="UnboundUnary"
+
 # Checks that directories were appropriately created, and deletes the generated directory.
 testGeneration() {
     lang=$1
@@ -124,6 +126,19 @@ testGeneration() {
             # Test that we have generated the test.swagger.json file with json params
             if ! grep -q $JSON_PARAM_NAME "$expected_output_dir$expected_file_name2" ; then
                 echo "$expected_file_name2 file was not generated with json names"
+                exit 1
+            fi
+        elif [[ "$extra_args" == *"--generate-unbound-methods"* ]]; then
+            # Test that we have mapped the unbound method
+            if ! grep -q $UNBOUND_METHOD "$expected_output_dir$expected_file_name1" ; then
+                echo "$expected_file_name1 does not contain the expected method $UNBOUND_METHOD"
+                exit 1
+            fi
+        else
+            # No extra arguments
+            # Test that we haven't mapped the unbound method
+            if grep -q $UNBOUND_METHOD "$expected_output_dir$expected_file_name1" ; then
+                echo "$expected_file_name1 should not contain the unexpected method $UNBOUND_METHOD"
                 exit 1
             fi
         fi
@@ -240,6 +255,9 @@ testGeneration go "gen/pb-go" 0 --with-gateway --with-openapi-json-names
 
 # Test grpc-gateway generation + json (deprecated) (only valid for Go)
 testGeneration go "gen/pb-go" 0 --with-gateway --with-swagger-json-names
+
+# Test grpc-gateway generation with unbound methods (only valid for Go)
+testGeneration go "gen/pb-go" 0 --with-gateway --generate-unbound-methods
 
 # Test go source relative generation
 testGeneration go "gen/pb-go" 0 --go-source-relative
