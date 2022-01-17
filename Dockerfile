@@ -123,7 +123,7 @@ RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_vers
     
 # Add Typescript support
 RUN npm --global config set user root
-RUN npm --global install protoc-gen-ts
+RUN npm --global install google-protobuf typescript protoc-gen-ts
 
 FROM debian:$debian-slim AS protoc-all
 
@@ -172,7 +172,8 @@ COPY --from=build /tmp/grpc-java/bazel-bin/compiler/ /usr/local/bin/
 # Copy grpc_cli
 COPY --from=build /tmp/grpc/bazel-bin/test/cpp/util/ /usr/local/bin/
 # Copy protoc-gen-ts
-COPY --from=build /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=build /usr/lib/node_modules /usr/lib/node_modules
+COPY --from=build /usr/bin/protoc-gen-ts /usr/bin/protoc-gen-ts
 
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
