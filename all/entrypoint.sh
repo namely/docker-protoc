@@ -68,6 +68,7 @@ SCALA_OPT=""
 OPENAPI_JSON=false
 GENERATE_UNBOUND_METHODS=false
 JS_OUT="import_style=commonjs"
+TS_OUT=""
 WEB_OUT="import_style=typescript"
 GRPC_OUT="grpc_js"
 while test $# -gt 0; do
