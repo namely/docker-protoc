@@ -120,6 +120,10 @@ RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_ve
 RUN curl -sSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_version}/protoc-gen-grpc-web-${grpc_web_version}-linux-x86_64 \
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
+    
+# Add Typescript support
+RUN npm --global config set user root
+RUN npm --global install protoc-gen-ts
 
 FROM debian:$debian-slim AS protoc-all
 
@@ -167,6 +171,8 @@ COPY --from=build /tmp/grpc/bazel-bin/src/compiler/ /usr/local/bin/
 COPY --from=build /tmp/grpc-java/bazel-bin/compiler/ /usr/local/bin/
 # Copy grpc_cli
 COPY --from=build /tmp/grpc/bazel-bin/test/cpp/util/ /usr/local/bin/
+# Copy protoc-gen-ts
+COPY --from=build /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 COPY --from=build /usr/local/bin/prototool /usr/local/bin/prototool
 COPY --from=build /go/bin/* /usr/local/bin/
