@@ -37,6 +37,7 @@ printUsage() {
     echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
     echo " --generate-unbound-methods     Use with --with-gateway flag. Produce the HTTP mapping even for methods without any HttpRule annotation."
     echo " --js-out                       This option overrides the 'js_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
+    echo " --ts-out                       This option overrides the 'ts_out=' argument in the grpc-typescript code generation."
     echo " --grpc-out                     This option allows overriding the left-half of the 'grpc_out=' argument (before the colon) with grpc-node and grpc-web code generation. Options are: generate_package_definition, grpc_js or grpc(depricated from April 2021). Defaults to grpc_js."
     echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation.  Defaults to 'import_style=typescript'."
 }
@@ -50,7 +51,7 @@ GEN_RBI=false
 GEN_TYPESCRIPT=false
 LINT=false
 LINT_CHECKS=""
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set" "scala")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "typescript" "cpp" "descriptor_set" "scala")
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
@@ -218,6 +219,11 @@ while test $# -gt 0; do
             JS_OUT=$1
             shift
             ;;
+        --ts-out)
+            shift
+            TS_OUT=$1
+            shift
+            ;;
         --grpc-web-out)
             shift
             WEB_OUT=$1
@@ -359,6 +365,10 @@ plugins=grpc+embedded\
         # add plugins
         GEN_STRING=" --plugin=protoc-gen-grpc-web=`which protoc-gen-grpc-web`"
         GEN_STRING="$GEN_STRING --js_out=$JS_OUT,binary:$OUT_DIR --grpc-web_out=$WEB_OUT,mode=grpcwebtext:$OUT_DIR"
+        ;;
+    "typescript")
+	# NOTE - It seems that the plugin has no support for any options besides the output directory, the value of --ts-out is still stored in $TS_OUT just in case we need it
+        GEN_STRING="--ts_out=$OUT_DIR"
         ;;
     "descriptor_set")
         GEN_STRING="--descriptor_set_out=$OUT_DIR/$DESCR_FILENAME"
