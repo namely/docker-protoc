@@ -148,7 +148,7 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
 
 # Install latest Node version
 RUN curl -fsSL https://deb.nodesource.com/setup_${node_version}.x | bash -
-RUN apt-get install -y nodejs
+RUN apt-get install -y nodejs npm
 
 # Add TypeScript support
 RUN npm config set unsafe-perm true
