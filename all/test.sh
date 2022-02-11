@@ -5,11 +5,13 @@ LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "de
 CONTAINER=${CONTAINER}
 
 if [ -z ${CONTAINER} ]; then
-    echo "You must specify a build container with \${CONTAINER} to test"
+    echo "You must specify a build container with \${CONTAINER} to test (see my README.md)"
     exit 1
 fi
 
 JSON_PARAM_NAME="additionalParam"
+
+UNBOUND_METHOD="UnboundUnary"
 
 # Checks that directories were appropriately created, and deletes the generated directory.
 testGeneration() {
@@ -23,9 +25,8 @@ testGeneration() {
     echo "Testing language $lang $expected_output_dir $extra_args"
 
     # Test calling a file directly.
-    docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args > /dev/null
-
-    exitCode=$?
+    exitCode=0
+    docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args > /dev/null || exitCode=$?
 
     if [[ $expectedExitCode != $exitCode ]]; then
         echo "exit code must be $expectedExitCode but is $exitCode instead"
@@ -117,7 +118,7 @@ testGeneration() {
             expected_field_mask_property_type="array"
             actual_field_mask_property_type=$(cat $expected_output_dir$expected_file_name2 | jq '.definitions.MessagesUpdateMessageRequest.properties.updateMask.type' | tr -d "\042")
             if [ ! "$actual_field_mask_property_type" == "$expected_field_mask_property_type" ]; then
-                echo "expected field mask type not found"
+                echo "expected field mask type not found ($actual_field_mask_property_type != $expected_field_mask_property_type)"
                 exit 1
             fi
 
@@ -125,6 +126,19 @@ testGeneration() {
             # Test that we have generated the test.swagger.json file with json params
             if ! grep -q $JSON_PARAM_NAME "$expected_output_dir$expected_file_name2" ; then
                 echo "$expected_file_name2 file was not generated with json names"
+                exit 1
+            fi
+        elif [[ "$extra_args" == *"--generate-unbound-methods"* ]]; then
+            # Test that we have mapped the unbound method
+            if ! grep -q $UNBOUND_METHOD "$expected_output_dir$expected_file_name1" ; then
+                echo "$expected_file_name1 does not contain the expected method $UNBOUND_METHOD"
+                exit 1
+            fi
+        else
+            # No extra arguments
+            # Test that we haven't mapped the unbound method
+            if grep -q $UNBOUND_METHOD "$expected_output_dir$expected_file_name1" ; then
+                echo "$expected_file_name1 should not contain the unexpected method $UNBOUND_METHOD"
                 exit 1
             fi
         fi
@@ -144,6 +158,22 @@ testGeneration() {
         # Test that we have generated the test.pb.go file.
         expected_file_name="/all/test.pb.go"
     if [[ "$extra_args" == *"--with-validator"* ]]; then
+        expected_file_name1="/all/test.pb.go"
+        expected_file_name2="/all/test.pb.validate.go"
+        if [[ "$extra_args" == *"--validator-source-relative"* ]]; then
+            expected_file_name2="/all/test/test.pb.validate.go"
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
+            echo "$expected_file_name1 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+        if [[ ! -f "$expected_output_dir$expected_file_name2" ]]; then
+            echo "$expected_file_name2 file was not generated in $expected_output_dir"
+            exit 1
+        fi
+    fi
+
+    if [[ "$extra_args" == *"--with-go-proto-validator"* ]]; then
         expected_file_name1="/all/test.pb.go"
         expected_file_name2="/all/test.pb.validate.go"
         if [[ "$extra_args" == *"--validator-source-relative"* ]]; then
@@ -226,6 +256,9 @@ testGeneration go "gen/pb-go" 0 --with-gateway --with-openapi-json-names
 # Test grpc-gateway generation + json (deprecated) (only valid for Go)
 testGeneration go "gen/pb-go" 0 --with-gateway --with-swagger-json-names
 
+# Test grpc-gateway generation with unbound methods (only valid for Go)
+testGeneration go "gen/pb-go" 0 --with-gateway --generate-unbound-methods
+
 # Test go source relative generation
 testGeneration go "gen/pb-go" 0 --go-source-relative
 
@@ -241,6 +274,12 @@ testGeneration go "gen/pb-go" 0 --with-validator
 
 # Test go validator with source relative option
 testGeneration go "gen/pb-go" 0 --with-validator --validator-source-relative
+
+# Test the other go validator
+testGeneration go "gen/pb-go" 0 --go-proto-validator
+
+# Test the other  go validator with source relative option
+testGeneration go "gen/pb-go" 0 ---go-proto-validator --validator-source-relative
 
 # Test go-micro generations
 testGeneration go "gen/pb-go" 0 --go-plugin-micro

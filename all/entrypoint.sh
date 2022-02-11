@@ -35,6 +35,7 @@ printUsage() {
     echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names.
                                           (deprecated. Please use --with-openapi-json-names)"
     echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
+    echo " --generate-unbound-methods     Use with --with-gateway flag. Produce the HTTP mapping even for methods without any HttpRule annotation."
     echo " --js-out                       This option overrides the 'js_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
     echo " --grpc-out                     This option allows overriding the left-half of the 'grpc_out=' argument (before the colon) with grpc-node and grpc-web code generation. Options are: generate_package_definition, grpc_js or grpc(depricated from April 2021). Defaults to grpc_js."
     echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation.  Defaults to 'import_style=typescript'."
@@ -64,6 +65,7 @@ DESCR_FILENAME="descriptor_set.pb"
 CSHARP_OPT=""
 SCALA_OPT=""
 OPENAPI_JSON=false
+GENERATE_UNBOUND_METHODS=false
 JS_OUT="import_style=commonjs"
 WEB_OUT="import_style=typescript"
 GRPC_OUT="grpc_js"
@@ -205,6 +207,10 @@ while test $# -gt 0; do
             ;;
         --with-openapi-json-names)
             OPENAPI_JSON=true
+            shift
+            ;;
+        --generate-unbound-methods)
+            GENERATE_UNBOUND_METHODS=true
             shift
             ;;
         --js-out)
@@ -458,13 +464,16 @@ if [ $GEN_GATEWAY = true ]; then
     mkdir -p ${GATEWAY_DIR}
 
     protoc $PROTO_INCLUDE \
-		--grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+        --grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]} \
+        --grpc-gateway_opt generate_unbound_methods=$GENERATE_UNBOUND_METHODS
 
     if [[ $OPENAPI_JSON == true ]]; then
         protoc $PROTO_INCLUDE  \
-		    --openapiv2_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]}
+            --openapiv2_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]} \
+            --openapiv2_opt generate_unbound_methods=$GENERATE_UNBOUND_METHODS
     else
         protoc $PROTO_INCLUDE  \
-		    --openapiv2_out=logtostderr=true,json_names_for_fields=false:$GATEWAY_DIR ${PROTO_FILES[@]}
+            --openapiv2_out=logtostderr=true,json_names_for_fields=false:$GATEWAY_DIR ${PROTO_FILES[@]} \
+            --openapiv2_opt generate_unbound_methods=$GENERATE_UNBOUND_METHODS
     fi
 fi

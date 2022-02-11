@@ -13,6 +13,7 @@ printUsage() {
   echo "-a, --additional_interfaces The set of additional interfaces to bind to this gateway." 
   echo "-o, --out DIRECTORY         Optional. The output directory for the gateway. By default, gen/grpc-gateway."
   echo "--go-package-map            Optional. Map proto imports to go import paths"
+  echo "--generate-unbound-methods  Optional. Produce the HTTP mapping even for methods without any HttpRule annotation."
 }
 
 # Path to the proto file
@@ -26,6 +27,8 @@ OUT_DIR=""
 GO_PACKAGE_MAP=""
 # Extra includes.
 INCLUDES=""
+# Generate unbound methods
+GENERATE_UNBOUND_METHODS=false
 
 while test $# -gt 0; do
   case "$1" in
@@ -95,7 +98,13 @@ while test $# -gt 0; do
       fi
       shift
       ;;
+    --generate-unbound-methods)
+      GENERATE_UNBOUND_METHODS=true
+      shift
+      ;;
     *)
+      echo "Unrecognized option or argument: $1 in $@"
+      echo ""
       printUsage
       exit 1
       ;;
@@ -121,7 +130,12 @@ fi
 # Generate the gateway files
 PROTO_DIR=$(dirname $FILE)
 GEN_PATH=${OUT_DIR}/gen/
-entrypoint.sh -d ${PROTO_DIR} -l go --with-gateway -o ${GEN_PATH} --go-package-map ${GO_PACKAGE_MAP} ${INCLUDES}
+
+if [ $GENERATE_UNBOUND_METHODS = true ]; then
+  entrypoint.sh -d ${PROTO_DIR} -l go --with-gateway --generate-unbound-methods -o ${GEN_PATH} --go-package-map ${GO_PACKAGE_MAP} ${INCLUDES}
+else
+  entrypoint.sh -d ${PROTO_DIR} -l go --with-gateway -o ${GEN_PATH} --go-package-map ${GO_PACKAGE_MAP} ${INCLUDES}
+fi
 
 GATEWAY_IMPORT_DIR=`find ${GEN_PATH} -type f -name "*.gw.go" -print | head -n 1 | xargs -n1 dirname`
 GATEWAY_IMPORT_DIR=${GATEWAY_IMPORT_DIR#"$OUT_DIR/"}
