@@ -81,6 +81,10 @@ RUN go get -u github.com/ckaznocha/protoc-gen-lint
 # Docs
 RUN go get -u github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
+# Install google openapi 
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+RUN go install github.com/google/gnostic/cmd/protoc-gen-openapi
+
 # Figure out if this is a naming collision
 # RUN go get -u github.com/micro/protobuf/protoc-gen-go
 
