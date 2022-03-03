@@ -2,7 +2,6 @@
  
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/e20c6e95969a4926abd1dc778e8c8e7e)](https://app.codacy.com/gh/namely/docker-protoc/dashboard)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/e20c6e95969a4926abd1dc778e8c8e7e)](https://app.codacy.com/gh/namely/docker-protoc/dashboard)
-
 [![GitHub Workflow Status (branch)](https://github.com/namely/docker-protoc/actions/workflows/master.yml/badge.svg)](https://github.com/namely/docker-protoc/actions?query=workflow%3AMaster)
 [![Docker Pulls](https://img.shields.io/docker/pulls/namely/protoc-all?style=flat-square)](https://hub.docker.com/repository/docker/namely/protoc-all)
 
