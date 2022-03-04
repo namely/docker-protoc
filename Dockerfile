@@ -115,6 +115,8 @@ FROM debian:$debian_version-slim AS protoc-all
 ARG grpc_version
 ARG grpc_gateway_version
 
+ARG mypy_version
+
 ARG node_version
 ARG node_grpc_tools_node_protoc_ts_version
 ARG node_grpc_tools_version
@@ -149,7 +151,7 @@ RUN npm i -g grpc_tools_node_protoc_ts@$node_grpc_tools_node_protoc_ts_version g
 RUN npm i -g ts-proto@$ts_proto_version
 
 # Add mypy support
-RUN pip3 install mypy-protobuf
+RUN pip3 install mypy-protobuf==${mypy_version}
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
