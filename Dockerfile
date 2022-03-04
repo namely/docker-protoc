@@ -134,7 +134,8 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     libssl1.1 \
     openjdk-11-jre \
     dos2unix \
-    gawk
+    gawk \
+    python3-pip
 
 # Install latest Node version
 RUN curl -fsSL "https://deb.nodesource.com/setup_${node_version}.x" | bash -
@@ -146,6 +147,9 @@ RUN npm i -g grpc_tools_node_protoc_ts@$node_grpc_tools_node_protoc_ts_version g
 
 # Add TypeScript support
 RUN npm i -g ts-proto@$ts_proto_version
+
+# Add mypy support
+RUN pip3 install mypy-protobuf
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
