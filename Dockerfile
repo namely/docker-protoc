@@ -105,7 +105,7 @@ RUN go get -u github.com/coinbase/protoc-gen-rbi
 RUN go get github.com/gomatic/renderizer/v2/cmd/renderizer
 
 # Origin protoc-gen-go should be installed last, for not been overwritten by any other binaries(see #210)
-RUN go get -u github.com/golang/protobuf/protoc-gen-go
+RUN go get google.golang.org/protobuf/cmd/protoc-gen-go
 
 # Need to get these too:
 RUN go get -u github.com/mwitkow/go-proto-validators/@v${go_mwitkow_gpv_version}
