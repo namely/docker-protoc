@@ -15,6 +15,8 @@ UNBOUND_METHOD="UnboundUnary"
 
 # Checks that directories were appropriately created, and deletes the generated directory.
 testGeneration() {
+    name=$1
+    shift
     lang=$1
     shift
     expected_output_dir=$1
@@ -24,8 +26,13 @@ testGeneration() {
     extra_args=$@
     echo "Testing language $lang $expected_output_dir $extra_args"
 
+    mkdir -p $name
+    cp -r ./all "./$name"
+    pushd "./$name"
+
     # Test calling a file directly.
     exitCode=0
+    echo "docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args"
     docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args > /dev/null || exitCode=$?
 
     if [[ $expectedExitCode != $exitCode ]]; then
@@ -33,6 +40,8 @@ testGeneration() {
         exit 1
     elif [[ "$expectedExitCode" != 0 ]]; then
         # no need to continue test of expected failure
+        popd
+        rm -rf $name
         echo "expected failure passed!"
         return
     fi
@@ -53,6 +62,15 @@ testGeneration() {
         if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
             echo "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
+        fi
+    fi
+
+    if [[ "$lang" == "java" ]]; then
+        if [[ "$extra_args" == *"-o gen/test.jar" ]]; then
+            if [[ ! -f "gen/test.jar" ]]; then
+                echo "Expected gen/test.jar to be a jar file."
+                exit 1
+            fi
         fi
     fi
 
@@ -239,66 +257,70 @@ testGeneration() {
         fi
     fi
 
-    rm -rf `echo $expected_output_dir | cut -d '/' -f1`
+    popd
+    rm -rf $name
     echo "Generating for $lang passed!"
 }
 
 # Test docs generation
-testGeneration go "gen/pb-go" 0 --with-docs
-testGeneration go "gen/pb-go" 0 --with-docs markdown,index.md
+testGeneration "go_with_docs" go "gen/pb-go" 0 --with-docs
+testGeneration "go_with_markdown_docs" go "gen/pb-go" 0 --with-docs markdown,index.md
 
 # Test grpc-gateway generation (only valid for Go)
-testGeneration go "gen/pb-go" 0 --with-gateway
+testGeneration "go_with_gateway" go "gen/pb-go" 0 --with-gateway
 
 # Test grpc-gateway generation + json (only valid for Go)
-testGeneration go "gen/pb-go" 0 --with-gateway --with-openapi-json-names
+testGeneration "go_with_gateway_and_openapi_json" go "gen/pb-go" 0 --with-gateway --with-openapi-json-names
 
 # Test grpc-gateway generation + json (deprecated) (only valid for Go)
-testGeneration go "gen/pb-go" 0 --with-gateway --with-swagger-json-names
+testGeneration "go_with_gateway_and_swagger_json" go "gen/pb-go" 0 --with-gateway --with-swagger-json-names
 
 # Test grpc-gateway generation with unbound methods (only valid for Go)
-testGeneration go "gen/pb-go" 0 --with-gateway --generate-unbound-methods
+testGeneration "go_with_unbound_methods" go "gen/pb-go" 0 --with-gateway --generate-unbound-methods
 
 # Test go source relative generation
-testGeneration go "gen/pb-go" 0 --go-source-relative
+testGeneration "go_with_source_relative" go "gen/pb-go" 0 --go-source-relative
 
 # Test go module prefix
-testGeneration go "gen/pb-go" 0 --go-module-prefix all
+testGeneration "go_with_module_prefixes" go "gen/pb-go" 0 --go-module-prefix all
 
 # Test expected failure for source relative and module prefix combination
-testGeneration go "gen/pb-go" 1 --go-module-prefix all --go-source-relative
-testGeneration go "gen/pb-go" 1 --go-source-relative --go-module-prefix all
+testGeneration "go_with_module_prefixes_and_source_relative" go "gen/pb-go" 1 --go-module-prefix all --go-source-relative
+testGeneration "go_with_module_prefixes_and_source_relative_swapped_args" go "gen/pb-go" 1 --go-source-relative --go-module-prefix all
 
 # Test go validator
-testGeneration go "gen/pb-go" 0 --with-validator
+testGeneration "go_with_validator" go "gen/pb-go" 0 --with-validator
 
 # Test go validator with source relative option
-testGeneration go "gen/pb-go" 0 --with-validator --validator-source-relative
+testGeneration "go_with_validator_and_source_relative" go "gen/pb-go" 0 --with-validator --validator-source-relative
 
 # Test the other go validator
-testGeneration go "gen/pb-go" 0 --go-proto-validator
+testGeneration "go_with_proto_validator" go "gen/pb-go" 0 --go-proto-validator
 
 # Test the other  go validator with source relative option
-testGeneration go "gen/pb-go" 0 ---go-proto-validator --validator-source-relative
+testGeneration "go_with_proto_validator_and_source_relative" go "gen/pb-go" 0 ---go-proto-validator --validator-source-relative
 
 # Test go-micro generations
-testGeneration go "gen/pb-go" 0 --go-plugin-micro
+testGeneration "go_micro" go "gen/pb-go" 0 --go-plugin-micro
 
 # Test Sorbet RBI declaration file generation (only valid for Ruby)
-testGeneration ruby "gen/pb-ruby" 0 --with-rbi
+testGeneration "ruby_rbi" ruby "gen/pb-ruby" 0 --with-rbi
 
 # Test TypeScript declaration file generation (only valid for Node)
-testGeneration node "gen/pb-node" 0 --with-typescript
+testGeneration "node_with_typescript" node "gen/pb-node" 0 --with-typescript
 
 # Test node alternative import style (only valid for node and web)
-testGeneration node "gen/pb-node" 0 --js-out library=testlib
+testGeneration "node_with_alternative_imports" node "gen/pb-node" 0 --js-out library=testlib
 
 # Test node grpc-out alternative import style (only valid for node and web)
-testGeneration node "gen/pb-node" 0 --grpc-out grpc-js
+testGeneration "node_with_grpc_out" node "gen/pb-node" 0 --grpc-out grpc-js
 
 # Test grpc web alternative import style (only valid for web)
-testGeneration web "gen/pb-web" 0 --grpc-web-out import_style=typescript
-testGeneration web "gen/pb-web" 0 --grpc-web-out import_style=commonjs+dts
+testGeneration "web_with_typescript_imports" web "gen/pb-web" 0 --grpc-web-out import_style=typescript
+testGeneration "web_with_commonjs_imports" web "gen/pb-web" 0 --grpc-web-out import_style=commonjs+dts
+
+# Test java output
+testGeneration "java-test-jar" java "gen" 0 -o gen/test.jar
 
 # Generate proto files
 for lang in ${LANGS[@]}; do
@@ -310,18 +332,9 @@ for lang in ${LANGS[@]}; do
     fi
 
     # Test without an output directory.
-    testGeneration "$lang" "$expected_output_dir" 0
+    testGeneration "$lang" "$lang" "$expected_output_dir" 0
 
     # Test with an output directory.
     test_dir="gen/foo/bar"
-    testGeneration "$lang" "$test_dir" 0 -o "$test_dir"
+    testGeneration "${lang}_with_output_dir" "$lang" "$test_dir" 0 -o "$test_dir"
 done
-
-
-# Test .jar generation for java
-docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l java -i all/test/ -o gen/test.jar
-if [[ ! -f gen/test.jar ]]; then
-  echo "Expected gen/test.jar to be a jar file."
-  exit 1
-fi
-rm -rf gen
