@@ -26,14 +26,13 @@ testGeneration() {
     extra_args=$@
     echo "Testing language $lang $expected_output_dir $extra_args"
 
-    mkdir -p $name
+    mkdir -p "$name"
     cp -r ./all "./$name"
     pushd "./$name"
 
     # Test calling a file directly.
     exitCode=0
-    echo "docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args"
-    docker run --rm -v=`pwd`:/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args > /dev/null || exitCode=$?
+    docker run --rm -v=$(pwd):/defs $CONTAINER -f all/test/test.proto -l $lang -i all/test/ $extra_args > /dev/null || exitCode=$?
 
     if [[ $expectedExitCode != $exitCode ]]; then
         echo "exit code must be $expectedExitCode but is $exitCode instead"
@@ -41,7 +40,7 @@ testGeneration() {
     elif [[ "$expectedExitCode" != 0 ]]; then
         # no need to continue test of expected failure
         popd
-        rm -rf $name
+        rm -rf "$name"
         echo "expected failure passed!"
         return
     fi
@@ -258,7 +257,7 @@ testGeneration() {
     fi
 
     popd
-    rm -rf $name
+    rm -rf "$name"
     echo "Generating for $lang passed!"
 }
 
