@@ -36,5 +36,11 @@ jobs:
       - name: Build
         if: success()
         env:
-          BUILD_VERSION: ${{ steps.sha_short.outputs.SHA_SHORT }}
+          VERSION: ${{ steps.sha_short.outputs.SHA_SHORT }}
         run: make build
+
+      - name: Test
+        if: success()
+        env:
+          CONTAINER: docker.io/namely/protoc-all:${{ steps.sha_short.outputs.SHA_SHORT }}
+        run: make test
