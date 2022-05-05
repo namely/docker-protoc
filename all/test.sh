@@ -319,7 +319,7 @@ testGeneration "web_with_typescript_imports" web "gen/pb-web" 0 --grpc-web-out i
 testGeneration "web_with_commonjs_imports" web "gen/pb-web" 0 --grpc-web-out import_style=commonjs+dts
 
 # Test java output
-testGeneration "java-test-jar" java "gen" 0 -o gen/test.jar
+testGeneration "java_test_jar" java "gen" 0 -o gen/test.jar
 
 # Generate proto files
 for lang in ${LANGS[@]}; do
