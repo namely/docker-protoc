@@ -13,7 +13,7 @@ SOME_RESP_HEADER="SOME-RESPONSE-HEADER"
 pushd "gwy"
 
 # Test building the gateway.
-docker run --rm -v=$(pwd):/defs "$CONTAINER" -f /defs/test/test.proto -i /defs -s Message
+docker run --rm -v="$PWD":/defs "$CONTAINER" -f /defs/test/test.proto -i /defs -s Message
 
 # And make sure that we can build the test gateway too.
 docker build -t $CONTAINER-test-gateway gen/grpc-gateway/
@@ -79,7 +79,7 @@ echo "[Pass] - Received expected response from gateway when expected payload not
 kill $!
 
 # Test building the gateway with unbound methods.
-docker run --rm -v=$(pwd):/defs "$CONTAINER" -f test/test.proto -i . -s Message --generate-unbound-methods
+docker run --rm -v="$PWD":/defs "$CONTAINER" -f test/test.proto -i . -s Message --generate-unbound-methods
 
 # And make sure that we can build the test gateway too.
 docker build -t $CONTAINER-test-gateway gen/grpc-gateway/

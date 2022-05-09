@@ -31,7 +31,7 @@ testGeneration() {
 
     # Test calling a file directly.
     exitCode=0
-    docker run --rm -v=$(pwd):/defs "$CONTAINER" -f all/test/test.proto -l "$lang" -i all/test/ $extra_args > /dev/null || exitCode=$?
+    docker run --rm -v="$PWD":/defs "$CONTAINER" -f all/test/test.proto -l "$lang" -i all/test/ $extra_args > /dev/null || exitCode=$?
 
     if [[ $expectedExitCode != $exitCode ]]; then
         echo "[Fail] $name"
