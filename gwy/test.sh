@@ -32,46 +32,49 @@ status=`curl -i -s -o $HEADERS_FILE -w "%{http_code}" localhost:8080/api/message
 # running. In the future, if this was a real backend we should get a 200. However,
 # here we can use the 503 to indicate that the gateway tried to send the request
 # downstream.
+echo ""
 if [ "$status" -ne "503" ]; then
   kill $!
+  echo "[Fail] - Received expected response from gateway when no backend service running"
   echo "Invalid status: '$status' with /api/messages http request"
   exit 1
 fi
-echo ""
-echo "[Passed] - Received expected response from gateway when no backend service running"
-echo ""
 
 if ! grep -qi "$SOME_RESP_HEADER" "$HEADERS_FILE"; then
   kill $!
+  echo "[Fail] - Received expected response from gateway when no backend service running"
   echo "header $SOME_RESP_HEADER was not found in response"
   rm $HEADERS_FILE
   exit 1
 fi
+echo "[Pass] - Received expected response from gateway when no backend service running"
 rm $HEADERS_FILE
 
 # If we call an endpoint that does not exist (say just messages), we should
 # get a 404, since there's no handler for that endpoint.
 status=`curl -s -o /dev/null -w "%{http_code}" localhost:8080/messages`
+
+echo ""
 if [ "$status" -ne "404" ]; then
   kill $!
+  echo "[Fail] - Received expected response from gateway when grpc method does not exist"
   echo "Invalid status: '$status' with /messages http request"
   exit 1
 fi
-echo ""
-echo "[Passed] - Received expected response from gateway when grpc method does not exist"
-echo ""
+echo "[Pass] - Received expected response from gateway when grpc method does not exist"
 
 # UnboundUnary should not work
 # Unbound methods require the request payload as request body (curl --data 'payload')
 status=`curl -s -o /dev/null -w "%{http_code}" --data '{}' localhost:8080/api/Messages.Message/UnboundUnary`
+
+echo ""
 if [ "$status" -ne "404" ]; then
   kill $!
+  echo "[Fail] - Received expected response from gateway when expected payload not passed in the http request body"
   echo "Invalid status: '$status' with /api/Messages.Message/UnboundUnary http request"
   exit 1
 fi
-echo ""
-echo "[Passed] - Received expected response from gateway when expected payload not passed in the http request body"
-echo ""
+echo "[Pass] - Received expected response from gateway when expected payload not passed in the http request body"
 
 kill $!
 
@@ -95,46 +98,48 @@ status=`curl -i -s -o $HEADERS_FILE -w "%{http_code}" localhost:8080/api/message
 # running. In the future, if this was a real backend we should get a 200. However,
 # here we can use the 503 to indicate that the gateway tried to send the request
 # downstream.
+echo ""
 if [ "$status" -ne "503" ]; then
   kill $!
+  echo "[Fail] - Received expected response from gateway when no backend service running, and unbound methods are generated"
   echo "Invalid status: '$status' with /api/messages http request"
   exit 1
 fi
-echo ""
-echo "[Passed] - Received expected response from gateway when no backend service running, and unbound methods are generated"
-echo ""
+echo "[Pass] - Received expected response from gateway when no backend service running, and unbound methods are generated"
 
 # UnboundUnary should work
 # Unbound methods require the request payload as request body (curl --data 'payload')
 status=`curl -i -s -o $HEADERS_FILE -w "%{http_code}" --data '{}' localhost:8080/api/Messages.Message/UnboundUnary`
 
+echo ""
 if [ "$status" -ne "503" ]; then
   kill $!
+  echo "[Fail] - Received expected response from gateway when no backend service running and calling an unbound method, and unbound methods are generated"
   echo "Invalid status: '$status' with /api/Messages.Message/UnboundUnary http request"
   exit 1
 fi
-echo ""
-echo "[Passed] - Received expected response from gateway when no backend service running and calling an unbound method, and unbound methods are generated"
-echo ""
 
 if ! grep -qi "$SOME_RESP_HEADER" "$HEADERS_FILE"; then
   kill $!
+  echo "[Fail] - Received expected response from gateway when no backend service running and calling an unbound method, and unbound methods are generated"
   echo "header $SOME_RESP_HEADER was not found in response"
   rm $HEADERS_FILE
   exit 1
 fi
 rm $HEADERS_FILE
+echo "[Pass] - Received expected response from gateway when no backend service running and calling an unbound method, and unbound methods are generated"
 
 # If we call an endpoint that does not exist (say just messages), we should
 # get a 404, since there's no handler for that endpoint.
 status=`curl -s -o /dev/null -w "%{http_code}" localhost:8080/messages`
+
+echo ""
 if [ "$status" -ne "404" ]; then
   kill $!
+  echo "[Fail] - Received expected response from gateway when grpc method does not exist, and unbound methods are generated"
   echo "Invalid status: '$status' with /messages http request"
   exit 1
 fi
-echo ""
-echo "[Passed] - Received expected response from gateway when grpc method does not exist, and unbound methods are generated"
-echo ""
+echo "[Pass] - Received expected response from gateway when grpc method does not exist, and unbound methods are generated"
 
 kill $!
