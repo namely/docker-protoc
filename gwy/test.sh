@@ -1,19 +1,19 @@
-#!/bin/bash
-set -e
-set -x
+#!/bin/bash -ex
 
-if [[ $# -ne 1 ]]; then
-  echo "Usage: test.sh container"
-  exit 1
+CONTAINER=${CONTAINER}
+
+if [ -z ${CONTAINER} ]; then
+    echo "You must specify a build container with \${CONTAINER} to test (see my README.md)"
+    exit 1
 fi
 
-
-CONTAINER=$1
 HEADERS_FILE="./.headers"
 SOME_RESP_HEADER="SOME-RESPONSE-HEADER"
 
+pushd "gwy"
+
 # Test building the gateway.
-docker run --rm -v=`pwd`:/defs $CONTAINER -f test/test.proto -i . -s Message
+docker run --rm -v=$(pwd):/defs "$CONTAINER" -f /defs/test/test.proto -i /defs -s Message
 
 # And make sure that we can build the test gateway too.
 docker build -t $CONTAINER-test-gateway gen/grpc-gateway/
@@ -37,6 +37,9 @@ if [ "$status" -ne "503" ]; then
   echo "Invalid status: '$status' with /api/messages http request"
   exit 1
 fi
+echo ""
+echo "[Passed] - Received expected response from gateway when no backend service running"
+echo ""
 
 if ! grep -qi "$SOME_RESP_HEADER" "$HEADERS_FILE"; then
   kill $!
@@ -54,6 +57,9 @@ if [ "$status" -ne "404" ]; then
   echo "Invalid status: '$status' with /messages http request"
   exit 1
 fi
+echo ""
+echo "[Passed] - Received expected response from gateway when grpc method does not exist"
+echo ""
 
 # UnboundUnary should not work
 # Unbound methods require the request payload as request body (curl --data 'payload')
@@ -63,13 +69,14 @@ if [ "$status" -ne "404" ]; then
   echo "Invalid status: '$status' with /api/Messages.Message/UnboundUnary http request"
   exit 1
 fi
+echo ""
+echo "[Passed] - Received expected response from gateway when expected payload not passed in the http request body"
+echo ""
 
 kill $!
 
-
-
 # Test building the gateway with unbound methods.
-docker run --rm -v=`pwd`:/defs $CONTAINER -f test/test.proto -i . -s Message --generate-unbound-methods
+docker run --rm -v=$(pwd):/defs "$CONTAINER" -f test/test.proto -i . -s Message --generate-unbound-methods
 
 # And make sure that we can build the test gateway too.
 docker build -t $CONTAINER-test-gateway gen/grpc-gateway/
@@ -93,6 +100,9 @@ if [ "$status" -ne "503" ]; then
   echo "Invalid status: '$status' with /api/messages http request"
   exit 1
 fi
+echo ""
+echo "[Passed] - Received expected response from gateway when no backend service running, and unbound methods are generated"
+echo ""
 
 # UnboundUnary should work
 # Unbound methods require the request payload as request body (curl --data 'payload')
@@ -103,6 +113,9 @@ if [ "$status" -ne "503" ]; then
   echo "Invalid status: '$status' with /api/Messages.Message/UnboundUnary http request"
   exit 1
 fi
+echo ""
+echo "[Passed] - Received expected response from gateway when no backend service running and calling an unbound method, and unbound methods are generated"
+echo ""
 
 if ! grep -qi "$SOME_RESP_HEADER" "$HEADERS_FILE"; then
   kill $!
@@ -120,5 +133,8 @@ if [ "$status" -ne "404" ]; then
   echo "Invalid status: '$status' with /messages http request"
   exit 1
 fi
+echo ""
+echo "[Passed] - Received expected response from gateway when grpc method does not exist, and unbound methods are generated"
+echo ""
 
 kill $!

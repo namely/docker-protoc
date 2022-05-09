@@ -26,8 +26,8 @@ testGeneration() {
     extra_args=$@
     echo "Testing language $lang $expected_output_dir $extra_args"
 
-    mkdir -p "$name"
-    cp -r ./all "./$name"
+    mkdir -p "$name" > /dev/null
+    cp -r ./all "./$name" > /dev/null
     pushd "./$name"
 
     # Test calling a file directly.

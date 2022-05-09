@@ -6,6 +6,10 @@ build:
 test:
 	bash ./all/test.sh
 
+.PHONY: test-gwy
+test-gwy:
+	bash ./gwy/test.sh
+
 # Not for manual invocation.
 .PHONY: push
 push: build
