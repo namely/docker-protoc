@@ -4,7 +4,7 @@ LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "de
 
 CONTAINER=${CONTAINER}
 
-if [ -z ${CONTAINER} ]; then
+if [ -z "${CONTAINER}" ]; then
     echo "You must specify a build container with \${CONTAINER} to test (see my README.md)"
     exit 1
 fi
