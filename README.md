@@ -284,7 +284,7 @@ demonstrate that your new image can successfully build containers for each langu
 
 #### gRPC Gateway test
 ```sh
-CONTAINER=namely/protoc-all:VVV make test-gwy
+CONTAINER=namely/gen-grpc-gateway:VVV make test-gwy
 ```
 
 ### Release
