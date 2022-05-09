@@ -34,8 +34,8 @@ testGeneration() {
     docker run --rm -v="$PWD":/defs "$CONTAINER" -f all/test/test.proto -l "$lang" -i all/test/ $extra_args > /dev/null || exitCode=$?
 
     if [[ $expectedExitCode != $exitCode ]]; then
-        echo "[Fail] $name"
-        echo "exit code must be $expectedExitCode but is $exitCode instead"
+        echo >&2 "[Fail] $name"
+        echo >&2 "exit code must be $expectedExitCode but is $exitCode instead"
         exit 1
     elif [[ "$expectedExitCode" != 0 ]]; then
         # no need to continue test of expected failure
@@ -46,8 +46,8 @@ testGeneration() {
     fi
 
     if [[ ! -d "$expected_output_dir" ]]; then
-        echo "[Fail] $name"
-        echo "generated directory $expected_output_dir does not exist"
+        echo >&2 "[Fail] $name"
+        echo >&2 "generated directory $expected_output_dir does not exist"
         exit 1
     fi
 
@@ -60,8 +60,8 @@ testGeneration() {
             expected_file_name="/test.pb.go"
         fi
         if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -69,8 +69,8 @@ testGeneration() {
     if [[ "$lang" == "java" ]]; then
         if [[ "$extra_args" == *"-o gen/test.jar" ]]; then
             if [[ ! -f "gen/test.jar" ]]; then
-                echo "[Fail] $name"
-                echo "Expected gen/test.jar to be a jar file."
+                echo >&2 "[Fail] $name"
+                echo >&2 "Expected gen/test.jar to be a jar file."
                 exit 1
             fi
         fi
@@ -81,8 +81,8 @@ testGeneration() {
         current_path="$expected_output_dir"
         while [[ $current_path != "." ]]; do
             if [[ ! -f "$current_path/__init__.py" ]]; then
-                echo "[Fail] $name"
-                echo "__init__.py files were not generated in $current_path"
+                echo >&2 "[Fail] $name"
+                echo >&2 "__init__.py files were not generated in $current_path"
                 exit 1
             fi
             current_path=$(dirname $current_path)
@@ -92,8 +92,8 @@ testGeneration() {
         # Test that we have generated the .d.ts files.
         rbi_file_count=$(find $expected_output_dir -type f -name "*.rbi" | wc -l)
         if [ $rbi_file_count -ne 2 ]; then
-            echo "[Fail] $name"
-            echo ".rbi files were not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 ".rbi files were not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -101,8 +101,8 @@ testGeneration() {
         # Test that we have generated the .d.ts files.
         ts_file_count=$(find $expected_output_dir -type f -name "*.d.ts" | wc -l)
         if [ $ts_file_count -ne 2 ]; then
-            echo "[Fail] $name"
-            echo ".d.ts files were not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 ".d.ts files were not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -111,8 +111,8 @@ testGeneration() {
         # Test that we have generated the test.pb.micro.go file.
         expected_file_name="/all/test.pb.micro.go"
         if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -122,21 +122,21 @@ testGeneration() {
         expected_file_name1="/all/test.pb.gw.go"
         expected_file_name2="/all/test/test.swagger.json"
         if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name1 file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name1 file was not generated in $expected_output_dir"
             exit 1
         fi
         if [[ ! -f "$expected_output_dir$expected_file_name2" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name2 file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name2 file was not generated in $expected_output_dir"
             exit 1
         fi
 
         if [[ "$extra_args" == *"--with-openapi-json-names"* ]]; then
             # Test that we have generated the test.swagger.json file with json params
             if ! grep -q $JSON_PARAM_NAME "$expected_output_dir$expected_file_name2" ; then
-                echo "[Fail] $name"
-                echo "$expected_file_name2 file was not generated with json names"
+                echo >&2 "[Fail] $name"
+                echo >&2 "$expected_file_name2 file was not generated with json names"
                 exit 1
             fi
 
@@ -145,31 +145,31 @@ testGeneration() {
             expected_field_mask_property_type="array"
             actual_field_mask_property_type=$(cat $expected_output_dir$expected_file_name2 | jq '.definitions.MessagesUpdateMessageRequest.properties.updateMask.type' | tr -d "\042")
             if [ ! "$actual_field_mask_property_type" == "$expected_field_mask_property_type" ]; then
-                echo "[Fail] $name"
-                echo "expected field mask type not found ($actual_field_mask_property_type != $expected_field_mask_property_type)"
+                echo >&2 "[Fail] $name"
+                echo >&2 "expected field mask type not found ($actual_field_mask_property_type != $expected_field_mask_property_type)"
                 exit 1
             fi
 
         elif [[ "$extra_args" == *"--with-swagger-json-names"* ]]; then
             # Test that we have generated the test.swagger.json file with json params
             if ! grep -q $JSON_PARAM_NAME "$expected_output_dir$expected_file_name2" ; then
-                echo "[Fail] $name"
-                echo "$expected_file_name2 file was not generated with json names"
+                echo >&2 "[Fail] $name"
+                echo >&2 "$expected_file_name2 file was not generated with json names"
                 exit 1
             fi
         elif [[ "$extra_args" == *"--generate-unbound-methods"* ]]; then
             # Test that we have mapped the unbound method
             if ! grep -q $UNBOUND_METHOD "$expected_output_dir$expected_file_name1" ; then
-                echo "[Fail] $name"
-                echo "$expected_file_name1 does not contain the expected method $UNBOUND_METHOD"
+                echo >&2 "[Fail] $name"
+                echo >&2 "$expected_file_name1 does not contain the expected method $UNBOUND_METHOD"
                 exit 1
             fi
         else
             # No extra arguments
             # Test that we haven't mapped the unbound method
             if grep -q $UNBOUND_METHOD "$expected_output_dir$expected_file_name1" ; then
-                echo "[Fail] $name"
-                echo "$expected_file_name1 should not contain the unexpected method $UNBOUND_METHOD"
+                echo >&2 "[Fail] $name"
+                echo >&2 "$expected_file_name1 should not contain the unexpected method $UNBOUND_METHOD"
                 exit 1
             fi
         fi
@@ -181,8 +181,8 @@ testGeneration() {
             expected_file_name="/doc/index.md"
         fi
         if [[ ! -f "$expected_output_dir$expected_file_name" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name file was not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -196,13 +196,13 @@ testGeneration() {
             expected_file_name2="/all/test/test.pb.validate.go"
         fi
         if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name1 file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name1 file was not generated in $expected_output_dir"
             exit 1
         fi
         if [[ ! -f "$expected_output_dir$expected_file_name2" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name2 file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name2 file was not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -214,13 +214,13 @@ testGeneration() {
             expected_file_name2="/all/test/test.pb.validate.go"
         fi
         if [[ ! -f "$expected_output_dir$expected_file_name1" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name1 file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name1 file was not generated in $expected_output_dir"
             exit 1
         fi
         if [[ ! -f "$expected_output_dir$expected_file_name2" ]]; then
-            echo "[Fail] $name"
-            echo "$expected_file_name2 file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "$expected_file_name2 file was not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -229,8 +229,8 @@ testGeneration() {
         # Test that we have generated the testlib.js file
         testlib_count=$(find $expected_output_dir -type f -name "testlib.js" | wc -l)
         if [ $testlib_count -ne 1 ]; then
-            echo "[Fail] $name"
-            echo "testlib.js file was not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "testlib.js file was not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -239,8 +239,8 @@ testGeneration() {
         # Test that we have generated the .d.ts files and .js files
         js_file_count=$(find $expected_output_dir -type f -name "*.js" | wc -l)
         if [ $js_file_count -ne 2 ]; then
-            echo "[Fail] $name"
-            echo ".js files were not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 ".js files were not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -249,14 +249,14 @@ testGeneration() {
         # Test that we have generated the .d.ts files and .js files
         ts_file_count=$(find $expected_output_dir -type f -name "*.d.ts" | wc -l)
         if [ $ts_file_count -ne 2 ]; then
-            echo "[Fail] $name"
-            echo ".d.ts files were not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 ".d.ts files were not generated in $expected_output_dir"
             exit 1
         fi
         js_file_count=$(find $expected_output_dir -type f -name "*.js" | wc -l)
         if [ $js_file_count -ne 2 ]; then
-            echo "[Fail] $name"
-            echo ".js files were not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 ".js files were not generated in $expected_output_dir"
             exit 1
         fi
     fi
@@ -264,20 +264,20 @@ testGeneration() {
         # Test that we have generated the .d.ts files, .ts files and .js files
         d_ts_file_count=$(find $expected_output_dir -type f -name "*.d.ts" | wc -l)
         if [ $d_ts_file_count -ne 1 ]; then
-            echo "[Fail] $name"
-            echo ".d.ts files were not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 ".d.ts files were not generated in $expected_output_dir"
             exit 1
         fi
         ts_file_count=$(find $expected_output_dir -type f -name "*Pb.ts" | wc -l)
         if [ $ts_file_count -ne 1 ]; then
-            echo "[Fail] $name"
-            echo ".ts files were not generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 ".ts files were not generated in $expected_output_dir"
             exit 1
         fi
         js_file_count=$(find $expected_output_dir -type f -name "*.js" | wc -l)
         if [ $js_file_count -ne 1 ]; then
-            echo "[Fail] $name"
-            echo "More than 1 .js file was generated in $expected_output_dir"
+            echo >&2 "[Fail] $name"
+            echo >&2 "More than 1 .js file was generated in $expected_output_dir"
             exit 1
         fi
     fi
