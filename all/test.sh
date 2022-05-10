@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -efx
 
 LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "descriptor_set" "web")
 
