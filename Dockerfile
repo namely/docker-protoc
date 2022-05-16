@@ -6,7 +6,7 @@ ARG grpc_java_version
 ARG uber_prototool_version
 ARG scala_pb_version
 ARG node_version
-ARG node_grpc_tools_node_protoc_ts_version 
+ARG node_grpc_tools_node_protoc_ts_version
 ARG node_grpc_tools_version
 ARG node_protoc_gen_grpc_web_version
 ARG go_envoyproxy_pgv_version
@@ -38,7 +38,7 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     clang
 
 WORKDIR /tmp
-RUN git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc && \ 
+RUN git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc && \
     git clone --depth 1 --shallow-submodules -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git && \
     git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.git && \
     git clone --depth 1 https://github.com/googleapis/googleapis && \
@@ -96,6 +96,8 @@ RUN set -e && \
 
 RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro
 
+# protoc-gen-go is depended on by protoc-gen-validate, install here and then overwrite later just in case
+RUN go get -u github.com/golang/protobuf/protoc-gen-go
 RUN GO111MODULE=on go get -d github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
 RUN make -C /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ build
 
@@ -112,7 +114,7 @@ RUN go get -u github.com/mwitkow/go-proto-validators/@v${go_mwitkow_gpv_version}
 RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators@v${go_mwitkow_gpv_version}
 
 # Add scala support
-RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \ 
+RUN curl -LO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \
     && unzip protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \
     && chmod +x /tmp/protoc-gen-scala
 
