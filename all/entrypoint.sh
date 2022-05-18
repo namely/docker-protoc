@@ -24,6 +24,7 @@ printUsage() {
     echo " --go-package-map               Map proto imports to go import paths"
     echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
     echo " --go-proto-validator           Generate Go proto validations - see https://github.com/mwitkow/go-proto-validators"
+    echo " --go-full-directory-depth      When using -d allow full depth search for proto files, otherwise shallow depth is used (maxdepth of 1)"
     echo " --no-google-includes           Don't include Google protobufs"
     echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is self-contained"
     echo " --descr-include-source-info    When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto. This results in vastly
@@ -58,6 +59,7 @@ GO_MODULE_PREFIX=""
 GO_PACKAGE_MAP=""
 GO_PLUGIN="grpc"
 GO_VALIDATOR=false
+GO_FULL_DIRECTORY_DEPTH=false
 NO_GOOGLE_INCLUDES=false
 DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
@@ -171,6 +173,10 @@ while test $# -gt 0; do
             ;;
         --go-proto-validator)
             GO_VALIDATOR=true
+            shift
+            ;;
+        --go-full-directory-depth)
+            GO_FULL_DIRECTORY_DEPTH=true
             shift
             ;;
         --no-google-includes)
@@ -427,7 +433,11 @@ PROTO_INCLUDE="$PROTO_INCLUDE $EXTRA_INCLUDES"
 
 if [ ! -z $PROTO_DIR ]; then
     PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
-    PROTO_FILES=$(find "${PROTO_DIR}" -name "*.proto")
+    FIND_DEPTH=""
+    if [[ $GEN_LANG == "go" && $GO_FULL_DIRECTORY_DEPTH == false ]]; then
+        FIND_DEPTH="-maxdepth 1"
+    fi    
+    PROTO_FILES=$(find "${PROTO_DIR}" ${FIND_DEPTH} -name "*.proto")
 else
     PROTO_INCLUDE="-I . $PROTO_INCLUDE"
     PROTO_FILES=($FILE)
