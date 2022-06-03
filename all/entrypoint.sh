@@ -397,7 +397,7 @@ if [[ $GEN_VALIDATOR == true && $GEN_LANG == "gogo" ]]; then
 fi
 
 if [[ $GEN_VALIDATOR == true && $GEN_LANG == "java" ]]; then
-    GEN_STRING="$GEN_STRING --validate_out=lang=java${VALIDATOR_SOURCE_RELATIVE}:$OUT_DIR"
+    GEN_STRING="$GEN_STRING --validate_out=lang=java:$OUT_DIR"
 fi
 
 if [[ $GEN_DOCS == true ]]; then
