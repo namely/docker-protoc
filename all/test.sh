@@ -187,6 +187,7 @@ testGeneration() {
         fi
     fi
 
+    # Test that we have generated the test.pb.go file.
     if [[ "$extra_args" == *"--with-validator"* ]] && [[ "$lang" == "go" ]]; then
         expected_file_name1="/all/test.pb.go"
         expected_file_name2="/all/test.pb.validate.go"
@@ -206,20 +207,19 @@ testGeneration() {
     fi
 
     if [[ "$extra_args" == *"--with-validator"* ]] && [[ "$lang" == "java" ]]; then
-        # Test that we have generated the Test.java files and TestValidator.java files
+        # Test that we have generated the Test.java and TestValidator.java files
         java_file_count=$(find $expected_output_dir -type f -name "Test.java" | wc -l)
         if [ $java_file_count -ne 1 ]; then
             echo >&2 "[Fail] $name"
-            echo >&2 "Test.java files were not generated in $expected_output_dir"
+            echo >&2 "Test.java file was not generated in $expected_output_dir"
             exit 1
         fi
         java_validator_file_count=$(find $expected_output_dir -type f -name "TestValidator.java" | wc -l)
         if [ $java_validator_file_count -ne 1 ]; then
             echo >&2 "[Fail] $name"
-            echo >&2 "TestValidator.java files were not generated in $expected_output_dir"
+            echo >&2 "TestValidator.java file was not generated in $expected_output_dir"
             exit 1
-        fi
-        echo "java with validator"        
+        fi        
     fi
 
     if [[ "$extra_args" == *"--with-go-proto-validator"* ]]; then
