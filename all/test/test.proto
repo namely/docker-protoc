@@ -5,7 +5,7 @@ package Messages;
 import "all/test/include.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
-import "all/test/validate.proto";
+import "validate/validate.proto";
 
 option go_package = "all/;all";
 
