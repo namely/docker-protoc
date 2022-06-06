@@ -205,7 +205,20 @@ testGeneration() {
         fi
     fi
 
-    if [[ "$extra_args" == *"--with-validator"* ]] && [[ "$lang" == "java" ]]; then    
+    if [[ "$extra_args" == *"--with-validator"* ]] && [[ "$lang" == "java" ]]; then
+        # Test that we have generated the Test.java files and TestValidator.java files
+        java_file_count=$(find $expected_output_dir -type f -name "Test.java" | wc -l)
+        if [ $java_file_count -ne 1 ]; then
+            echo >&2 "[Fail] $name"
+            echo >&2 "Test.java files were not generated in $expected_output_dir"
+            exit 1
+        fi
+        java_validator_file_count=$(find $expected_output_dir -type f -name "TestValidator.java" | wc -l)
+        if [ $java_validator_file_count -ne 1 ]; then
+            echo >&2 "[Fail] $name"
+            echo >&2 "TestValidator.java files were not generated in $expected_output_dir"
+            exit 1
+        fi
         echo "java with validator"        
     fi
 
