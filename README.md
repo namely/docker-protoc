@@ -289,7 +289,8 @@ CONTAINER=namely/gen-grpc-gateway:VVV make test-gwy
 
 ### Release
 
-Handled automatically via CI (githubaction).
+Any new gRPC version based release is handled automatically once the relevant [Renovate](https://www.mend.io/free-developer-tools/renovate/) branch is merged to master
+via the CI (Github Action). A patch release should be created manually in Github and the CI workflow will take care of the rest.
 
 #### Contributors
 
