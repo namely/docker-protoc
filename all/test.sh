@@ -1,5 +1,4 @@
 #!/bin/bash -efx
-
 LANGS=("go" "ruby" "csharp" "java" "python" "objc" "node" "gogo" "php" "cpp" "descriptor_set" "web")
 
 CONTAINER=${CONTAINER}
@@ -19,11 +18,18 @@ testGeneration() {
     shift
     lang=$1
     shift
+    withdir=$1
+    shift
     expected_output_dir=$1
     shift
     expectedExitCode=$1
     shift
     extra_args=$@
+
+    file_directive="-f all/test/test.proto"
+    if [[ "$withdir" == 'true' ]]; then
+        file_directive="-d all/test"
+    fi
 
     mkdir -p "$name" > /dev/null 2>&1
     cp -r ./all "./$name" > /dev/null 2>&1
@@ -31,7 +37,7 @@ testGeneration() {
 
     # Test calling a file directly.
     exitCode=0
-    docker run --rm -v="$PWD":/defs "$CONTAINER" -f all/test/test.proto -l "$lang" -i all/test/ $extra_args > /dev/null || exitCode=$?
+    docker run --rm -v="$PWD":/defs "$CONTAINER" $file_directive -l "$lang" -i all/ $extra_args > /dev/null || exitCode=$?
 
     if [[ $expectedExitCode != $exitCode ]]; then
         echo >&2 "[Fail] $name"
@@ -288,64 +294,64 @@ testGeneration() {
 }
 
 # Test docs generation
-testGeneration "go_with_docs" go "gen/pb-go" 0 --with-docs
-testGeneration "go_with_markdown_docs" go "gen/pb-go" 0 --with-docs markdown,index.md
+testGeneration "go_with_docs" go "false" "gen/pb-go" 0 --with-docs
+testGeneration "go_with_markdown_docs" go "false" "gen/pb-go" 0 --with-docs markdown,index.md
 
 # Test grpc-gateway generation (only valid for Go)
-testGeneration "go_with_gateway" go "gen/pb-go" 0 --with-gateway
+testGeneration "go_with_gateway" go "false" "gen/pb-go" 0 --with-gateway
 
 # Test grpc-gateway generation + json (only valid for Go)
-testGeneration "go_with_gateway_and_openapi_json" go "gen/pb-go" 0 --with-gateway --with-openapi-json-names
+testGeneration "go_with_gateway_and_openapi_json" go "false" "gen/pb-go" 0 --with-gateway --with-openapi-json-names
 
 # Test grpc-gateway generation + json (deprecated) (only valid for Go)
-testGeneration "go_with_gateway_and_swagger_json" go "gen/pb-go" 0 --with-gateway --with-swagger-json-names
+testGeneration "go_with_gateway_and_swagger_json" go "false" "gen/pb-go" 0 --with-gateway --with-swagger-json-names
 
 # Test grpc-gateway generation with unbound methods (only valid for Go)
-testGeneration "go_with_unbound_methods" go "gen/pb-go" 0 --with-gateway --generate-unbound-methods
+testGeneration "go_with_unbound_methods" go "false" "gen/pb-go" 0 --with-gateway --generate-unbound-methods
 
 # Test go source relative generation
-testGeneration "go_with_source_relative" go "gen/pb-go" 0 --go-source-relative
+testGeneration "go_with_source_relative" go "false" "gen/pb-go" 0 --go-source-relative
 
 # Test go module prefix
-testGeneration "go_with_module_prefixes" go "gen/pb-go" 0 --go-module-prefix all
+testGeneration "go_with_module_prefixes" go "false" "gen/pb-go" 0 --go-module-prefix all
 
 # Test expected failure for source relative and module prefix combination
-testGeneration "go_with_module_prefixes_and_source_relative" go "gen/pb-go" 1 --go-module-prefix all --go-source-relative
-testGeneration "go_with_module_prefixes_and_source_relative_swapped_args" go "gen/pb-go" 1 --go-source-relative --go-module-prefix all
+testGeneration "go_with_module_prefixes_and_source_relative" go "false" "gen/pb-go" 1 --go-module-prefix all --go-source-relative
+testGeneration "go_with_module_prefixes_and_source_relative_swapped_args" go "false" "gen/pb-go" 1 --go-source-relative --go-module-prefix all
 
 # Test go validator
-testGeneration "go_with_validator" go "gen/pb-go" 0 --with-validator
+testGeneration "go_with_validator" go "false" "gen/pb-go" 0 --with-validator
 
 # Test go validator with source relative option
-testGeneration "go_with_validator_and_source_relative" go "gen/pb-go" 0 --with-validator --validator-source-relative
+testGeneration "go_with_validator_and_source_relative" go "false" "gen/pb-go" 0 --with-validator --validator-source-relative
 
 # Test the other go validator
-testGeneration "go_with_proto_validator" go "gen/pb-go" 0 --go-proto-validator
+testGeneration "go_with_proto_validator" go "false" "gen/pb-go" 0 --go-proto-validator
 
 # Test the other  go validator with source relative option
-testGeneration "go_with_proto_validator_and_source_relative" go "gen/pb-go" 0 ---go-proto-validator --validator-source-relative
+testGeneration "go_with_proto_validator_and_source_relative" go "false" "gen/pb-go" 0 ---go-proto-validator --validator-source-relative
 
 # Test go-micro generations
-testGeneration "go_micro" go "gen/pb-go" 0 --go-plugin-micro
+testGeneration "go_micro" go "false" "gen/pb-go" 0 --go-plugin-micro
 
 # Test Sorbet RBI declaration file generation (only valid for Ruby)
-testGeneration "ruby_rbi" ruby "gen/pb-ruby" 0 --with-rbi
+testGeneration "ruby_rbi" ruby "false" "gen/pb-ruby" 0 --with-rbi
 
 # Test TypeScript declaration file generation (only valid for Node)
-testGeneration "node_with_typescript" node "gen/pb-node" 0 --with-typescript
+testGeneration "node_with_typescript" node "false" "gen/pb-node" 0 --with-typescript
 
 # Test node alternative import style (only valid for node and web)
-testGeneration "node_with_alternative_imports" node "gen/pb-node" 0 --js-out library=testlib
+testGeneration "node_with_alternative_imports" node "false" "gen/pb-node" 0 --js-out library=testlib
 
 # Test node grpc-out alternative import style (only valid for node and web)
-testGeneration "node_with_grpc_out" node "gen/pb-node" 0 --grpc-out grpc-js
+testGeneration "node_with_grpc_out" node "false" "gen/pb-node" 0 --grpc-out grpc-js
 
 # Test grpc web alternative import style (only valid for web)
-testGeneration "web_with_typescript_imports" web "gen/pb-web" 0 --grpc-web-out import_style=typescript
-testGeneration "web_with_commonjs_imports" web "gen/pb-web" 0 --grpc-web-out import_style=commonjs+dts
+testGeneration "web_with_typescript_imports" web "false" "gen/pb-web" 0 --grpc-web-out import_style=typescript
+testGeneration "web_with_commonjs_imports" web "false" "gen/pb-web" 0 --grpc-web-out import_style=commonjs+dts
 
 # Test java output
-testGeneration "java_test_jar" java "gen" 0 -o gen/test.jar
+testGeneration "java_test_jar" java "false" "gen" 0 -o gen/test.jar
 
 # Generate proto files
 for lang in ${LANGS[@]}; do
@@ -357,9 +363,29 @@ for lang in ${LANGS[@]}; do
     fi
 
     # Test without an output directory.
-    testGeneration "$lang" "$lang" "$expected_output_dir" 0
+    testGeneration "$lang" "$lang" "false" "$expected_output_dir" 0
 
     # Test with an output directory.
     test_dir="gen/foo/bar"
-    testGeneration "${lang}_with_output_dir" "$lang" "$test_dir" 0 -o "$test_dir"
+    testGeneration "${lang}_with_output_dir" "$lang" "false" "$test_dir" 0 -o "$test_dir"
 done
+
+#Generate proto files but using the -d switch to just pass a directory input
+for lang in ${LANGS[@]}; do
+    expected_output_dir=""
+    if [[ "$lang" == "python" ]]; then
+        expected_output_dir="gen/pb_$lang"
+    else
+      expected_output_dir="gen/pb-$lang"
+    fi
+
+    # Test without an output directory.
+    testGeneration "$lang" "$lang" "false" "$expected_output_dir" 0
+
+    # Test with an output directory.
+    test_dir="gen/foo/bar"
+    testGeneration "${lang}_from_dir_with_output_dir" "$lang" "true" "$test_dir" 0 -o "$test_dir"
+done
+
+#Test the -d for go but also add the the "--go-full-directory-depth" which removes the shallow find flag
+testGeneration "go_full_depth_search" "go" "true" "gen/pb-go" 0 "--go-full-directory-depth"

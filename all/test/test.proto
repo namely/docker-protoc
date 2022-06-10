@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package Messages;
 
-import "all/test/include.proto";
+import "test/include.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 
