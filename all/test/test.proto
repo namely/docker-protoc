@@ -5,6 +5,7 @@ package Messages;
 import "all/test/include.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
+import "validate/validate.proto";
 
 option go_package = "all/;all";
 
@@ -29,7 +30,7 @@ message ListMessageRequest {
 }
 
 message UpdateMessageRequest {
-  string name = 1;
+  string name = 1 [(validate.rules).string.len = 1];
   google.protobuf.FieldMask update_mask = 2;
 }
 
