@@ -11,7 +11,8 @@
   enabledManagers: [
     // Since we only update proprietry files (e.g variables.sh)we should use 'regex' here (see the matchManagers in the packageRules section below)
     // If you need more, see https://docs.renovatebot.com/modules/manager/
-    "regex"
+    "regex", 
+    "github-actions"
   ],
   regexManagers: [
     {
