@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # checkout the repo
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
     # install pcregrep to help extrat the version from variables.sh
