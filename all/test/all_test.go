@@ -22,6 +22,12 @@ type FileExpectation struct {
 	expectedValue string
 }
 
+func (f *FileExpectation) Assert(filePath string) {
+	if f.assert != nil {
+		f.assert(filePath, f.expectedValue)
+	}
+}
+
 type TestSuite struct {
 	suite.Suite
 }
@@ -32,12 +38,12 @@ func TestTestSuite(t *testing.T) {
 
 func (s *TestSuite) SetupTest() {}
 
-func (s *TestSuite) TestSpecialFlags() {
+func (s *TestSuite) TestAllCases() {
 	testCases := map[string]struct {
 		lang              string
 		protofileName     string
 		expectedOutputDir string
-		expectedFiles     []FileExpectation
+		fileExpectations  []FileExpectation
 		expectedExitCode  int
 		extraArgs         []string
 	}{
@@ -45,20 +51,20 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles:     []FileExpectation{{fileName: "all/test.pb.go"}},
+			fileExpectations:  []FileExpectation{{fileName: "all/test.pb.go"}},
 		},
 		"go with alternative output dir": {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles:     []FileExpectation{{fileName: "all/test.pb.go"}},
+			fileExpectations:  []FileExpectation{{fileName: "all/test.pb.go"}},
 			extraArgs:         []string{"-o", "gen/foo/bar"},
 		},
 		"ruby": {
 			lang:              "ruby",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-ruby",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test_pb.rb"},
 				{fileName: "all/test/test_services_pb.rb"},
 			},
@@ -67,7 +73,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "ruby",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test_pb.rb"},
 				{fileName: "all/test/test_services_pb.rb"},
 			},
@@ -77,7 +83,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "csharp",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-csharp",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "Test.cs"},
 				{fileName: "TestGrpc.cs"},
 			},
@@ -86,7 +92,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "csharp",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "Test.cs"},
 				{fileName: "TestGrpc.cs"},
 			},
@@ -96,7 +102,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "java",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-java",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "Messages/Test.java"},
 				{fileName: "Messages/MessageGrpc.java"},
 			},
@@ -105,7 +111,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "java",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "Messages/Test.java"},
 				{fileName: "Messages/MessageGrpc.java"},
 			},
@@ -115,7 +121,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "python",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb_python",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/__init__.py"},
 				{fileName: "/all/__init__.py"},
 				{fileName: "/all/test/__init__.py"},
@@ -127,7 +133,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "python",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/__init__.py"},
 				{fileName: "/all/__init__.py"},
 				{fileName: "/all/test/__init__.py"},
@@ -140,7 +146,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "objc",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-objc",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test/Test.pbobjc.h"},
 				{fileName: "all/test/Test.pbobjc.m"},
 				{fileName: "all/test/Test.pbrpc.h"},
@@ -151,7 +157,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "objc",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test/Test.pbobjc.h"},
 				{fileName: "all/test/Test.pbobjc.m"},
 				{fileName: "all/test/Test.pbrpc.h"},
@@ -163,7 +169,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "node",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-node",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_grpc_pb.js"},
 				{fileName: "/all/test/test_pb.js"},
 			},
@@ -172,7 +178,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "node",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_grpc_pb.js"},
 				{fileName: "/all/test/test_pb.js"},
 			},
@@ -182,7 +188,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "gogo",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-gogo",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
 			},
 		},
@@ -190,7 +196,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "gogo",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
 			},
 			extraArgs: []string{"-o", "gen/foo/bar"},
@@ -199,7 +205,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "php",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-php",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/GPBMetadata/All/Test/Test.php"},
 				{fileName: "/Messages/ListMessageRequest.php"},
 				{fileName: "/Messages/MessageClient.php"},
@@ -213,7 +219,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "php",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/GPBMetadata/All/Test/Test.php"},
 				{fileName: "/Messages/ListMessageRequest.php"},
 				{fileName: "/Messages/MessageClient.php"},
@@ -228,7 +234,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "cpp",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-cpp",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test.grpc.pb.cc"},
 				{fileName: "/all/test/test.grpc.pb.h"},
 				{fileName: "/all/test/test.pb.cc"},
@@ -239,7 +245,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "cpp",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test.grpc.pb.cc"},
 				{fileName: "/all/test/test.grpc.pb.h"},
 				{fileName: "/all/test/test.pb.cc"},
@@ -251,7 +257,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "descriptor_set",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-descriptor_set",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/descriptor_set.pb"},
 			},
 		},
@@ -259,7 +265,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "descriptor_set",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/descriptor_set.pb"},
 			},
 			extraArgs: []string{"-o", "gen/foo/bar"},
@@ -268,7 +274,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "web",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-web",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_pb.d.ts"},
 				{fileName: "/all/test/test_pb.js"},
 				{fileName: "/all/test/TestServiceClientPb.ts"},
@@ -278,7 +284,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "web",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_pb.d.ts"},
 				{fileName: "/all/test/test_pb.js"},
 				{fileName: "/all/test/TestServiceClientPb.ts"},
@@ -289,7 +295,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
 				{fileName: "/doc/index.html"},
 			},
@@ -299,7 +305,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
 				{fileName: "/doc/index.md"},
 			},
@@ -309,7 +315,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
 				{fileName: "/all/test.pb.gw.go", assert: func(filePath, expectedValue string) {
 					fileText := s.readFile(filePath)
@@ -324,7 +330,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
 				{fileName: "/all/test.pb.gw.go"},
 				{fileName: "/all/test/test.swagger.json", assert: func(filePath, expectedValue string) {
@@ -353,7 +359,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
 				{fileName: "/all/test.pb.gw.go"},
 				{fileName: "/all/test/test.swagger.json", assert: func(filePath, expectedValue string) {
@@ -367,7 +373,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
 				{fileName: "/all/test.pb.gw.go", assert: func(filePath, expectedValue string) {
 					fileText := s.readFile(filePath)
@@ -381,7 +387,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test.pb.go"},
 			},
 			extraArgs: []string{"--go-source-relative"},
@@ -390,7 +396,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/test.pb.go"},
 			},
 			extraArgs: []string{"--go-module-prefix", "all"},
@@ -413,7 +419,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test.pb.go"},
 				{fileName: "/all/test.pb.validate.go"},
 			},
@@ -423,7 +429,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test.pb.go"},
 				{fileName: "/all/test/test.pb.validate.go"},
 			},
@@ -433,7 +439,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test.pb.go"},
 				{fileName: "/all/test.validator.pb.go"},
 			},
@@ -443,7 +449,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test.pb.go"},
 				{fileName: "/all/test.pb.micro.go"},
 			},
@@ -453,7 +459,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "ruby",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-ruby",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_pb.rb"},
 				{fileName: "/all/test/test_pb.rbi"},
 				{fileName: "/all/test/test_services_pb.rb"},
@@ -465,7 +471,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "node",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-node",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_grpc_pb.d.ts"},
 				{fileName: "/all/test/test_grpc_pb.js"},
 				{fileName: "/all/test/test_pb.d.ts"},
@@ -477,7 +483,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "node",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-node",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_grpc_pb.js"},
 				{fileName: "testlib.js"},
 			},
@@ -487,7 +493,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "node",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-node",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_grpc_pb.js"},
 				{fileName: "/all/test/test_pb.js"},
 			},
@@ -497,7 +503,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "web",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-web",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_pb.d.ts"},
 				{fileName: "/all/test/test_pb.js"},
 				{fileName: "/all/test/TestServiceClientPb.ts"},
@@ -508,7 +514,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "web",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-web",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test_grpc_web_pb.d.ts"},
 				{fileName: "/all/test/test_grpc_web_pb.js"},
 				{fileName: "/all/test/test_pb.d.ts"},
@@ -520,7 +526,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "java",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "test.jar"},
 			},
 			extraArgs: []string{"-o", "gen/test.jar"},
@@ -529,7 +535,7 @@ func (s *TestSuite) TestSpecialFlags() {
 			lang:              "java",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-java",
-			expectedFiles: []FileExpectation{
+			fileExpectations: []FileExpectation{
 				{fileName: "Messages/MessageGrpc.java"},
 				{fileName: "Messages/Test.java"},
 				{fileName: "Messages/TestValidator.java"},
@@ -564,12 +570,10 @@ func (s *TestSuite) TestSpecialFlags() {
 			)
 			exitCode := s.executeDocker(argsStr, testCase.extraArgs...)
 			s.Require().Equal(testCase.expectedExitCode, exitCode)
-			for _, fileTest := range testCase.expectedFiles {
-				fileFullPath := path.Join(dir, testCase.expectedOutputDir, fileTest.fileName)
+			for _, fileExpectation := range testCase.fileExpectations {
+				fileFullPath := path.Join(dir, testCase.expectedOutputDir, fileExpectation.fileName)
 				s.Assert().FileExists(fileFullPath)
-				if fileTest.assert != nil {
-					fileTest.assert(fileFullPath, fileTest.expectedValue)
-				}
+				fileExpectation.Assert(fileFullPath)
 			}
 		})
 	}
