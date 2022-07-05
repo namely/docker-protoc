@@ -3,6 +3,6 @@ test.pb.go
 test.rb
 **/gen/*
 pb-*
-
+vendor
 /.idea
 /.vscode
