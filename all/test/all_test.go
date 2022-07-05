@@ -339,12 +339,12 @@ func (s *TestSuite) TestAllCases() {
 				}, expectedValue: "additionalParam"},
 				{fileName: "/all/test/test.swagger.json", assert: func(filePath, expectedValue string) {
 					fileText := s.readFile(filePath)
-					var anyJson map[string]interface{}
-					err := json.Unmarshal([]byte(fileText), &anyJson)
+					var anyJSON map[string]interface{}
+					err := json.Unmarshal([]byte(fileText), &anyJSON)
 					s.Require().NoError(err)
 					jsonPath := "definitions.MessagesUpdateMessageRequest.properties.updateMask"
 					fields := strings.Split(jsonPath, ".")
-					m := anyJson
+					m := anyJSON
 					var ok bool
 					for _, field := range fields {
 						m, ok = m[field].(map[string]interface{})
