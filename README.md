@@ -1,7 +1,6 @@
 # gRPC/Protocol Buffer Compiler Containers
  
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/e20c6e95969a4926abd1dc778e8c8e7e)](https://app.codacy.com/gh/namely/docker-protoc/dashboard)
-[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/e20c6e95969a4926abd1dc778e8c8e7e)](https://app.codacy.com/gh/namely/docker-protoc/dashboard)
 [![GitHub Workflow Status (branch)](https://github.com/namely/docker-protoc/actions/workflows/master.yml/badge.svg)](https://github.com/namely/docker-protoc/actions?query=workflow%3AMaster)
 [![Docker Pulls](https://img.shields.io/docker/pulls/namely/protoc-all?style=flat-square)](https://hub.docker.com/repository/docker/namely/protoc-all)
 
@@ -271,7 +270,7 @@ NODE_VERSION=15 GRPC_VERSION=1.35 make build
 
 ### Test
 
-Note that testing currently requires [jq](https://stedolan.github.io/jq/) to be locally installed.
+#### Running tests for `protoc-all` image
 
 To run the tests, identify your image tag from the build step and run `make test` as below:
 
@@ -282,7 +281,16 @@ CONTAINER=namely/protoc-all:VVV make test
 (`VVV` is your version from the tag in the console output when running `make build`.) Running this will
 demonstrate that your new image can successfully build containers for each language.
 
+Note that testing currently requires [Go](https://go.dev/) to be locally installed.
+
+#### Adding tests
+
+The tests for `protoc-all` are written in Go.  
+To add or modify tests, use the testCase struct in [all_test.go](./all/test/all_test.go) to set:
+the language, the arguments to invoke the image with, the expected generated files and any additional assertions.
+
 #### gRPC Gateway test
+
 ```sh
 CONTAINER=namely/gen-grpc-gateway:VVV make test-gwy
 ```
