@@ -6,8 +6,10 @@
   ],
   extends: [
     // A lot of default settings that you can extend can be found in the presets section: https://docs.renovatebot.com/presets-compatibility/
-    ":ignoreModulesAndTests"
+    "config:base"
   ],
+  // config:base preset ignores test directory so we need override it here to that our go.mod under test folder will be discovered.
+  ignorePaths: [],
   enabledManagers: [
     // Since we only update proprietry files (e.g variables.sh)we should use 'regex' here (see the matchManagers in the packageRules section below)
     // If you need more, see https://docs.renovatebot.com/modules/manager/
