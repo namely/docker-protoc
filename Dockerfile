@@ -96,7 +96,7 @@ RUN set -e && \
 
 RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro
 
-# protoc-gen-go is depended on by protoc-gen-validate, install here and then overwrite later just in case
+# protoc-gen-go is depended on by protoc-gen-validate, install here and then overwrite later just in case to ensure that ultimately the right version is installed
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
 RUN GO111MODULE=on go get -d github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
 RUN make -C /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ build
