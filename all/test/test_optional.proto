@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package Messages;
+
+import "validate/validate.proto";
+
+option go_package = "all/;all";
+
+// Defining this message in a separate file because using optional 
+// caused gwy tests to fail due to an old version of gwy package
+// that was not upgraded yet.
+message MessageWithOptionalField {
+  optional int32 num1 = 1 [(validate.rules).int32.gt = 999];
+  optional int32 num2 = 2;
+}

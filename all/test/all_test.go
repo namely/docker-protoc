@@ -425,6 +425,16 @@ func (s *TestSuite) TestAllCases() {
 			},
 			extraArgs: []string{"--with-validator"},
 		},
+		"go with validator and optional field": {
+			lang:              "go",
+			protofileName:     "all/test/test_optional.proto",
+			expectedOutputDir: "gen/pb-go",
+			fileExpectations: []FileExpectation{
+				{fileName: "/all/test_optional.pb.go"},
+				{fileName: "/all/test_optional.pb.validate.go"},
+			},
+			extraArgs: []string{"--with-validator"},
+		},
 		"go with validator and source_relative": {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
