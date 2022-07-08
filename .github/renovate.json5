@@ -81,6 +81,16 @@
       datasourceTemplate: "github-releases",
       extractVersionTemplate: "^v(?<version>\\d+\\.\\d+\\.\\d+)"
     },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GRPC_GATEWAY_VERSION=\\$\\{GRPC_GATEWAY_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "github.com/grpc-ecosystem/grpc-gateway/v2",
+      datasourceTemplate: "go",
+    },
   ],
   packageRules: [
     // here you can define how dependency updates should be grouped in one or multiple PRs:
