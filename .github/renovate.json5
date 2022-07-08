@@ -116,6 +116,7 @@
     },
     {
       "matchDatasources": ["go"],
+      "excludePackageNames": ["github.com/grpc-ecosystem/grpc-gateway/v2"]
       matchUpdateTypes: [
         "minor",
         "patch"
