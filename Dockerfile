@@ -77,13 +77,13 @@ RUN set -e && \
 
 # install protoc-gen-grpc-gateway and protoc-gen-openapiv2
 RUN set -e && \
-    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v${grpc_gateway_version} && \
-    cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-grpc-gateway && \
+    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@${grpc_gateway_version} && \
+    cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@${grpc_gateway_version}/protoc-gen-grpc-gateway && \
     go install .
 
 RUN set -e && \
-    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v${grpc_gateway_version} && \
-    cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2 && \
+    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@${grpc_gateway_version} && \
+    cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@${grpc_gateway_version}/protoc-gen-openapiv2 && \
     go install .
 
 RUN go get -u github.com/gogo/protobuf/protoc-gen-gogo
@@ -176,7 +176,7 @@ COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
 
-COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@v${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
+COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
 
 COPY --from=build /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ /opt/include/
 
