@@ -14,11 +14,12 @@
     // If you need more, see https://docs.renovatebot.com/modules/manager/
     "regex", 
     "github-actions",
-    "gomod":{
-      "fileMatch": ["(^|/)go.mod.tmpl$"]
-    }, 
+    "gomod", 
     "npm"
   ],
+  "gomod":{
+    "fileMatch": ["(^|/)go.mod.tmpl$"]
+  }, 
   regexManagers: [
     {
       fileMatch: [
