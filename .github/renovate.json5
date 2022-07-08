@@ -117,12 +117,22 @@
     // The following means that any major or minor updates to the specified packages will be grouped in one PR,
     // and we would like to cut a new major release for our docker image, e.g 1.42_X => 1.46_0
     {
-      matchPackageNames: ["grpc/grpc", "grpc/grpc-java", "google.golang.org/grpc"],
+      matchPackageNames: ["grpc/grpc"],
       groupName: "gRPC Version",
       matchUpdateTypes: [
         "minor",
         "major"
       ],
+      groupSlug: "gRPC Major Upgrade"
+    },
+    {
+      matchPackageNames: ["grpc/grpc-java", "google.golang.org/grpc"],
+      groupName: "gRPC Version",
+      matchUpdateTypes: [
+        "minor",
+        "major"
+      ],
+      "stabilityDays": 10
       groupSlug: "gRPC Major Upgrade"
     },
     // specifically for grpc-go, a patch version upgrade should be grouped with other misc dependencies, which you can find below.
