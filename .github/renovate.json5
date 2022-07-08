@@ -91,6 +91,26 @@
       depNameTemplate: "github.com/grpc-ecosystem/grpc-gateway/v2",
       datasourceTemplate: "go",
     },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "NODE_GRPC_TOOLS_NODE_PROTOC_TS_VERSION=\\$\\{NODE_GRPC_TOOLS_NODE_PROTOC_TS_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "grpc_tools_node_protoc_ts",
+      datasourceTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "NODE_GRPC_TOOLS_VERSION=\\$\\{NODE_GRPC_TOOLS_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "grpc-tools",
+      datasourceTemplate: "npm",
+    }
   ],
   packageRules: [
     // here you can define how dependency updates should be grouped in one or multiple PRs:
@@ -125,7 +145,7 @@
       groupSlug: "minor-dependencies"
     },
     {
-      matchDatasources: ["go"],
+      matchDatasources: ["go", "npm"],
       excludePackageNames: ["github.com/grpc-ecosystem/grpc-gateway/v2"],
       matchUpdateTypes: [
         "minor",
