@@ -14,7 +14,9 @@
     // If you need more, see https://docs.renovatebot.com/modules/manager/
     "regex", 
     "github-actions",
-    "gomod",
+    "gomod":{
+      "fileMatch": ["(^|/)go.mod.tmpl$"]
+    }, 
     "npm"
   ],
   regexManagers: [
