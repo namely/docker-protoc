@@ -57,8 +57,8 @@
       matchStrings: [
         "GRPC_WEB_VERSION=\\$\\{GRPC_WEB_VERSION:-(?<currentValue>.*?)\\}\\n"
       ],
-      depNameTemplate: "grpc/grpc-web",
-      datasourceTemplate: "github-releases"
+      depNameTemplate: "grpc-web",
+      datasourceTemplate: "npm"
     },
     {
       fileMatch: [
@@ -132,7 +132,7 @@
         "minor",
         "major"
       ],
-      "stabilityDays": 10
+      "stabilityDays": 10,
       groupSlug: "gRPC Major Upgrade"
     },
     // specifically for grpc-go, a patch version upgrade should be grouped with other misc dependencies, which you can find below.
@@ -146,7 +146,7 @@
       groupSlug: "patch-dependencies"
     },
     {
-      matchPackageNames: ["grpc/grpc-web", "protoc-gen-grpc-web", "envoyproxy/protoc-gen-validate"],
+      matchPackageNames: ["grpc-web", "protoc-gen-grpc-web", "envoyproxy/protoc-gen-validate"],
       matchUpdateTypes: [
         "minor",
         "patch"
@@ -165,7 +165,7 @@
       groupSlug: "minor-dependencies"
     },
     {
-      matchPackageNames: ["grpc/grpc-web", "protoc-gen-grpc-web", "envoyproxy/protoc-gen-validate"],
+      matchPackageNames: ["grpc-web", "protoc-gen-grpc-web", "envoyproxy/protoc-gen-validate"],
       matchUpdateTypes: [
         "major"
       ],
