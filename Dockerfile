@@ -115,12 +115,12 @@ RUN go get -u github.com/mwitkow/go-proto-validators/@v${go_mwitkow_gpv_version}
 RUN go get -u github.com/mwitkow/go-proto-validators/protoc-gen-govalidators@v${go_mwitkow_gpv_version}
 
 # Add scala support
-RUN curl -fLO https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \
+RUN curl -fLO "https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_version}/protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip" \
     && unzip protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \
     && chmod +x /tmp/protoc-gen-scala
 
 # Add grpc-web support
-RUN curl -fsSL https://github.com/grpc/grpc-web/releases/download/${grpc_web_version}/protoc-gen-grpc-web-${grpc_web_version}-linux-x86_64 \
+RUN curl -fsSL "https://github.com/grpc/grpc-web/releases/download/${grpc_web_version}/protoc-gen-grpc-web-${grpc_web_version}-linux-x86_64" \
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
@@ -150,7 +150,7 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     gawk
 
 # Install latest Node version
-RUN curl -fsSL https://deb.nodesource.com/setup_${node_version}.x | bash -
+RUN curl -fsSL "https://deb.nodesource.com/setup_${node_version}.x" | bash -
 RUN apt-get install -y nodejs
 
 # Add TypeScript support
