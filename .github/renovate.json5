@@ -110,6 +110,16 @@
       ],
       depNameTemplate: "grpc-tools",
       datasourceTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GO111MODULE=on go get google\.golang\.org/grpc@(?<currentValue>.*?)\\n"
+      ],
+      depNameTemplate: "google.golang.org/grpc",
+      datasourceTemplate: "go",
     }
   ],
   packageRules: [
