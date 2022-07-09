@@ -116,7 +116,7 @@
         "variables.sh$"
       ],
       matchStrings: [
-        "GO111MODULE=on go get google\.golang\.org/grpc@(?<currentValue>.*?)\\n"
+        "\s*GO111MODULE=on go get google\.golang\.org\/grpc\@(?<currentValue>.*?)\\n"
       ],
       depNameTemplate: "google.golang.org/grpc",
       datasourceTemplate: "go",
