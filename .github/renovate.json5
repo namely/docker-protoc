@@ -166,7 +166,7 @@
     },
     {
       matchDatasources: ["go", "npm"],
-      excludePackageNames: ["github.com/grpc-ecosystem/grpc-gateway/v2"],
+      excludePackageNames: ["github.com/grpc-ecosystem/grpc-gateway/v2", "google.golang.org/grpc"],
       matchUpdateTypes: [
         "minor",
         "patch"
