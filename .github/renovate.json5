@@ -4,6 +4,9 @@
   baseBranches: [
     "master"
   ],
+  constraints: {
+    "go": "1.17"
+  },
   extends: [
     // A lot of default settings that you can extend can be found in the presets section: https://docs.renovatebot.com/presets-compatibility/
     "config:base"
