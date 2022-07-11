@@ -15,7 +15,7 @@ However, in cases such as this repo where the dependencies are managed in propri
 ## How is Renovate used in this repo?
 
 In this repo, we have a variety of dependencies pinned to specific versions, primarly to create reproducible, testable builds.\
-Most of these dependencies are installed in the built docker images and are referenced in [Dockerfile](../Dockerfile). However, their versions are set separatly in [variables.sh](../variables.sh), which means most PRs opened by `Renovate` will attempt to update this file.
+Most of these dependencies are installed in the built docker images and are referenced in [Dockerfile](../Dockerfile). However, their versions are set separately in [variables.sh](../variables.sh), which means most PRs opened by `Renovate` will attempt to update this file.
 Because it is a proprietary file, we leverage `Renovate`'s support of using Regular Expressions to find & replace dependencies versions.
 
 The different sources used to find dependencies include `npm`, `Go`, and `Github Releases`.
