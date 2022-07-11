@@ -16,9 +16,9 @@ However, in cases such as this repo where the dependencies are managed in propri
 
 In this repo, we have a variety of dependencies pinned to specific versions, primarly to create reproducible, testable builds.\
 Most of these dependencies are installed in the built docker images and are referenced in [Dockerfile](../Dockerfile). However, their versions are set separatly in [variables.sh](../variables.sh), which means most PRs opened by `Renovate` will attempt to update this file.
-Because it is a proprietry file, we leverage `Renovate`'s support of using Regular Expressions to find & replace dependencies versions.
+Because it is a proprietary file, we leverage `Renovate`'s support of using Regular Expressions to find & replace dependencies versions.
 
-The different sources used to find dependencies include npm, Go, and Github releases.
+The different sources used to find dependencies include `npm`, `Go`, and `Github Releases`.
 
 ### Dependencies PR grouping
 
@@ -30,9 +30,9 @@ In this repo, we have several groups configured according to specific dependenci
 
 *   All other minor/patch dependency updates - Usually as long as the tests pass for this PR we should be able to merge & release a new patch version in this repo.
 
-*   Go gRPC Gateway module - This dependency is singled out since we cannot update this dependency yet due to a breaking change. once we do update it, we can move this dependency to the same group as the other non gRPC dependencies.
+*   Go gRPC Gateway module - This dependency is singled out since we cannot update it yet due to a breaking change. once we do update it, we can move this dependency to the same group as the other non gRPC dependencies.
 
 ## How to keep maintaining Renovate in this repo?
 
 If and when adding a new dependency, we should pin its version in `variables.sh` (if applicable), configure it
-in Renovate and ensure it is grouped correctly.
+in `Renovate`'s configuration file and ensure it is grouped correctly.
