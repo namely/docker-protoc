@@ -30,7 +30,7 @@ In this repo, we have several groups configured according to specific dependenci
 
 *   All other minor/patch dependency updates - Usually as long as the tests pass for this PR we should be able to merge & release a new patch version in this repo.
 
-*   Go gRPC Gateway module - This dependency is singled out since we cannot update it yet due to a breaking change. once we do update it, we can move this dependency to the same group as the other non gRPC dependencies.
+*   Go gRPC Gateway module - This dependency is singled out since we cannot update it yet due to a breaking change. Once we do update it, we can move this dependency to the same group as the other non gRPC dependencies.
 
 ## How to keep maintaining Renovate in this repo?
 
