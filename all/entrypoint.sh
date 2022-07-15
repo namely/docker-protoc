@@ -39,6 +39,7 @@ printUsage() {
     echo " --js-out                       This option overrides the 'js_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
     echo " --grpc-out                     This option allows overriding the left-half of the 'grpc_out=' argument (before the colon) with grpc-node and grpc-web code generation. Options are: generate_package_definition, grpc_js or grpc(depricated from April 2021). Defaults to grpc_js."
     echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation.  Defaults to 'import_style=typescript'."
+    echo " --ts_opt                       The options to pass to protoc to customize the typescript code generation. See https://github.com/stephenh/ts-proto#supported-options. --ts_opt useOptionals=messages will evaluate to --ts_proto_opt=useOptionals=messages"
 }
 
 GEN_GATEWAY=false
@@ -50,7 +51,7 @@ GEN_RBI=false
 GEN_TYPESCRIPT=false
 LINT=false
 LINT_CHECKS=""
-SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "web" "cpp" "descriptor_set" "scala")
+SUPPORTED_LANGUAGES=("go" "ruby" "csharp" "java" "python" "objc" "gogo" "php" "node" "typescript" "web" "cpp" "descriptor_set" "scala")
 EXTRA_INCLUDES=""
 OUT_DIR=""
 GO_SOURCE_RELATIVE=""
@@ -69,6 +70,7 @@ GENERATE_UNBOUND_METHODS=false
 JS_OUT="import_style=commonjs"
 WEB_OUT="import_style=typescript"
 GRPC_OUT="grpc_js"
+TYPESCRIPT_OPT=""
 while test $# -gt 0; do
     case "$1" in
         -h|--help)
@@ -141,11 +143,11 @@ while test $# -gt 0; do
             LINT=true
             if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
                 LINT_CHECKS=$2
-		        shift
+            shift
             fi
             shift
             ;;
-	--validator-source-relative)
+        --validator-source-relative)
             VALIDATOR_SOURCE_RELATIVE=",paths=source_relative"
             shift
             ;;
@@ -153,7 +155,7 @@ while test $# -gt 0; do
             GO_SOURCE_RELATIVE="paths=source_relative,"
             shift
             ;;
-        --go-module-prefix) 
+        --go-module-prefix)
             shift
             GO_MODULE_PREFIX="module=$1,"
             shift
@@ -161,7 +163,7 @@ while test $# -gt 0; do
         --go-package-map)
             if [ "$#" -gt 1 ] && [[ $2 != -* ]]; then
                 GO_PACKAGE_MAP=$2,
-		        shift
+            shift
             fi
             shift
             ;;
@@ -228,6 +230,10 @@ while test $# -gt 0; do
             GRPC_OUT=$1
             shift
             ;;
+        --ts_opt)
+            shift
+            TYPESCRIPT_OPT=$1
+            shift
         *)
             break
             ;;
@@ -375,6 +381,13 @@ plugins=grpc+embedded\
             GEN_STRING="$GEN_STRING --csharp_opt=$CSHARP_OPT"
         fi
         ;;
+    "typescript")
+        # add plugin
+        GEN_STRING="--plugin=`which protoc-gen-ts_proto`"
+        GEN_STRING="$GEN_STRING --ts_proto_out=$OUT_DIR"
+        if [[ ! -z $TYPESCRIPT_OPT ]]; then
+            GEN_STRING="$GEN_STRING --ts_proto_opt=$TYPESCRIPT_OPT"
+        fi
     *)
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
