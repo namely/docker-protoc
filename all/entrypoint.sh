@@ -234,6 +234,7 @@ while test $# -gt 0; do
             shift
             TYPESCRIPT_OPT=$1
             shift
+            ;;
         *)
             break
             ;;
@@ -388,6 +389,7 @@ plugins=grpc+embedded\
         if [[ ! -z $TYPESCRIPT_OPT ]]; then
             GEN_STRING="$GEN_STRING --ts_proto_opt=$TYPESCRIPT_OPT"
         fi
+        ;;
     *)
         GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
         ;;
