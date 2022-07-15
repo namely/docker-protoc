@@ -346,7 +346,7 @@ plugins=grpc+embedded\
 :$OUT_DIR"
         ;;
     "java")
-        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_java_plugin`"
+        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=$(which grpc_java_plugin)"
         ;;
     "scala")
         SCALA_OUT=$OUT_DIR
@@ -355,16 +355,16 @@ plugins=grpc+embedded\
             SCALA_OUT="$SCALA_OPT:$OUT_DIR"
         fi
 
-        GEN_STRING="--scala_out=$SCALA_OUT --plugin=`which protoc-gen-scala`"
+        GEN_STRING="--scala_out=$SCALA_OUT --plugin=$(which protoc-gen-scala)"
         ;;
     "node")
         # add plugin
-        GEN_STRING="--plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin`"
+        GEN_STRING="--plugin=protoc-gen-grpc=$(which grpc_tools_node_protoc_plugin)"
         GEN_STRING="$GEN_STRING --js_out=$JS_OUT,binary:$OUT_DIR --grpc_out=$GRPC_OUT:$OUT_DIR"
         ;;
     "web")
         # add plugins
-        GEN_STRING=" --plugin=protoc-gen-grpc-web=`which protoc-gen-grpc-web`"
+        GEN_STRING=" --plugin=protoc-gen-grpc-web=$(which protoc-gen-grpc-web)"
         GEN_STRING="$GEN_STRING --js_out=$JS_OUT,binary:$OUT_DIR --grpc-web_out=$WEB_OUT,mode=grpcwebtext:$OUT_DIR"
         ;;
     "descriptor_set")
@@ -377,21 +377,21 @@ plugins=grpc+embedded\
         fi
         ;;
     "csharp")
-        GEN_STRING="--grpc_out=$OUT_DIR --csharp_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_csharp_plugin`"
+        GEN_STRING="--grpc_out=$OUT_DIR --csharp_out=$OUT_DIR --plugin=protoc-gen-grpc=$(which grpc_csharp_plugin)"
         if [[ ! -z $CSHARP_OPT ]]; then
             GEN_STRING="$GEN_STRING --csharp_opt=$CSHARP_OPT"
         fi
         ;;
     "typescript")
         # add plugin
-        GEN_STRING="--plugin=`which protoc-gen-ts_proto`"
+        GEN_STRING="--plugin=$(which protoc-gen-ts_proto)"
         GEN_STRING="$GEN_STRING --ts_proto_out=$OUT_DIR"
         if [[ ! -z $TYPESCRIPT_OPT ]]; then
             GEN_STRING="$GEN_STRING --ts_proto_opt=$TYPESCRIPT_OPT"
         fi
         ;;
     *)
-        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=`which grpc_${PLUGIN_LANG}_plugin`"
+        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=$(which grpc_${PLUGIN_LANG}_plugin)"
         ;;
 esac
 
@@ -425,7 +425,7 @@ if [[ $GEN_RBI == true ]]; then
 fi
 
 if [[ $GEN_TYPESCRIPT == true ]]; then
-    GEN_STRING="$GEN_STRING --plugin=protoc-gen-ts=`which protoc-gen-ts` --ts_out=$GRPC_OUT:$OUT_DIR"
+    GEN_STRING="$GEN_STRING --plugin=protoc-gen-ts=$(which protoc-gen-ts) --ts_out=$GRPC_OUT:$OUT_DIR"
 fi
 
 LINT_STRING=''
