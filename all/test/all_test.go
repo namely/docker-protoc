@@ -580,7 +580,11 @@ func (s *TestSuite) TestAllCases() {
 			fileExpectations: []FileExpectation{
 				{fileName: "Messages/MessageGrpc.ts"},
 				{fileName: "Messages/test_grpc.ts"},
-				{fileName: "Messages/test.ts"},
+				{fileName: "Messages/test.ts", assert: func(filePath, expectedValue string) {
+					fileText := s.readFile(filePath)
+					s.Assert().True(strings.Contains(fileText, expectedValue), "does not contain \"%s\"", expectedValue)
+					// useOptionals=messages changes `query: string | undefined` to `query?: string`
+				}, expectedValue: "query?: string"},
 			},
 			extraArgs: []string{"--ts_opt", "useOptionals=messages"},
 		},
