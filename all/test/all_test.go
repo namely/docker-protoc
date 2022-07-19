@@ -557,9 +557,7 @@ func (s *TestSuite) TestAllCases() {
 			protofileName: "all/test/test.proto",
 			expectedOutputDir: "gen/pb-typescript",
 			fileExpectations: []FileExpectation{
-				{fileName: "Messages/MessageGrpc.ts"},
-				{fileName: "Messages/test_grpc.ts"},
-				{fileName: "Messages/test.ts"},
+				{fileName: "all/test/test.ts"},
 			},
 		},
 		"typescript with alternative output dir": {
@@ -567,9 +565,11 @@ func (s *TestSuite) TestAllCases() {
 			protofileName: "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
 			fileExpectations: []FileExpectation{
-				{fileName: "Messages/MessageGrpc.ts"},
-				{fileName: "Messages/test_grpc.ts"},
-				{fileName: "Messages/test.ts"},
+				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
+					fileText := s.readFile(filePath)
+					s.Assert().True(strings.Contains(fileText, expectedValue), "does not contain \"%s\"", expectedValue)
+					// without useOptionals=messages uses `string[] | undefined` syntax. by default.
+				}, expectedValue: "updateMask: string[] | undefined;"},
 			},
 			extraArgs: []string{"-o", "gen/foo/bar"},
 		},
@@ -578,13 +578,11 @@ func (s *TestSuite) TestAllCases() {
 			protofileName: "all/test/test.proto",
 			expectedOutputDir: "gen/pb-typescript",
 			fileExpectations: []FileExpectation{
-				{fileName: "Messages/MessageGrpc.ts"},
-				{fileName: "Messages/test_grpc.ts"},
-				{fileName: "Messages/test.ts", assert: func(filePath, expectedValue string) {
+				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
 					fileText := s.readFile(filePath)
 					s.Assert().True(strings.Contains(fileText, expectedValue), "does not contain \"%s\"", expectedValue)
-					// useOptionals=messages changes `query: string | undefined` to `query?: string`
-				}, expectedValue: "query?: string"},
+					// useOptionals=messages changes `updateMask: string[] | undefined` to `updateMask?: string[]`
+				}, expectedValue: "updateMask?: string[];"},
 			},
 			extraArgs: []string{"--ts_opt", "useOptionals=messages"},
 		},
