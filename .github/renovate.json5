@@ -4,17 +4,25 @@
   baseBranches: [
     "master"
   ],
+  constraints: {
+    "go": "1.17"
+  },
   extends: [
     // A lot of default settings that you can extend can be found in the presets section: https://docs.renovatebot.com/presets-compatibility/
-    ":ignoreModulesAndTests"
+    "config:base"
   ],
+  ignorePaths: [],
   enabledManagers: [
     // Since we only update proprietry files (e.g variables.sh)we should use 'regex' here (see the matchManagers in the packageRules section below)
     // If you need more, see https://docs.renovatebot.com/modules/manager/
     "regex", 
     "github-actions",
-    "gomod"
+    "gomod", 
+    "npm"
   ],
+  "gomod":{
+    "fileMatch": ["(^|/)go.mod.tmpl$"]
+  }, 
   regexManagers: [
     {
       fileMatch: [
@@ -47,25 +55,22 @@
     },
     {
       fileMatch: [
-        "gwy/templates/go.mod.tmpl$"
+        "variables.sh$"
       ],
       matchStrings: [
-        "google.golang.org/grpc\\s+(?<currentValue>.*?)\\n+"
+        "GRPC_WEB_VERSION=\\$\\{GRPC_WEB_VERSION:-(?<currentValue>.*?)\\}\\n"
       ],
-      depNameTemplate: "grpc/grpc-go",
-      datasourceTemplate: "github-releases",
-      versioningTemplate: "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      depNameTemplate: "grpc-web",
+      datasourceTemplate: "npm"
     },
     {
       fileMatch: [
         "variables.sh$"
       ],
       matchStrings: [
-        // notice we update the same version in two locations perhaps we don't need two separate variables?)
-        "GRPC_WEB_VERSION=\\$\\{GRPC_WEB_VERSION:-(?<currentValue>.*?)\\}\\n",
         "NODE_PROTOC_GEN_GRPC_WEB_VERSION=\\$\\{NODE_PROTOC_GEN_GRPC_WEB_VERSION:-(?<currentValue>.*?)\\}\\n"
       ],
-      depNameTemplate: "grpc-web",
+      depNameTemplate: "protoc-gen-grpc-web",
       datasourceTemplate: "npm"
     },
     {
@@ -79,13 +84,53 @@
       datasourceTemplate: "github-releases",
       extractVersionTemplate: "^v(?<version>\\d+\\.\\d+\\.\\d+)"
     },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GRPC_GATEWAY_VERSION=\\$\\{GRPC_GATEWAY_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "github.com/grpc-ecosystem/grpc-gateway/v2",
+      datasourceTemplate: "go",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "NODE_GRPC_TOOLS_NODE_PROTOC_TS_VERSION=\\$\\{NODE_GRPC_TOOLS_NODE_PROTOC_TS_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "grpc_tools_node_protoc_ts",
+      datasourceTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "NODE_GRPC_TOOLS_VERSION=\\$\\{NODE_GRPC_TOOLS_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "grpc-tools",
+      datasourceTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "^Dockerfile$"
+      ],
+      matchStrings: [
+        "GO111MODULE=on go get google\.golang\.org\/grpc@(?<currentValue>.*?)\\s*\\n"
+      ],
+      depNameTemplate: "google.golang.org/grpc",
+      datasourceTemplate: "go",
+    }
   ],
   packageRules: [
     // here you can define how dependency updates should be grouped in one or multiple PRs:
     // The following means that any major or minor updates to the specified packages will be grouped in one PR,
     // and we would like to cut a new major release for our docker image, e.g 1.42_X => 1.46_0
     {
-      matchPackageNames: ["grpc/grpc", "grpc/grpc-java", "grpc/grpc-go"],
+      matchPackageNames: ["grpc/grpc"],
       groupName: "gRPC Version",
       matchUpdateTypes: [
         "minor",
@@ -93,19 +138,28 @@
       ],
       groupSlug: "gRPC Major Upgrade"
     },
+    {
+      matchPackageNames: ["grpc/grpc-java", "google.golang.org/grpc"],
+      groupName: "gRPC Version",
+      matchUpdateTypes: [
+        "minor",
+        "major"
+      ],
+      "stabilityDays": 10,
+      groupSlug: "gRPC Major Upgrade"
+    },
     // specifically for grpc-go, a patch version upgrade should be grouped with other misc dependencies, which you can find below.
     // This would most likely mean we want to bump the docker image version without bumping the gRPC version, e.g 1.42_0 => 1.42_1
     {
-      matchPackageNames: ["grpc/grpc-go"],
+      matchPackageNames: ["google.golang.org/grpc"],
       matchUpdateTypes: [
         "patch"
       ],
       groupName: "Misc Non-major dependencies",
       groupSlug: "patch-dependencies"
     },
-    // 
     {
-      matchPackageNames: ["grpc-web", "envoyproxy/protoc-gen-validate"],
+      matchPackageNames: ["grpc-web", "protoc-gen-grpc-web", "envoyproxy/protoc-gen-validate"],
       matchUpdateTypes: [
         "minor",
         "patch"
@@ -114,7 +168,17 @@
       groupSlug: "minor-dependencies"
     },
     {
-      matchPackageNames: ["grpc-web", "envoyproxy/protoc-gen-validate"],
+      matchDatasources: ["go", "npm"],
+      excludePackageNames: ["github.com/grpc-ecosystem/grpc-gateway/v2", "google.golang.org/grpc"],
+      matchUpdateTypes: [
+        "minor",
+        "patch"
+      ],
+      groupName: "Misc Non-major dependencies",
+      groupSlug: "minor-dependencies"
+    },
+    {
+      matchPackageNames: ["grpc-web", "protoc-gen-grpc-web", "envoyproxy/protoc-gen-validate"],
       matchUpdateTypes: [
         "major"
       ],
