@@ -298,7 +298,7 @@ CONTAINER=namely/gen-grpc-gateway:VVV make test-gwy
 ### Auto Dependency Managenement
 
 Dependencies are managed in this repo via [Renovate](https://www.mend.io/free-developer-tools/renovate/).
-Please read more [here](./.github/README.md).
+Please read more [here](./.github/renovate.md).
 
 ### Release
 
