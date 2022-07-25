@@ -123,6 +123,16 @@
       ],
       depNameTemplate: "google.golang.org/grpc",
       datasourceTemplate: "go",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "TS_PROTO_VERSION=\\$\\{TS_PROTO_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "ts-proto",
+      datasourceTemplate: "npm",
     }
   ],
   packageRules: [

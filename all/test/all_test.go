@@ -552,6 +552,40 @@ func (s *TestSuite) TestAllCases() {
 			},
 			extraArgs: []string{"--with-validator"},
 		},
+		"typescript": {
+			lang: "typescript",
+			protofileName: "all/test/test.proto",
+			expectedOutputDir: "gen/pb-typescript",
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test/test.ts"},
+			},
+		},
+		"typescript with alternative output dir": {
+			lang: "typescript",
+			protofileName: "all/test/test.proto",
+			expectedOutputDir: "gen/foo/bar",
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
+					fileText := s.readFile(filePath)
+					s.Assert().True(strings.Contains(fileText, expectedValue), "does not contain \"%s\"", expectedValue)
+					// without useOptionals=messages uses `string[] | undefined` syntax. by default.
+				}, expectedValue: "updateMask: string[] | undefined;"},
+			},
+			extraArgs: []string{"-o", "gen/foo/bar"},
+		},
+		"typescript with arguments": {
+			lang: "typescript",
+			protofileName: "all/test/test.proto",
+			expectedOutputDir: "gen/pb-typescript",
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
+					fileText := s.readFile(filePath)
+					s.Assert().True(strings.Contains(fileText, expectedValue), "does not contain \"%s\"", expectedValue)
+					// useOptionals=messages changes `updateMask: string[] | undefined` to `updateMask?: string[]`
+				}, expectedValue: "updateMask?: string[];"},
+			},
+			extraArgs: []string{"--ts_opt", "useOptionals=messages"},
+		},
 	}
 	container := os.Getenv("CONTAINER")
 	s.Require().NotEmpty(container, "CONTAINER env var must be set")

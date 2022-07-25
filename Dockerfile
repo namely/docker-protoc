@@ -9,6 +9,7 @@ ARG node_version
 ARG node_grpc_tools_node_protoc_ts_version
 ARG node_grpc_tools_version
 ARG node_protoc_gen_grpc_web_version
+ARG ts_proto_version
 ARG go_envoyproxy_pgv_version
 ARG go_mwitkow_gpv_version
 
@@ -133,6 +134,7 @@ ARG node_version
 ARG node_grpc_tools_node_protoc_ts_version
 ARG node_grpc_tools_version
 ARG node_protoc_gen_grpc_web_version
+ARG ts_proto_version
 
 ARG go_envoyproxy_pgv_version
 ARG go_mwitkow_gpv_version
@@ -153,9 +155,12 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -fsSL "https://deb.nodesource.com/setup_${node_version}.x" | bash -
 RUN apt-get install -y nodejs
 
-# Add TypeScript support
+# Add Node TypeScript support
 RUN npm config set unsafe-perm true
 RUN npm i -g grpc_tools_node_protoc_ts@$node_grpc_tools_node_protoc_ts_version grpc-tools@$node_grpc_tools_version protoc-gen-grpc-web@$node_protoc_gen_grpc_web_version
+
+# Add TypeScript support
+RUN npm i -g ts-proto@$ts_proto_version
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
