@@ -616,7 +616,7 @@ func (s *TestSuite) TestAllCases() {
 	src := path.Join(wd, "all")
 	for name, testCase := range testCases {
 		s.Run(name, func() {
-			// s.T().Parallel()
+			s.T().Parallel()
 			dir, err := ioutil.TempDir(wd, testCase.lang)
 			defer os.RemoveAll(dir)
 			s.Require().NoError(err)
