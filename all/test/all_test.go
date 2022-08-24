@@ -201,6 +201,16 @@ func (s *TestSuite) TestAllCases() {
 			},
 			extraArgs: []string{"-o", "gen/foo/bar"},
 		},
+		"gogo with validator": {
+			lang:              "gogo",
+			protofileName:     "all/test/test.proto",
+			expectedOutputDir: "gen/pb-gogo",
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test.pb.go"},
+				{fileName: "all/test.pb.validate.go"},
+			},
+			extraArgs: []string{"--with-validator"},
+		},
 		"php": {
 			lang:              "php",
 			protofileName:     "all/test/test.proto",
