@@ -74,17 +74,16 @@ RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
 
 # Go get go-related bins
 WORKDIR /tmp
-RUN set -e && \
-    GO111MODULE=on go get google.golang.org/grpc@v1.47.0
+RUN go get google.golang.org/grpc@v1.47.0
 
 # install protoc-gen-grpc-gateway and protoc-gen-openapiv2
 RUN set -e && \
-    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@${grpc_gateway_version} && \
+    go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@${grpc_gateway_version} && \
     cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@${grpc_gateway_version}/protoc-gen-grpc-gateway && \
     go install .
 
 RUN set -e && \
-    GO111MODULE=on go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@${grpc_gateway_version} && \
+    go get -u github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@${grpc_gateway_version} && \
     cd /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@${grpc_gateway_version}/protoc-gen-openapiv2 && \
     go install .
 
@@ -93,14 +92,13 @@ RUN go get -u github.com/gogo/protobuf/protoc-gen-gogofast
 
 RUN go get -u github.com/ckaznocha/protoc-gen-lint
 
-RUN set -e && \
-    GO111MODULE=on go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+RUN go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
 RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro
 
 # protoc-gen-go is depended on by protoc-gen-validate, install here and then overwrite later just in case to ensure that ultimately the right version is installed
 RUN go get -u github.com/golang/protobuf/protoc-gen-go
-RUN GO111MODULE=on go get -d github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
+RUN go get -d github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
 RUN make -C /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ build
 
 # Add Ruby Sorbet types support (rbi)
