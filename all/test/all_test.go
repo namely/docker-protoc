@@ -326,6 +326,21 @@ func (s *TestSuite) TestAllCases() {
 			},
 			extraArgs: []string{"--with-gateway"},
 		},
+		"go with gateway and source_relative": {
+			lang:              "go",
+			protofileName:     "all/test/test.proto",
+			expectedOutputDir: "gen/pb-go",
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test/test.pb.go"},
+				{fileName: "/all/test/test.pb.gw.go", assert: func(filePath, expectedValue string) {
+					fileText := s.readFile(filePath)
+					s.Assert().False(strings.Contains(fileText, expectedValue), "contains \"%s\"", expectedValue)
+				}, expectedValue: "UnboundUnary",
+				},
+				{fileName: "/all/test/test.swagger.json"},
+			},
+			extraArgs: []string{"--with-gateway", "--go-source-relative"},
+		},
 		"go with gateway and json": {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
@@ -553,16 +568,16 @@ func (s *TestSuite) TestAllCases() {
 			extraArgs: []string{"--with-validator"},
 		},
 		"typescript": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-typescript",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts"},
 			},
 		},
 		"typescript with alternative output dir": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
@@ -574,8 +589,8 @@ func (s *TestSuite) TestAllCases() {
 			extraArgs: []string{"-o", "gen/foo/bar"},
 		},
 		"typescript with arguments": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-typescript",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
@@ -601,7 +616,7 @@ func (s *TestSuite) TestAllCases() {
 	src := path.Join(wd, "all")
 	for name, testCase := range testCases {
 		s.Run(name, func() {
-			s.T().Parallel()
+			// s.T().Parallel()
 			dir, err := ioutil.TempDir(wd, testCase.lang)
 			defer os.RemoveAll(dir)
 			s.Require().NoError(err)
