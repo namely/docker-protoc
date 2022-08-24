@@ -12,6 +12,8 @@ ARG node_protoc_gen_grpc_web_version
 ARG ts_proto_version
 ARG go_envoyproxy_pgv_version
 ARG go_mwitkow_gpv_version
+ARG go_protoc_gen_go_version
+ARG go_protoc_gen_go_grpc_version
 
 FROM golang:$go_version-$debian AS build
 
@@ -24,6 +26,9 @@ ARG scala_pb_version
 ARG go_envoyproxy_pgv_version
 ARG go_mwitkow_gpv_version
 ARG uber_prototool_version
+ARG go_protoc_gen_go_version
+ARG go_protoc_gen_go_grpc_version
+
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -42,7 +47,6 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /tmp
 RUN git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc && \
     git clone --depth 1 --shallow-submodules -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git && \
-    git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc-go.git && \
     git clone --depth 1 https://github.com/googleapis/googleapis && \
     git clone --depth 1 https://github.com/googleapis/api-common-protos
 
@@ -68,14 +72,8 @@ RUN curl -fsSL "https://github.com/uber/prototool/releases/download/v${uber_prot
     -o /usr/local/bin/prototool && \
     chmod +x /usr/local/bin/prototool
 
-# Workaround for the transition to protoc-gen-go-grpc
-# https://grpc.io/docs/languages/go/quickstart/#regenerate-grpc-code
-RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
-
 # Go get go-related bins
-WORKDIR /tmp
-RUN set -e && \
-    GO111MODULE=on go get google.golang.org/grpc@v1.47.0
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@${go_protoc_gen_go_grpc_version}
 
 # install protoc-gen-grpc-gateway and protoc-gen-openapiv2
 RUN set -e && \
@@ -98,10 +96,7 @@ RUN set -e && \
 
 RUN go get -u github.com/micro/micro/v3/cmd/protoc-gen-micro
 
-# protoc-gen-go is depended on by protoc-gen-validate, install here and then overwrite later just in case to ensure that ultimately the right version is installed
-RUN go get -u github.com/golang/protobuf/protoc-gen-go
-RUN GO111MODULE=on go get -d github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
-RUN make -C /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ build
+RUN go install github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}
 
 # Add Ruby Sorbet types support (rbi)
 RUN go get -u github.com/coinbase/protoc-gen-rbi
@@ -109,7 +104,7 @@ RUN go get -u github.com/coinbase/protoc-gen-rbi
 RUN go get github.com/gomatic/renderizer/v2/cmd/renderizer
 
 # Origin protoc-gen-go should be installed last, for not been overwritten by any other binaries(see #210)
-RUN go get -u github.com/golang/protobuf/protoc-gen-go
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@${go_protoc_gen_go_version}
 
 # Need to get these too:
 RUN go get -u github.com/mwitkow/go-proto-validators/@v${go_mwitkow_gpv_version}

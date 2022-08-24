@@ -51,14 +51,23 @@ func (s *TestSuite) TestAllCases() {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-go",
-			fileExpectations:  []FileExpectation{{fileName: "all/test.pb.go"}},
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test.pb.go"},
+				{fileName: "/all/test_grpc.pb.go", assert: func(filePath, expectedValue string) {
+					fileText := s.readFile(filePath)
+					s.Assert().False(strings.Contains(fileText, expectedValue), "contains \"%s\"", expectedValue)
+				}, expectedValue: "func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}"},
+			},
 		},
 		"go with alternative output dir": {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
-			fileExpectations:  []FileExpectation{{fileName: "all/test.pb.go"}},
-			extraArgs:         []string{"-o", "gen/foo/bar"},
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test.pb.go"},
+				{fileName: "all/test_grpc.pb.go"},
+			},
+			extraArgs: []string{"-o", "gen/foo/bar"},
 		},
 		"ruby": {
 			lang:              "ruby",
@@ -297,6 +306,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
+				{fileName: "all/test_grpc.pb.go"},
 				{fileName: "/doc/index.html"},
 			},
 			extraArgs: []string{"--with-docs"},
@@ -307,6 +317,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
+				{fileName: "all/test_grpc.pb.go"},
 				{fileName: "/doc/index.md"},
 			},
 			extraArgs: []string{"--with-docs", "markdown,index.md"},
@@ -317,6 +328,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
+				{fileName: "all/test_grpc.pb.go"},
 				{fileName: "/all/test.pb.gw.go", assert: func(filePath, expectedValue string) {
 					fileText := s.readFile(filePath)
 					s.Assert().False(strings.Contains(fileText, expectedValue), "contains \"%s\"", expectedValue)
@@ -332,6 +344,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
+				{fileName: "all/test_grpc.pb.go"},
 				{fileName: "/all/test.pb.gw.go"},
 				{fileName: "/all/test/test.swagger.json", assert: func(filePath, expectedValue string) {
 					fileText := s.readFile(filePath)
@@ -361,6 +374,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
+				{fileName: "all/test_grpc.pb.go"},
 				{fileName: "/all/test.pb.gw.go"},
 				{fileName: "/all/test/test.swagger.json", assert: func(filePath, expectedValue string) {
 					fileText := s.readFile(filePath)
@@ -375,6 +389,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test.pb.go"},
+				{fileName: "all/test_grpc.pb.go"},
 				{fileName: "/all/test.pb.gw.go", assert: func(filePath, expectedValue string) {
 					fileText := s.readFile(filePath)
 					s.Assert().True(strings.Contains(fileText, expectedValue), "does not contain \"%s\"", expectedValue)
@@ -389,6 +404,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "/all/test/test.pb.go"},
+				{fileName: "/all/test/test_grpc.pb.go"},
 			},
 			extraArgs: []string{"--go-source-relative"},
 		},
@@ -398,6 +414,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "/test.pb.go"},
+				{fileName: "/test_grpc.pb.go"},
 			},
 			extraArgs: []string{"--go-module-prefix", "all"},
 		},
@@ -421,6 +438,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "/all/test.pb.go"},
+				{fileName: "/all/test_grpc.pb.go"},
 				{fileName: "/all/test.pb.validate.go"},
 			},
 			extraArgs: []string{"--with-validator"},
@@ -441,6 +459,7 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "/all/test.pb.go"},
+				{fileName: "/all/test_grpc.pb.go"},
 				{fileName: "/all/test/test.pb.validate.go"},
 			},
 			extraArgs: []string{"--with-validator", "--validator-source-relative"},
@@ -451,9 +470,23 @@ func (s *TestSuite) TestAllCases() {
 			expectedOutputDir: "gen/pb-go",
 			fileExpectations: []FileExpectation{
 				{fileName: "/all/test.pb.go"},
+				{fileName: "/all/test_grpc.pb.go"},
 				{fileName: "/all/test.validator.pb.go"},
 			},
 			extraArgs: []string{"--go-proto-validator"},
+		},
+		"go with require-unimplemented-servers": {
+			lang:              "go",
+			protofileName:     "all/test/test.proto",
+			expectedOutputDir: "gen/pb-go",
+			fileExpectations: []FileExpectation{
+				{fileName: "/all/test.pb.go"},
+				{fileName: "/all/test_grpc.pb.go", assert: func(filePath, expectedValue string) {
+					fileText := s.readFile(filePath)
+					s.Assert().True(strings.Contains(fileText, expectedValue), "does not contain \"%s\"", expectedValue)
+				}, expectedValue: "func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}"},
+			},
+			extraArgs: []string{"--go-grpc-require-unimplemented-servers"},
 		},
 		"go micro": {
 			lang:              "go",
@@ -553,16 +586,16 @@ func (s *TestSuite) TestAllCases() {
 			extraArgs: []string{"--with-validator"},
 		},
 		"typescript": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-typescript",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts"},
 			},
 		},
 		"typescript with alternative output dir": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
@@ -574,8 +607,8 @@ func (s *TestSuite) TestAllCases() {
 			extraArgs: []string{"-o", "gen/foo/bar"},
 		},
 		"typescript with arguments": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-typescript",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
