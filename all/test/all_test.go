@@ -553,16 +553,16 @@ func (s *TestSuite) TestAllCases() {
 			extraArgs: []string{"--with-validator"},
 		},
 		"typescript": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-typescript",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts"},
 			},
 		},
 		"typescript with alternative output dir": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/foo/bar",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
@@ -574,8 +574,8 @@ func (s *TestSuite) TestAllCases() {
 			extraArgs: []string{"-o", "gen/foo/bar"},
 		},
 		"typescript with arguments": {
-			lang: "typescript",
-			protofileName: "all/test/test.proto",
+			lang:              "typescript",
+			protofileName:     "all/test/test.proto",
 			expectedOutputDir: "gen/pb-typescript",
 			fileExpectations: []FileExpectation{
 				{fileName: "all/test/test.ts", assert: func(filePath, expectedValue string) {
