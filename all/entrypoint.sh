@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
 printUsage() {
     echo "gen-proto generates grpc and protobuf @ Namely"
@@ -415,7 +416,7 @@ if [[ $GEN_VALIDATOR == true && $GEN_LANG == "go" ]]; then
 fi
 
 if [[ $GEN_VALIDATOR == true && $GEN_LANG == "gogo" ]]; then
-    GEN_STRING="$GEN_STRING --validate_out=lang=gogo${VALIDATOR_SOURCE_RELATIVE}:$OUT_DIR"
+    GEN_STRING="$GEN_STRING --validate_out=lang=go${VALIDATOR_SOURCE_RELATIVE}:$OUT_DIR"
 fi
 
 if [[ $GEN_VALIDATOR == true && $GEN_LANG == "java" ]]; then
@@ -490,7 +491,7 @@ if [ $GEN_GATEWAY = true ]; then
     mkdir -p ${GATEWAY_DIR}
 
     protoc $PROTO_INCLUDE \
-        --grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]} \
+        --grpc-gateway_out=${GO_SOURCE_RELATIVE}logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]} \
         --grpc-gateway_opt generate_unbound_methods=$GENERATE_UNBOUND_METHODS
 
     if [[ $OPENAPI_JSON == true ]]; then
