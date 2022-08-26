@@ -338,6 +338,21 @@ func (s *TestSuite) TestAllCases() {
 			},
 			extraArgs: []string{"--with-gateway"},
 		},
+		"go with gateway and source_relative": {
+			lang:              "go",
+			protofileName:     "all/test/test.proto",
+			expectedOutputDir: "gen/pb-go",
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test/test.pb.go"},
+				{fileName: "/all/test/test.pb.gw.go", assert: func(filePath, expectedValue string) {
+					fileText := s.readFile(filePath)
+					s.Assert().False(strings.Contains(fileText, expectedValue), "contains \"%s\"", expectedValue)
+				}, expectedValue: "UnboundUnary",
+				},
+				{fileName: "/all/test/test.swagger.json"},
+			},
+			extraArgs: []string{"--with-gateway", "--go-source-relative"},
+		},
 		"go with gateway and json": {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
