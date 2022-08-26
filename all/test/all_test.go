@@ -22,6 +22,15 @@ type FileExpectation struct {
 	expectedValue string
 }
 
+type TestCase struct {
+	lang              string
+	protofileName     string
+	expectedOutputDir string
+	fileExpectations  []FileExpectation
+	expectedExitCode  int
+	extraArgs         []string
+}
+
 func (f *FileExpectation) Assert(filePath string) {
 	if f.assert != nil {
 		f.assert(filePath, f.expectedValue)
@@ -39,14 +48,7 @@ func TestTestSuite(t *testing.T) {
 func (s *TestSuite) SetupTest() {}
 
 func (s *TestSuite) TestAllCases() {
-	testCases := map[string]struct {
-		lang              string
-		protofileName     string
-		expectedOutputDir string
-		fileExpectations  []FileExpectation
-		expectedExitCode  int
-		extraArgs         []string
-	}{
+	testCases := map[string]*TestCase{
 		"go": {
 			lang:              "go",
 			protofileName:     "all/test/test.proto",
@@ -200,6 +202,16 @@ func (s *TestSuite) TestAllCases() {
 				{fileName: "all/test.pb.go"},
 			},
 			extraArgs: []string{"-o", "gen/foo/bar"},
+		},
+		"gogo with validator": {
+			lang:              "gogo",
+			protofileName:     "all/test/test.proto",
+			expectedOutputDir: "gen/pb-gogo",
+			fileExpectations: []FileExpectation{
+				{fileName: "all/test.pb.go"},
+				{fileName: "all/test.pb.validate.go"},
+			},
+			extraArgs: []string{"--with-validator"},
 		},
 		"php": {
 			lang:              "php",
@@ -615,26 +627,28 @@ func (s *TestSuite) TestAllCases() {
 	}
 	src := path.Join(wd, "all")
 	for name, testCase := range testCases {
-		s.Run(name, func() {
-			s.T().Parallel()
-			dir, err := ioutil.TempDir(wd, testCase.lang)
-			defer os.RemoveAll(dir)
-			s.Require().NoError(err)
-			err = copy.Copy(src, path.Join(dir, "all"), opt)
-			argsStr := fmt.Sprintf(DockerCmd,
-				dir,
-				container,
-				testCase.protofileName,
-				testCase.lang,
-			)
-			exitCode := s.executeDocker(argsStr, testCase.extraArgs...)
-			s.Require().Equal(testCase.expectedExitCode, exitCode)
-			for _, fileExpectation := range testCase.fileExpectations {
-				fileFullPath := path.Join(dir, testCase.expectedOutputDir, fileExpectation.fileName)
-				s.Assert().FileExists(fileFullPath)
-				fileExpectation.Assert(fileFullPath)
-			}
-		})
+		func(name string, testCase *TestCase) {
+			s.Run(name, func() {
+				s.T().Parallel()
+				dir, err := ioutil.TempDir(wd, strings.ReplaceAll(name, " ", "_")+"_")
+				defer os.RemoveAll(dir)
+				s.Require().NoError(err)
+				err = copy.Copy(src, path.Join(dir, "all"), opt)
+				argsStr := fmt.Sprintf(DockerCmd,
+					dir,
+					container,
+					testCase.protofileName,
+					testCase.lang,
+				)
+				exitCode := s.executeDocker(argsStr, testCase.extraArgs...)
+				s.Require().Equal(testCase.expectedExitCode, exitCode)
+				for _, fileExpectation := range testCase.fileExpectations {
+					fileFullPath := path.Join(dir, testCase.expectedOutputDir, fileExpectation.fileName)
+					s.Assert().FileExists(fileFullPath)
+					fileExpectation.Assert(fileFullPath)
+				}
+			})
+		}(name, testCase)
 	}
 }
 

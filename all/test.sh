@@ -1,4 +1,5 @@
-#!/bin/bash -efx
+#!/bin/bash
+set -ef
 
 CONTAINER=${CONTAINER}
 
@@ -9,4 +10,3 @@ fi
 
 cd all/test
 go test -v all_test.go
-cd ../..
