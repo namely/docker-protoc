@@ -75,7 +75,7 @@ RUN ( cd ./grpc-go/cmd/protoc-gen-go-grpc && go install . )
 # Go get go-related bins
 WORKDIR /tmp
 RUN set -e && \
-    GO111MODULE=on go get google.golang.org/grpc@v1.47.0
+    GO111MODULE=on go get google.golang.org/grpc@v1.48.0
 
 # install protoc-gen-grpc-gateway and protoc-gen-openapiv2
 RUN set -e && \
