@@ -116,16 +116,6 @@
     },
     {
       fileMatch: [
-        "^Dockerfile$"
-      ],
-      matchStrings: [
-        "GO111MODULE=on go get google\.golang\.org\/grpc@(?<currentValue>.*?)\\s*\\n"
-      ],
-      depNameTemplate: "google.golang.org/grpc",
-      datasourceTemplate: "go",
-    },
-    {
-      fileMatch: [
         "variables.sh$"
       ],
       matchStrings: [
