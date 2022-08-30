@@ -147,11 +147,13 @@
     {
       fileMatch: [
         "variables.sh$", 
-        ".github/renovate.json5$"
+        ".github/renovate.json5$",
+        "gwy/templates/Dockerfile.tmpl$"
       ],
       matchStrings: [
-        "GO_VERSION=\\$\\{GO_VERSION:-(?<currentValue>.*?)\\}\\n", 
-        "constraints: {(\\s*\\n\\s*)\"go\":\\s*\"(?<currentValue>.*?)\""
+        "GO_VERSION=\\$\\{GO_VERSION:-(?<currentValue>.*?)\\}\\n",
+        "constraints: {(\\s*\\n\\s*)\"go\":\\s*\"(?<currentValue>.*?)\"",
+        "ARG go_version=(?<currentValue>.*?)"
       ],
       depNameTemplate: "go",
       datasourceTemplate: "golang-version",
