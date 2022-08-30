@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
 printUsage() {
     echo "gen-proto generates grpc and protobuf @ Namely"
@@ -6,40 +7,41 @@ printUsage() {
     echo "Usage: gen-proto -f my-service.proto -l go"
     echo " "
     echo "options:"
-    echo " -h, --help                     Show help"
-    echo " -f FILE                        The proto source file to generate"
-    echo " -d DIR                         Scans the given directory for all proto files"
-    echo " -l LANGUAGE                    The language to generate (${SUPPORTED_LANGUAGES[@]})"
-    echo " -o DIRECTORY                   The output directory for generated files. Will be automatically created."
-    echo " -i includes                    Extra includes"
-    echo " --lint CHECKS                  Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
-    echo " --with-gateway                 Generate grpc-gateway files (experimental)."
-    echo " --with-docs FORMAT             Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
-    echo " --with-rbi                     Generate Sorbet type declaration files (.rbi files) - see https://github.com/coinbase/protoc-gen-rbi"
-    echo " --with-typescript              Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
-    echo " --with-validator               Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
-    echo " --validator-source-relative    Make the output dirctory for protoc-gen-validate 'source relative' - see https://github.com/envoyproxy/protoc-gen-validate#go"
-    echo " --go-source-relative           Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
-    echo " --go-module-prefix             Specify the module prefix to remove from the import path - see https://developers.google.com/protocol-buffers/docs/reference/go-generated#invocation"
-    echo " --go-package-map               Map proto imports to go import paths"
-    echo " --go-plugin-micro              Replaces the Go gRPC plugin with go-micro"
-    echo " --go-proto-validator           Generate Go proto validations - see https://github.com/mwitkow/go-proto-validators"
-    echo " --no-google-includes           Don't include Google protobufs"
-    echo " --descr-include-imports        When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is self-contained"
-    echo " --descr-include-source-info    When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto. This results in vastly
-                                          larger descriptors that include information about the original location of each decl in the source file as  well
-                                          as surrounding comments."
-    echo " --descr-filename               The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
-    echo " --csharp_opt                   The options to pass to protoc to customize the csharp code generation."
-    echo " --scala_opt                    The options to pass to protoc to customize the scala code generation."
-    echo " --with-swagger-json-names      Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names.
-                                          (deprecated. Please use --with-openapi-json-names)"
-    echo " --with-openapi-json-names      Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
-    echo " --generate-unbound-methods     Use with --with-gateway flag. Produce the HTTP mapping even for methods without any HttpRule annotation."
-    echo " --js-out                       This option overrides the 'js_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
-    echo " --grpc-out                     This option allows overriding the left-half of the 'grpc_out=' argument (before the colon) with grpc-node and grpc-web code generation. Options are: generate_package_definition, grpc_js or grpc(depricated from April 2021). Defaults to grpc_js."
-    echo " --grpc-web-out                 This option overrides the 'grpc-web_out=' argument in the grpc-web code generation.  Defaults to 'import_style=typescript'."
-    echo " --ts_opt                       The options to pass to protoc to customize the typescript code generation. See https://github.com/stephenh/ts-proto#supported-options. --ts_opt useOptionals=messages will evaluate to --ts_proto_opt=useOptionals=messages"
+    echo " -h, --help                                       Show help"
+    echo " -f FILE                                          The proto source file to generate"
+    echo " -d DIR                                           Scans the given directory for all proto files"
+    echo " -l LANGUAGE                                      The language to generate (${SUPPORTED_LANGUAGES[@]})"
+    echo " -o DIRECTORY                                     The output directory for generated files. Will be automatically created."
+    echo " -i includes                                      Extra includes"
+    echo " --lint CHECKS                                    Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
+    echo " --with-gateway                                   Generate grpc-gateway files (experimental)."
+    echo " --with-docs FORMAT                               Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
+    echo " --with-rbi                                       Generate Sorbet type declaration files (.rbi files) - see https://github.com/coinbase/protoc-gen-rbi"
+    echo " --with-typescript                                Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
+    echo " --with-validator                                 Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
+    echo " --validator-source-relative                      Make the output dirctory for protoc-gen-validate 'source relative' - see https://github.com/envoyproxy/protoc-gen-validate#go"
+    echo " --go-source-relative                             Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
+    echo " --go-module-prefix                               Specify the module prefix to remove from the import path - see https://developers.google.com/protocol-buffers/docs/reference/go-generated#invocation"
+    echo " --go-package-map                                 Map proto imports to go import paths"
+    echo " --go-plugin-micro                                Replaces the Go gRPC plugin with go-micro"
+    echo " --go-proto-validator                             Generate Go proto validations - see https://github.com/mwitkow/go-proto-validators"
+    echo " --go-grpc-require-unimplemented-servers          Generate Go gRPC service with unimplemented server for future compatability- https://github.com/grpc/grpc-go/tree/master/cmd/protoc-gen-go-grpc#future-proofing-services"
+    echo " --no-google-includes                             Don't include Google protobufs"
+    echo " --descr-include-imports                          When using --descriptor_set_out, also include all dependencies of the input files in the set, so that the set is self-contained"
+    echo " --descr-include-source-info                      When using --descriptor_set_out, do not strip SourceCodeInfo from the FileDescriptorProto. This results in vastly
+                                                            larger descriptors that include information about the original location of each decl in the source file as  well
+                                                            as surrounding comments."
+    echo " --descr-filename                                 The filename for the descriptor proto when used with -l descriptor_set. Default to descriptor_set.pb"
+    echo " --csharp_opt                                     The options to pass to protoc to customize the csharp code generation."
+    echo " --scala_opt                                      The options to pass to protoc to customize the scala code generation."
+    echo " --with-swagger-json-names                        Use with --with-gateway flag. Generated swagger file will use JSON names instead of protobuf names.
+                                                            (deprecated. Please use --with-openapi-json-names)"
+    echo " --with-openapi-json-names                        Use with --with-gateway flag. Generated OpenAPI file will use JSON names instead of protobuf names."
+    echo " --generate-unbound-methods                       Use with --with-gateway flag. Produce the HTTP mapping even for methods without any HttpRule annotation."
+    echo " --js-out                                         This option overrides the 'js_out=' argument in the grpc-node and grpc-web code generation. Defaults to 'import_style=commonjs'."
+    echo " --grpc-out                                       This option allows overriding the left-half of the 'grpc_out=' argument (before the colon) with grpc-node and grpc-web code generation. Options are: generate_package_definition, grpc_js or grpc(depricated from April 2021). Defaults to grpc_js."
+    echo " --grpc-web-out                                   This option overrides the 'grpc-web_out=' argument in the grpc-web code generation.  Defaults to 'import_style=typescript'."
+    echo " --ts_opt                                         The options to pass to protoc to customize the typescript code generation. See https://github.com/stephenh/ts-proto#supported-options. --ts_opt useOptionals=messages will evaluate to --ts_proto_opt=useOptionals=messages"
 }
 
 GEN_GATEWAY=false
@@ -59,6 +61,7 @@ GO_MODULE_PREFIX=""
 GO_PACKAGE_MAP=""
 GO_PLUGIN="grpc"
 GO_VALIDATOR=false
+GO_GRPC_REQUIRE_UNIMPLEMENTED_SERVERS="require_unimplemented_servers=false"
 NO_GOOGLE_INCLUDES=false
 DESCR_INCLUDE_IMPORTS=false
 DESCR_INCLUDE_SOURCE_INFO=false
@@ -173,6 +176,10 @@ while test $# -gt 0; do
             ;;
         --go-proto-validator)
             GO_VALIDATOR=true
+            shift
+            ;;
+        --go-grpc-require-unimplemented-servers)
+            GO_GRPC_REQUIRE_UNIMPLEMENTED_SERVERS="require_unimplemented_servers=true"
             shift
             ;;
         --no-google-includes)
@@ -328,7 +335,8 @@ fi
 GEN_STRING=''
 case $GEN_LANG in
     "go")
-        GEN_STRING="--go_out=${GO_SOURCE_RELATIVE}${GO_MODULE_PREFIX}${GO_PACKAGE_MAP}plugins=grpc:$OUT_DIR"
+        GEN_STRING="--go_out=$OUT_DIR --go_opt=${GO_SOURCE_RELATIVE}${GO_MODULE_PREFIX}${GO_PACKAGE_MAP}\
+            --go-grpc_out=$OUT_DIR --go-grpc_opt=${GO_SOURCE_RELATIVE}${GO_MODULE_PREFIX}${GO_PACKAGE_MAP}${GO_GRPC_REQUIRE_UNIMPLEMENTED_SERVERS}"
         if [[ ${GO_PLUGIN} == "micro" ]]; then
           GEN_STRING="$GEN_STRING --micro_out=$OUT_DIR"
         fi
@@ -408,7 +416,7 @@ if [[ $GEN_VALIDATOR == true && $GEN_LANG == "go" ]]; then
 fi
 
 if [[ $GEN_VALIDATOR == true && $GEN_LANG == "gogo" ]]; then
-    GEN_STRING="$GEN_STRING --validate_out=lang=gogo${VALIDATOR_SOURCE_RELATIVE}:$OUT_DIR"
+    GEN_STRING="$GEN_STRING --validate_out=lang=go${VALIDATOR_SOURCE_RELATIVE}:$OUT_DIR"
 fi
 
 if [[ $GEN_VALIDATOR == true && $GEN_LANG == "java" ]]; then
@@ -483,7 +491,7 @@ if [ $GEN_GATEWAY = true ]; then
     mkdir -p ${GATEWAY_DIR}
 
     protoc $PROTO_INCLUDE \
-        --grpc-gateway_out=logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]} \
+        --grpc-gateway_out=${GO_SOURCE_RELATIVE}logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]} \
         --grpc-gateway_opt generate_unbound_methods=$GENERATE_UNBOUND_METHODS
 
     if [[ $OPENAPI_JSON == true ]]; then

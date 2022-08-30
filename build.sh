@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
 source ./variables.sh
 
@@ -21,6 +22,8 @@ for build in ${BUILDS[@]}; do
         --build-arg go_envoyproxy_pgv_version="${GO_ENVOYPROXY_PGV_VERSION}" \
         --build-arg go_mwitkow_gpv_version="${GO_MWITKOW_GPV_VERSION}" \
         --build-arg ts_proto_version="${TS_PROTO_VERSION}" \
+        --build-arg go_protoc_gen_go_version="${GO_PROTOC_GEN_GO_VERSION}" \
+        --build-arg go_protoc_gen_go_grpc_version="${GO_PROTOC_GEN_GO_GRPC_VERSION}" \
         --target "${build}" \
         .
 

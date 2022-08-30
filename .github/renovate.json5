@@ -123,6 +123,26 @@
       ],
       depNameTemplate: "ts-proto",
       datasourceTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GO_PROTOC_GEN_GO_VERSION=\\$\\{GO_PROTOC_GEN_GO_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "google.golang.org/protobuf",
+      datasourceTemplate: "go",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GO_PROTOC_GEN_GO_GRPC_VERSION=\\$\\{GO_PROTOC_GEN_GO_GRPC_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "google.golang.org/grpc/cmd/protoc-gen-go-grpc",
+      datasourceTemplate: "go",
     }
   ],
   packageRules: [
