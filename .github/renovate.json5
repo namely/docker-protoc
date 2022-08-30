@@ -143,6 +143,19 @@
       ],
       depNameTemplate: "google.golang.org/grpc/cmd/protoc-gen-go-grpc",
       datasourceTemplate: "go",
+    },
+    {
+      fileMatch: [
+        "variables.sh$", 
+        ".github/renovate.json5$"
+      ],
+      matchStrings: [
+        "GO_VERSION=\\$\\{GO_VERSION:-(?<currentValue>.*?)\\}\\n", 
+        "constraints: {(\\s*\\n\\s*)\"go\":\\s*\"(?<currentValue>.*?)\""
+      ],
+      depNameTemplate: "go",
+      datasourceTemplate: "golang-version",
+      versioningTemplate: "npm",
     }
   ],
   packageRules: [
