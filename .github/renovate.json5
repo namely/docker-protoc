@@ -158,6 +158,16 @@
       depNameTemplate: "go",
       datasourceTemplate: "golang-version",
       versioningTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "gwy/templates/Dockerfile.tmpl$"
+      ],
+      matchStrings: [
+        "ARG alpine_version=(?<currentValue>.*?)\\n"
+      ],
+      depNameTemplate: "alpine",
+      datasourceTemplate: "docker"
     }
   ],
   packageRules: [
