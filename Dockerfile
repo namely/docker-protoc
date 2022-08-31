@@ -1,4 +1,4 @@
-ARG debian=buster
+ARG debian_version
 ARG go_version
 ARG grpc_version
 ARG grpc_gateway_version
@@ -15,7 +15,7 @@ ARG go_mwitkow_gpv_version
 ARG go_protoc_gen_go_version
 ARG go_protoc_gen_go_grpc_version
 
-FROM golang:$go_version-$debian AS build
+FROM golang:$go_version-$debian_version AS build
 
 # TIL docker arg variables need to be redefined in each build stage
 ARG grpc_version
@@ -110,7 +110,7 @@ RUN curl -fsSL "https://github.com/grpc/grpc-web/releases/download/${grpc_web_ve
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
-FROM debian:$debian-slim AS protoc-all
+FROM debian:$debian_version-slim AS protoc-all
 
 ARG grpc_version
 ARG grpc_gateway_version
