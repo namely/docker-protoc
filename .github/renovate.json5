@@ -168,6 +168,17 @@
       ],
       depNameTemplate: "alpine",
       datasourceTemplate: "docker"
+    },
+
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "DEBIAN_VERSION=\\$\\{DEBIAN_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "debian",
+      datasourceTemplate: "docker"
     }
   ],
   packageRules: [
