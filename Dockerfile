@@ -1,4 +1,4 @@
-ARG debian=buster
+ARG debian
 ARG go_version
 ARG grpc_version
 ARG grpc_gateway_version
