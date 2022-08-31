@@ -153,7 +153,7 @@
       matchStrings: [
         "GO_VERSION=\\$\\{GO_VERSION:-(?<currentValue>.*?)\\}\\n",
         "constraints: {(\\s*\\n\\s*)\"go\":\\s*\"(?<currentValue>.*?)\"",
-        "ARG go_version=(?<currentValue>.*?)"
+        "ARG go_version=(?<currentValue>.*?)\\n"
       ],
       depNameTemplate: "go",
       datasourceTemplate: "golang-version",
