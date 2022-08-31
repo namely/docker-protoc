@@ -8,6 +8,7 @@ for build in ${BUILDS[@]}; do
     echo "building ${build} container with tag ${tag}"
     docker build -t ${tag} \
         -f Dockerfile \
+        --build-arg debian_version="${DEBIAN_VERSION}" \
         --build-arg grpc_version="${GRPC_VERSION}" \
         --build-arg grpc_java_version="${GRPC_JAVA_VERSION}" \
         --build-arg grpc_web_version="${GRPC_WEB_VERSION}" \
