@@ -178,7 +178,8 @@
         "DEBIAN_VERSION=\\$\\{DEBIAN_VERSION:-(?<currentValue>.*?)\\}\\n"
       ],
       depNameTemplate: "debian",
-      datasourceTemplate: "docker"
+      datasourceTemplate: "docker",
+      versioningTemplate: "debian",
     }
   ],
   packageRules: [
