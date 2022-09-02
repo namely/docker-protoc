@@ -29,6 +29,7 @@ ARG go_mwitkow_gpv_version
 ARG uber_prototool_version
 ARG go_protoc_gen_go_version
 ARG go_protoc_gen_go_grpc_version
+ARG mypy_version
 
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
@@ -43,7 +44,8 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     autoconf \
     zlib1g-dev \
     libssl-dev \
-    clang
+    clang \
+    python3-pip
 
 WORKDIR /tmp
 RUN git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc && \
@@ -111,12 +113,13 @@ RUN curl -fsSL "https://github.com/grpc/grpc-web/releases/download/${grpc_web_ve
     -o /tmp/grpc_web_plugin && \
     chmod +x /tmp/grpc_web_plugin
 
+# Add mypy support
+RUN pip3 install -t /opt/mypy-protobuf mypy-protobuf==${mypy_version}
+
 FROM debian:$debian_version-slim AS protoc-all
 
 ARG grpc_version
 ARG grpc_gateway_version
-
-ARG mypy_version
 
 ARG node_version
 ARG node_grpc_tools_node_protoc_ts_version
@@ -137,8 +140,7 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
     libssl1.1 \
     openjdk-11-jre \
     dos2unix \
-    gawk \
-    python3-pip
+    gawk
 
 # Install latest Node version
 RUN curl -fsSL "https://deb.nodesource.com/setup_${node_version}.x" | bash -
@@ -150,9 +152,6 @@ RUN npm i -g grpc_tools_node_protoc_ts@$node_grpc_tools_node_protoc_ts_version g
 
 # Add TypeScript support
 RUN npm i -g ts-proto@$ts_proto_version
-
-# Add mypy support
-RUN pip3 install mypy-protobuf==${mypy_version}
 
 COPY --from=build /tmp/googleapis/google/ /opt/include/google
 COPY --from=build /tmp/api-common-protos/google/ /opt/include/google
@@ -179,6 +178,11 @@ COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@${grpc_g
 COPY --from=build /go/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v${go_envoyproxy_pgv_version}/ /opt/include/
 
 COPY --from=build /go/pkg/mod/github.com/mwitkow/go-proto-validators@v${go_mwitkow_gpv_version}/ /opt/include/github.com/mwitkow/go-proto-validators/
+
+# Copy mypy
+COPY --from=build /opt/mypy-protobuf/ /opt/mypy-protobuf/
+RUN mv /opt/mypy-protobuf/bin/* /usr/local/bin/
+ENV PYTHONPATH="${PYTHONPATH}:/opt/mypy-protobuf/"
 
 ADD all/entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
