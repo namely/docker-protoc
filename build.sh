@@ -16,6 +16,7 @@ for build in ${BUILDS[@]}; do
         --build-arg go_version="${GO_VERSION}" \
         --build-arg uber_prototool_version="${UBER_PROTOTOOL_VERSION}" \
         --build-arg scala_pb_version="${SCALA_PB_VERSION}" \
+        --build-arg mypy_version="${MYPY_VERSION}" \
         --build-arg node_version="${NODE_VERSION}" \
         --build-arg node_grpc_tools_node_protoc_ts_version="${NODE_GRPC_TOOLS_NODE_PROTOC_TS_VERSION}" \
         --build-arg node_grpc_tools_version="${NODE_GRPC_TOOLS_VERSION}" \

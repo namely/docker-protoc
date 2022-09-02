@@ -180,6 +180,16 @@
       depNameTemplate: "debian",
       datasourceTemplate: "docker",
       versioningTemplate: "debian",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "MYPY_VERSION=\\$\\{MYPY_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "mypy-protobuf",
+      datasourceTemplate: "pypi",
     }
   ],
   packageRules: [

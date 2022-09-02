@@ -140,6 +140,27 @@ func (s *TestSuite) TestAllCases() {
 				{fileName: "/all/test/test_pb2_grpc.py"},
 			},
 		},
+		"python pyi": {
+			lang:              "python",
+			protofileName:     "all/test/test.proto",
+			expectedOutputDir: "gen/pb_python",
+			fileExpectations: []FileExpectation{
+				{fileName: "/__init__.py"},
+				{fileName: "/all/__init__.py"},
+				{fileName: "/all/test/__init__.py"},
+				{fileName: "/all/test/test_pb2.py"},
+				{fileName: "/all/test/test_pb2.pyi"},
+				{fileName: "/all/test/test_pb2_grpc.py"},
+				{fileName: "/all/test/test_pb2_grpc.pyi"},
+			},
+			extraArgs: []string{"--with-pyi"},
+		},
+		"python pyi with inconsistent language parameter": {
+			lang:             "ruby",
+			protofileName:    "all/test/test.proto",
+			expectedExitCode: 1,
+			extraArgs:        []string{"--with-pyi"},
+		},
 		"python with alternative output dir": {
 			lang:              "python",
 			protofileName:     "all/test/test.proto",
