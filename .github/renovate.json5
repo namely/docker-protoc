@@ -186,7 +186,7 @@
         "variables.sh$"
       ],
       matchStrings: [
-        "MYPY_VERSION =\\$\\{MYPY_VERSION:-(?<currentValue>.*?)\\}\\n"
+        "MYPY_VERSION=\\$\\{MYPY_VERSION:-(?<currentValue>.*?)\\}\\n"
       ],
       depNameTemplate: "mypy-protobuf",
       datasourceTemplate: "pypi",
