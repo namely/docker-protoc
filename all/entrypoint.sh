@@ -444,7 +444,7 @@ if [[ $GEN_RBI == true ]]; then
 fi
 
 if [[ $GEN_PYI == true ]]; then
-    GEN_STRING="$GEN_STRING --mypy_out=$OUT_DIR  --mypy_grpc_out=$OUT_DIR"
+    GEN_STRING="$GEN_STRING --mypy_out=$OUT_DIR --mypy_grpc_out=$OUT_DIR"
 fi
 
 if [[ $GEN_TYPESCRIPT == true ]]; then
