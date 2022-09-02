@@ -14,6 +14,7 @@ ARG go_envoyproxy_pgv_version
 ARG go_mwitkow_gpv_version
 ARG go_protoc_gen_go_version
 ARG go_protoc_gen_go_grpc_version
+ARG mypy_version
 
 FROM golang:$go_version-$debian_version AS build
 
