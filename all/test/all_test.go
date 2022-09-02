@@ -155,6 +155,12 @@ func (s *TestSuite) TestAllCases() {
 			},
 			extraArgs: []string{"--with-pyi"},
 		},
+		"python pyi with inconsistent language parameter": {
+			lang:             "ruby",
+			protofileName:    "all/test/test.proto",
+			expectedExitCode: 1,
+			extraArgs:        []string{"--with-pyi"},
+		},
 		"python with alternative output dir": {
 			lang:              "python",
 			protofileName:     "all/test/test.proto",
