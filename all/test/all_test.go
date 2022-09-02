@@ -151,6 +151,7 @@ func (s *TestSuite) TestAllCases() {
 				{fileName: "/all/test/test_pb2.py"},
 				{fileName: "/all/test/test_pb2.pyi"},
 				{fileName: "/all/test/test_pb2_grpc.py"},
+				{fileName: "/all/test/test_pb2_grpc.pyi"},
 			},
 			extraArgs: []string{"--with-pyi"},
 		},
