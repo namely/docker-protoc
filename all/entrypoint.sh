@@ -16,7 +16,7 @@ printUsage() {
     echo " --lint CHECKS                                    Enable linting protoc-lint (CHECKS are optional - see https://github.com/ckaznocha/protoc-gen-lint#optional-checks)"
     echo " --with-gateway                                   Generate grpc-gateway files (experimental)."
     echo " --with-docs FORMAT                               Generate documentation (FORMAT is optional - see https://github.com/pseudomuto/protoc-gen-doc#invoking-the-plugin)"
-    echo " --with-mypy                                      Generate mypy stub files (.pyi files) - see https://github.com/nipunn1313/mypy-protobuf"
+    echo " --with-pyi                                       Generate mypy stub files (.pyi files) - see https://github.com/nipunn1313/mypy-protobuf"
     echo " --with-rbi                                       Generate Sorbet type declaration files (.rbi files) - see https://github.com/coinbase/protoc-gen-rbi"
     echo " --with-typescript                                Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
     echo " --with-validator                                 Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
@@ -51,7 +51,7 @@ GEN_VALIDATOR=false
 VALIDATOR_SUPPORTED_LANGUAGES=("go" "gogo" "cpp" "java" "python")
 DOCS_FORMAT="html,index.html"
 GEN_RBI=false
-GEN_MYPY=false
+GEN_PYI=false
 GEN_TYPESCRIPT=false
 LINT=false
 LINT_CHECKS=""
@@ -136,8 +136,8 @@ while test $# -gt 0; do
             GEN_RBI=true
             shift
             ;;
-        --with-mypy)
-            GEN_MYPY=true
+        --with-pyi)
+            GEN_PYI=true
             shift
             ;;
         --with-typescript)
@@ -302,8 +302,8 @@ if [[ "$GEN_RBI" == true && "$GEN_LANG" != "ruby" ]]; then
     exit 1
 fi
 
-if [[ "$GEN_MYPY" == true && "$GEN_LANG" != "python" ]]; then
-    echo "Generating mypy stub files is a Python specific option."
+if [[ "$GEN_PYI" == true && "$GEN_LANG" != "python" ]]; then
+    echo "Generating .pyi mypy stub files is a Python specific option."
     exit 1
 fi
 
@@ -443,7 +443,7 @@ if [[ $GEN_RBI == true ]]; then
     GEN_STRING="$GEN_STRING --rbi_out=$OUT_DIR"
 fi
 
-if [[ $GEN_MYPY == true ]]; then
+if [[ $GEN_PYI == true ]]; then
     GEN_STRING="$GEN_STRING --mypy_out=$OUT_DIR"
 fi
 
