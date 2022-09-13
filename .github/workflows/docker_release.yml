@@ -1,0 +1,54 @@
+# Build, Tag & Push a new release to dockerhub off of a new pushed tag or gh_grpc_release.yml workflow
+
+name: Docker Release
+
+on:
+  workflow_call:
+    inputs:
+      release_version:
+        required: true
+        type: string
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+_[0-9]+'
+
+
+jobs:
+  docker_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: nelonoel/branch-name@v1.0.1
+
+      - name: Docker Login
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: docker login --username "$DOCKERHUB_USERNAME" --password "$DOCKERHUB_TOKEN"
+
+      - name: Get Version
+        id: get_version
+        run: |
+          version=""
+          if [[ ${{ github.event_name }} == "pull_request" ]]; then
+            version=${{ inputs.release_version }}
+          fi
+          if [[ ${{ github.event_name }} == "push" ]]; then
+            version=${GITHUB_REF#refs/*/}
+          fi
+          # Strip "v" prefix from tag name and set to output var
+          echo ::set-output name=version::${version#v}
+      - name: Build and Tag
+        if: success()
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: make tag-latest
+      
+      - name: Push
+        if: success()
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: make push-latest

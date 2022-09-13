@@ -302,8 +302,9 @@ Please read more [here](./.github/renovate.md).
 
 ### Release
 
-Any new gRPC version based release is handled automatically once the relevant [Renovate](https://www.mend.io/free-developer-tools/renovate/) branch is merged to master
-via the CI (Github Action). A patch release should be created manually in Github and the CI workflow will take care of the rest.
+* A new gRPC version based release is handled automatically once the relevant [Renovate](https://www.mend.io/free-developer-tools/renovate/) branch is merged to master
+via the CI (Github Action).  
+* A patch/release candidate release should be created manually in Github and the CI workflow will take care of the rest.
 
 #### Contributors
 

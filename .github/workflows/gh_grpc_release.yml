@@ -9,7 +9,7 @@
 
 # Note that once a new release is created in GH, a separate workflow will take care of releasing new docker images to dockerhub accordingly.
 
-name: New gPRC Release
+name: Github gRPC Release
 
 on:
   pull_request:
@@ -19,9 +19,11 @@ on:
       - 'master'
 
 jobs:
-  new_release:
+  new_gh_release:
     if: github.event.pull_request.merged == true && github.head_ref == 'renovate/grpc-major-upgrade'
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set_version_as_output.outputs.version }}
     steps:
     # checkout the repo
       - uses: actions/checkout@v3
@@ -35,10 +37,20 @@ jobs:
           VER=$(pcregrep -o1 "^GRPC_VERSION=\\$\{GRPC_VERSION:-(.*?)\\}$" variables.sh)
           # This makes the value accessible from env.Version
           echo "VERSION=v${VER}_0" >> $GITHUB_ENV
+      - name: Set version value as output
+        id: set_version_as_output
+        run: 
+          echo ::set-output name=version::${{ env.VERSION }}
       - name: Create new release
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run:
           gh release create ${{ env.VERSION }} --generate-notes --repo $GITHUB_REPOSITORY
+  new_docker_release:
+    needs: new_gh_release
+    uses: ./.github/workflows/docker_release.yml
+    with:
+      release_version: ${{ needs.new_gh_release.outputs.version }}
+    secrets: inherit
           
