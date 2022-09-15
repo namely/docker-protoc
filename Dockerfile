@@ -15,6 +15,7 @@ ARG go_mwitkow_gpv_version
 ARG go_protoc_gen_go_version
 ARG go_protoc_gen_go_grpc_version
 ARG mypy_version
+ARG protobuf_js_version
 
 FROM golang:$go_version-$debian_version AS build
 
@@ -30,6 +31,7 @@ ARG uber_prototool_version
 ARG go_protoc_gen_go_version
 ARG go_protoc_gen_go_grpc_version
 ARG mypy_version
+ARG protobuf_js_version
 
 
 RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
@@ -49,7 +51,8 @@ RUN set -ex && apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /tmp
 RUN git clone --depth 1 --shallow-submodules -b v$grpc_version.x --recursive https://github.com/grpc/grpc && \
-    git clone --depth 1 --shallow-submodules -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java.git && \
+    git clone --depth 1 --shallow-submodules -b v$grpc_java_version.x --recursive https://github.com/grpc/grpc-java && \
+    git clone --depth 1 --shallow-submodules -b $protobuf_js_version --recursive https://github.com/protocolbuffers/protobuf-javascript && \
     git clone --depth 1 https://github.com/googleapis/googleapis && \
     git clone --depth 1 https://github.com/googleapis/api-common-protos
 
@@ -62,6 +65,9 @@ RUN $bazel build //external:protocol_compiler && \
 
 WORKDIR /tmp/grpc-java
 RUN $bazel build //compiler:grpc_java_plugin
+
+WORKDIR /tmp/protobuf-javascript
+RUN $bazel build //generator:protoc-gen-js
 
 WORKDIR /tmp
 # Install protoc required by envoyproxy/protoc-gen-validate package
@@ -164,6 +170,8 @@ COPY --from=build /tmp/grpc/bazel-bin/external/com_google_protobuf/ /usr/local/b
 COPY --from=build /tmp/grpc/bazel-bin/src/compiler/ /usr/local/bin/
 # Copy protoc java plugin
 COPY --from=build /tmp/grpc-java/bazel-bin/compiler/ /usr/local/bin/
+# Copy protoc js plugin
+COPY --from=build /tmp/protobuf-javascript/bazel-bin/generator/protoc-gen-js /usr/local/bin/
 # Copy grpc_cli
 COPY --from=build /tmp/grpc/bazel-bin/test/cpp/util/ /usr/local/bin/
 

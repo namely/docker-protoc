@@ -190,6 +190,16 @@
       ],
       depNameTemplate: "mypy-protobuf",
       datasourceTemplate: "pypi",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "PROTOBUF_JS_VERSION=\\$\\{PROTOBUF_JS_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "protocolbuffers/protobuf-javascript",
+      datasourceTemplate: "github-releases",
     }
   ],
   packageRules: [
