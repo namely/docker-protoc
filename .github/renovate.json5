@@ -236,7 +236,7 @@
       groupSlug: "patch-dependencies"
     },
     {
-      matchPackageNames: ["grpc-web", "protoc-gen-grpc-web", "envoyproxy/protoc-gen-validate"],
+      matchPackageNames: ["envoyproxy/protoc-gen-validate", "protocolbuffers/protobuf-javascript"],
       matchUpdateTypes: [
         "minor",
         "patch"
@@ -245,8 +245,8 @@
       groupSlug: "minor-dependencies"
     },
     {
-      matchDatasources: ["go", "npm"],
-      excludePackageNames: ["github.com/grpc-ecosystem/grpc-gateway/v2", "google.golang.org/grpc"],
+      matchDatasources: ["go", "npm", "pypi"],
+      excludePackageNames: ["github.com/grpc-ecosystem/grpc-gateway/v2", "google.golang.org/grpc", "go"],
       matchUpdateTypes: [
         "minor",
         "patch"
@@ -255,12 +255,21 @@
       groupSlug: "minor-dependencies"
     },
     {
-      matchPackageNames: ["grpc-web", "protoc-gen-grpc-web", "envoyproxy/protoc-gen-validate"],
-      matchUpdateTypes: [
-        "major"
+      matchPackagePatterns: ["*"],
+      excludePackageNames: [
+        "github.com/grpc-ecosystem/grpc-gateway/v2", 
+        "google.golang.org/grpc", 
+        "go",
+        "grpc/grpc",
+        "grpc/grpc-java",
+        "google.golang.org/grpc"
       ],
-      groupName: "Misc Major Dependencies",
-      groupSlug: "major-dependencies"
-    },
+      matchUpdateTypes: [
+        "minor",
+        "patch"
+      ],
+      automerge: true,
+      automergeType: "pr"
+    }
   ]
 }
