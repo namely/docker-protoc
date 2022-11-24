@@ -688,6 +688,17 @@ func (s *TestSuite) TestAllCases() {
 				defer os.RemoveAll(dir)
 				s.Require().NoError(err)
 				err = copy.Copy(src, path.Join(dir, "all"), opt)
+
+				// We previously had a buggy PYTHONPATH which would search the working directory for
+				// modules when running the Python generator.
+				//
+				// Let's add something that with the same name as a standard library module to the test
+				// directory as a regression test.
+				//
+				// Further context: https://github.com/namely/docker-protoc/pull/356
+				_, err = os.OpenFile(path.Join(dir, "io.py"), os.O_RDONLY|os.O_CREATE, 0666)
+				s.Require().NoError(err)
+
 				argsStr := fmt.Sprintf(DockerCmd,
 					dir,
 					container,
