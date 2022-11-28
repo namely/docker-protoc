@@ -1,6 +1,6 @@
 module github.com/namely/docker-protoc/test
 
-go 1.17
+go 1.19
 
 require (
 	github.com/otiai10/copy v1.7.0
