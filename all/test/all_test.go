@@ -674,7 +674,7 @@ func (s *TestSuite) TestAllCases() {
 	s.Require().NoError(err)
 	wd = path.Join(wd, "..", "..")
 	opt := copy.Options{
-		Skip: func(src string) (bool, error) {
+		Skip: func(_ os.FileInfo, src, _ string) (bool, error) {
 			res := !(path.Base(src) == "test" || strings.HasSuffix(src, ".proto"))
 			return res, nil
 		},
