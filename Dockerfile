@@ -190,7 +190,7 @@ COPY --from=build /go/pkg/mod/github.com/mwitkow/go-proto-validators@v${go_mwitk
 # Copy mypy
 COPY --from=build /opt/mypy-protobuf/ /opt/mypy-protobuf/
 RUN mv /opt/mypy-protobuf/bin/* /usr/local/bin/
-ENV PYTHONPATH="${PYTHONPATH}:/opt/mypy-protobuf/"
+ENV PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}/opt/mypy-protobuf/"
 
 ADD all/entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
