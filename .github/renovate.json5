@@ -1,0 +1,275 @@
+{
+  platform: "github",
+  masterIssue: true,
+  baseBranches: [
+    "master"
+  ],
+  constraints: {
+    "go": "1.19"
+  },
+  extends: [
+    // A lot of default settings that you can extend can be found in the presets section: https://docs.renovatebot.com/presets-compatibility/
+    "config:base"
+  ],
+  ignorePaths: [],
+  enabledManagers: [
+    // Since we only update proprietry files (e.g variables.sh)we should use 'regex' here (see the matchManagers in the packageRules section below)
+    // If you need more, see https://docs.renovatebot.com/modules/manager/
+    "regex", 
+    "github-actions",
+    "gomod", 
+    "npm"
+  ],
+  "gomod":{
+    "fileMatch": ["(^|/)go.mod.tmpl$"]
+  }, 
+  regexManagers: [
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        // named capturing group, must include 'currentValue' as the name
+        "GRPC_VERSION=\\$\\{GRPC_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      // the name of the dependency in the package manager
+      depNameTemplate: "grpc/grpc",
+      // which package manager should Renovate Bot look to find this dependency?
+      datasourceTemplate: "github-releases",
+      // since we only keep the version up to minor and we do not use the v prefix, we need to extract major.minor from the fetched new version
+      extractVersionTemplate: "^v(?<version>\\d+\\.\\d+)\\.\\d+",
+      // by default versioningTemplate is semvar, but since we have the v prefix, we need to use a regex to specify the type of the version.
+      versioningTemplate: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)$",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GRPC_JAVA_VERSION=\\$\\{GRPC_JAVA_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "grpc/grpc-java",
+      datasourceTemplate: "github-releases",
+      extractVersionTemplate: "^v(?<version>\\d+\\.\\d+)\\.\\d+",
+      versioningTemplate: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)$",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GRPC_WEB_VERSION=\\$\\{GRPC_WEB_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "grpc-web",
+      datasourceTemplate: "npm"
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "NODE_PROTOC_GEN_GRPC_WEB_VERSION=\\$\\{NODE_PROTOC_GEN_GRPC_WEB_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "protoc-gen-grpc-web",
+      datasourceTemplate: "npm"
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GO_ENVOYPROXY_PGV_VERSION=\\$\\{GO_ENVOYPROXY_PGV_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "envoyproxy/protoc-gen-validate",
+      datasourceTemplate: "github-releases",
+      extractVersionTemplate: "^v(?<version>\\d+\\.\\d+\\.\\d+)"
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GRPC_GATEWAY_VERSION=\\$\\{GRPC_GATEWAY_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "github.com/grpc-ecosystem/grpc-gateway/v2",
+      datasourceTemplate: "go",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "NODE_GRPC_TOOLS_NODE_PROTOC_TS_VERSION=\\$\\{NODE_GRPC_TOOLS_NODE_PROTOC_TS_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "grpc_tools_node_protoc_ts",
+      datasourceTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "NODE_GRPC_TOOLS_VERSION=\\$\\{NODE_GRPC_TOOLS_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "grpc-tools",
+      datasourceTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "TS_PROTO_VERSION=\\$\\{TS_PROTO_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "ts-proto",
+      datasourceTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GO_PROTOC_GEN_GO_VERSION=\\$\\{GO_PROTOC_GEN_GO_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "google.golang.org/protobuf",
+      datasourceTemplate: "go",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "GO_PROTOC_GEN_GO_GRPC_VERSION=\\$\\{GO_PROTOC_GEN_GO_GRPC_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "google.golang.org/grpc/cmd/protoc-gen-go-grpc",
+      datasourceTemplate: "go",
+    },
+    {
+      fileMatch: [
+        "variables.sh$", 
+        ".github/renovate.json5$",
+        "gwy/templates/Dockerfile.tmpl$"
+      ],
+      matchStrings: [
+        "GO_VERSION=\\$\\{GO_VERSION:-(?<currentValue>.*?)\\}\\n",
+        "constraints: {(\\s*\\n\\s*)\"go\":\\s*\"(?<currentValue>.*?)\"",
+        "ARG go_version=(?<currentValue>.*?)\\n"
+      ],
+      depNameTemplate: "go",
+      datasourceTemplate: "golang-version",
+      versioningTemplate: "npm",
+    },
+    {
+      fileMatch: [
+        "gwy/templates/Dockerfile.tmpl$"
+      ],
+      matchStrings: [
+        "ARG alpine_version=(?<currentValue>.*?)\\n"
+      ],
+      depNameTemplate: "alpine",
+      datasourceTemplate: "docker"
+    },
+
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "DEBIAN_VERSION=\\$\\{DEBIAN_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "debian",
+      datasourceTemplate: "docker",
+      versioningTemplate: "debian",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "MYPY_VERSION=\\$\\{MYPY_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "mypy-protobuf",
+      datasourceTemplate: "pypi",
+    },
+    {
+      fileMatch: [
+        "variables.sh$"
+      ],
+      matchStrings: [
+        "PROTOBUF_JS_VERSION=\\$\\{PROTOBUF_JS_VERSION:-(?<currentValue>.*?)\\}\\n"
+      ],
+      depNameTemplate: "protocolbuffers/protobuf-javascript",
+      datasourceTemplate: "github-releases",
+    }
+  ],
+  packageRules: [
+    // here you can define how dependency updates should be grouped in one or multiple PRs:
+    // The following means that any major or minor updates to the specified packages will be grouped in one PR,
+    // and we would like to cut a new major release for our docker image, e.g 1.42_X => 1.46_0
+    {
+      matchPackageNames: ["grpc/grpc"],
+      groupName: "gRPC Version",
+      matchUpdateTypes: [
+        "minor",
+        "major"
+      ],
+      groupSlug: "gRPC Major Upgrade"
+    },
+    {
+      matchPackageNames: ["grpc/grpc-java", "google.golang.org/grpc"],
+      groupName: "gRPC Version",
+      matchUpdateTypes: [
+        "minor",
+        "major"
+      ],
+      "stabilityDays": 10,
+      groupSlug: "gRPC Major Upgrade"
+    },
+    // specifically for grpc-go, a patch version upgrade should be grouped with other misc dependencies, which you can find below.
+    // This would most likely mean we want to bump the docker image version without bumping the gRPC version, e.g 1.42_0 => 1.42_1
+    {
+      matchPackageNames: ["google.golang.org/grpc"],
+      matchUpdateTypes: [
+        "patch"
+      ],
+      groupName: "Misc Non-major dependencies",
+      groupSlug: "patch-dependencies"
+    },
+    {
+      matchPackageNames: ["envoyproxy/protoc-gen-validate", "protocolbuffers/protobuf-javascript"],
+      matchUpdateTypes: [
+        "minor",
+        "patch"
+      ],
+      groupName: "Misc Non-major dependencies",
+      groupSlug: "minor-dependencies"
+    },
+    {
+      matchDatasources: ["go", "npm", "pypi"],
+      excludePackageNames: ["github.com/grpc-ecosystem/grpc-gateway/v2", "google.golang.org/grpc", "go"],
+      matchUpdateTypes: [
+        "minor",
+        "patch"
+      ],
+      groupName: "Misc Non-major dependencies",
+      groupSlug: "minor-dependencies"
+    },
+    {
+      matchPackagePatterns: ["*"],
+      excludePackageNames: [
+        "github.com/grpc-ecosystem/grpc-gateway/v2", 
+        "google.golang.org/grpc", 
+        "go",
+        "grpc/grpc",
+        "grpc/grpc-java",
+        "google.golang.org/grpc"
+      ],
+      matchUpdateTypes: [
+        "minor",
+        "patch"
+      ],
+      automerge: true,
+      automergeType: "pr"
+    }
+  ]
+}

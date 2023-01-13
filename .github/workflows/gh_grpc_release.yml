@@ -1,0 +1,56 @@
+# This worklow will create a new GH release according to the current GRPC_VERSION value in variables.sh
+# It is triggered after a PR from head "renovate/grpc-major-upgrade" is merged to master.
+
+# 'renovate/grpc-major-upgrade' is a branch created by Renovate when it finds a new gRPC version to update in variables.sh
+# Renovate with this worflow allows us to automatically create new releases whenever Google releases a new gRPC version in github.com/grpc/grpc
+
+# All new versions created by this worflow will be suffixed by _0, e.g v1.46_0. At the moment, patches unrelated to the gRPC version (e.g v1.46_1)
+# will still be released manually (for now).
+
+# Note that once a new release is created in GH, a separate workflow will take care of releasing new docker images to dockerhub accordingly.
+
+name: Github gRPC Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:    
+      - 'master'
+
+jobs:
+  new_gh_release:
+    if: github.event.pull_request.merged == true && github.head_ref == 'renovate/grpc-major-upgrade'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set_version_as_output.outputs.version }}
+    steps:
+    # checkout the repo
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+    # install pcregrep to help extrat the version from variables.sh
+      - name: Install pcregrep
+        run: sudo sudo apt-get update -y && sudo apt-get install -y pcregrep
+      - name: Get version name
+        run: |
+          VER=$(pcregrep -o1 "^GRPC_VERSION=\\$\{GRPC_VERSION:-(.*?)\\}$" variables.sh)
+          # This makes the value accessible from env.Version
+          echo "VERSION=v${VER}_0" >> $GITHUB_ENV
+      - name: Set version value as output
+        id: set_version_as_output
+        run: 
+          echo ::set-output name=version::${{ env.VERSION }}
+      - name: Create new release
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run:
+          gh release create ${{ env.VERSION }} --generate-notes --repo $GITHUB_REPOSITORY
+  new_docker_release:
+    needs: new_gh_release
+    uses: ./.github/workflows/docker_release.yml
+    with:
+      release_version: ${{ needs.new_gh_release.outputs.version }}
+    secrets: inherit
+          

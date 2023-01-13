@@ -1,6 +1,6 @@
-# Build, Tag & Push a new release to dockerhub off of a tag
+# Build, Tag & Push a new prerelease to dockerhub off of a tag
 
-name: Pre-release
+name: Docker Pre-release
 
 on:
   push:
@@ -9,10 +9,10 @@ on:
 
 
 jobs:
-  prerelease-build:
+  docker_prerelease:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
