@@ -128,6 +128,25 @@ func (s *TestSuite) TestAllCases() {
 			},
 			extraArgs: []string{"-o", "gen/foo/bar"},
 		},
+		"javalite": {
+			lang:              "javalite",
+			protofileName:     "all/test/test.proto",
+			expectedOutputDir: "gen/pb-javalite",
+			fileExpectations: []FileExpectation{
+				{fileName: "Messages/Test.java"},
+				{fileName: "Messages/MessageGrpc.java"},
+			},
+		},
+		"javalite with alternative output dir": {
+			lang:              "javalite",
+			protofileName:     "all/test/test.proto",
+			expectedOutputDir: "gen/foo/bar",
+			fileExpectations: []FileExpectation{
+				{fileName: "Messages/Test.java"},
+				{fileName: "Messages/MessageGrpc.java"},
+			},
+			extraArgs: []string{"-o", "gen/foo/bar"},
+		},
 		"python": {
 			lang:              "python",
 			protofileName:     "all/test/test.proto",
