@@ -153,7 +153,6 @@ RUN curl -fsSL "https://deb.nodesource.com/setup_${node_version}.x" | bash -
 RUN apt-get install -y nodejs
 
 # Add Node TypeScript support
-RUN npm config set unsafe-perm true
 RUN npm i -g grpc_tools_node_protoc_ts@$node_grpc_tools_node_protoc_ts_version grpc-tools@$node_grpc_tools_version protoc-gen-grpc-web@$node_protoc_gen_grpc_web_version
 
 # Add TypeScript support
