@@ -145,9 +145,9 @@ SWAGGER_FILE_NAME=`basename $PROTO_FILE .proto`.swagger.json
 SWAGGER_DIR_NAME=`find ${GEN_PATH} -type f -name "${SWAGGER_FILE_NAME}" -print | head -n 1 | xargs -n1 dirname`
 
 # Copy and update the templates.
-renderizer --swagger=${SWAGGER_FILE_NAME} /templates/config.yaml.tmpl > $OUT_DIR/config.yaml
-renderizer --import=${GEN_PATH} /templates/go.mod.tmpl > $OUT_DIR/go.mod
-renderizer --import=${SWAGGER_DIR_NAME} /templates/Dockerfile.tmpl > $OUT_DIR/Dockerfile
+renderizer --import=${GEN_PATH} --swagger=${SWAGGER_FILE_NAME} --swaggerdir=${SWAGGER_DIR_NAME} /templates/config.yaml.tmpl > $OUT_DIR/config.yaml
+renderizer --import=${GEN_PATH} --swagger=${SWAGGER_FILE_NAME} --swaggerdir=${SWAGGER_DIR_NAME} /templates/go.mod.tmpl > $OUT_DIR/go.mod
+renderizer --import=${GEN_PATH} --swagger=${SWAGGER_FILE_NAME} --swaggerdir=${SWAGGER_DIR_NAME} /templates/Dockerfile.tmpl > $OUT_DIR/Dockerfile
 
 MAIN_DIR=${OUT_DIR}/cmd/gateway
 mkdir -p ${MAIN_DIR}

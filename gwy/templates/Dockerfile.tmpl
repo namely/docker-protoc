@@ -21,7 +21,7 @@ FROM alpine:$alpine_version
 WORKDIR /app
 COPY --from=build /app/grpc_gateway /app/
 COPY --from=build /app/config.yaml /app/
-COPY --from=build /app/{{.Import}}/*.swagger.json /app/
+COPY --from=build /app/{{.Swaggerdir}}/*.swagger.json /app/
 
 EXPOSE 80
 ENTRYPOINT ["/app/grpc_gateway"]
