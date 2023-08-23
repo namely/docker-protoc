@@ -13,7 +13,11 @@ SOME_RESP_HEADER="SOME-RESPONSE-HEADER"
 
 pushd "gwy"
 
-# Test building the gateway.
+# Test generating & building the google example proto into a gateway
+docker run --rm -v="$PWD":/defs "$CONTAINER" -f greeter/greeter.proto -s Greeter -o gen/google-example-grpc-gateway
+docker build -t $CONTAINER-test-google-example-gateway gen/google-example-grpc-gateway/
+
+# Test generating the gateway.
 docker run --rm -v="$PWD":/defs "$CONTAINER" -f /defs/test/test.proto -i /defs -s Message
 
 # And make sure that we can build the test gateway too.
