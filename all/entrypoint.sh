@@ -492,7 +492,7 @@ protoc $PROTO_INCLUDE \
 if [[ $GEN_LANG == "python" ]]; then
     # Create __init__.py for everything in the OUT_DIR
     # (i.e. gen/pb_python/foo/bar/).
-    find $OUT_DIR -type d | xargs -n1 -I '{}' touch '{}/__init__.py'
+    find $OUT_DIR -type d | xargs -I '{}' touch '{}/__init__.py'
     # And everything above it (i.e. gen/__init__py")
     d=`dirname $OUT_DIR`
     while [[ "$d" != "." && "$d" != "/" ]]; do
