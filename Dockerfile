@@ -5,6 +5,7 @@ ARG grpc_gateway_version
 ARG grpc_java_version
 ARG uber_prototool_version
 ARG scala_pb_version
+ARG clojure_protoc_plugin_version
 ARG node_version
 ARG node_grpc_tools_node_protoc_ts_version
 ARG node_grpc_tools_version
@@ -25,6 +26,7 @@ ARG grpc_gateway_version
 ARG grpc_java_version
 ARG grpc_web_version
 ARG scala_pb_version
+ARG clojure_protoc_plugin_version
 ARG go_envoyproxy_pgv_version
 ARG go_mwitkow_gpv_version
 ARG uber_prototool_version
@@ -114,6 +116,13 @@ RUN curl -fLO "https://github.com/scalapb/ScalaPB/releases/download/v${scala_pb_
     && unzip protoc-gen-scala-${scala_pb_version}-linux-x86_64.zip \
     && chmod +x /tmp/protoc-gen-scala
 
+
+# Add clojure support
+RUN curl -LO https://github.com/protojure/protoc-plugin/releases/download/v${clojure_protoc_plugin_version}/protoc-gen-clojure \
+    -o /tmp/protoc-gen-clojure  \
+    && chmod +x /tmp/protoc-gen-clojure
+
+
 # Add grpc-web support
 RUN curl -fsSL "https://github.com/grpc/grpc-web/releases/download/${grpc_web_version}/protoc-gen-grpc-web-${grpc_web_version}-linux-x86_64" \
     -o /tmp/grpc_web_plugin && \
@@ -179,6 +188,8 @@ COPY --from=build /go/bin/* /usr/local/bin/
 COPY --from=build /tmp/grpc_web_plugin /usr/local/bin/grpc_web_plugin
 
 COPY --from=build /tmp/protoc-gen-scala /usr/local/bin/
+
+COPY --from=build /tmp/protoc-gen-clojure /usr/local/bin/
 
 COPY --from=build /go/pkg/mod/github.com/grpc-ecosystem/grpc-gateway/v2@${grpc_gateway_version}/protoc-gen-openapiv2/options /opt/include/protoc-gen-openapiv2/options/
 
