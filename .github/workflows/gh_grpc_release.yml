@@ -26,7 +26,7 @@ jobs:
       version: ${{ steps.set_version_as_output.outputs.version }}
     steps:
     # checkout the repo
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
     # install pcregrep to help extrat the version from variables.sh
