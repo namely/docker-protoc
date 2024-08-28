@@ -191,7 +191,7 @@ COPY --from=build /opt/mypy-protobuf/ /opt/mypy-protobuf/
 RUN mv /opt/mypy-protobuf/bin/* /usr/local/bin/
 ENV PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}/opt/mypy-protobuf/"
 
-ADD all/entrypoint.sh /usr/local/bin
+COPY all/entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /defs
@@ -208,7 +208,7 @@ ENTRYPOINT [ "prototool" ]
 # grpc-cli
 FROM protoc-all as grpc-cli
 
-ADD ./cli/entrypoint.sh /entrypoint.sh
+COPY ./cli/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 WORKDIR /run
