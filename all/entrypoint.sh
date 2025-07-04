@@ -19,8 +19,8 @@ printUsage() {
     echo " --with-pyi                                       Generate mypy stub files (.pyi files) - see https://github.com/nipunn1313/mypy-protobuf"
     echo " --with-rbi                                       Generate Sorbet type declaration files (.rbi files) - see https://github.com/coinbase/protoc-gen-rbi"
     echo " --with-typescript                                Generate TypeScript declaration files (.d.ts files) - see https://github.com/improbable-eng/ts-protoc-gen#readme"
-    echo " --with-validator                                 Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/envoyproxy/protoc-gen-validate"
-    echo " --validator-source-relative                      Make the output dirctory for protoc-gen-validate 'source relative' - see https://github.com/envoyproxy/protoc-gen-validate#go"
+    echo " --with-validator                                 Generate validations for (${VALIDATOR_SUPPORTED_LANGUAGES[@]}) - see https://github.com/bufbuild/protoc-gen-validate"
+    echo " --validator-source-relative                      Make the output dirctory for protoc-gen-validate 'source relative' - see https://github.com/bufbuild/protoc-gen-validate#go"
     echo " --go-source-relative                             Make go import paths 'source_relative' - see https://github.com/golang/protobuf#parameters"
     echo " --go-module-prefix                               Specify the module prefix to remove from the import path - see https://developers.google.com/protocol-buffers/docs/reference/go-generated#invocation"
     echo " --go-package-map                                 Map proto imports to go import paths"
@@ -266,7 +266,7 @@ if [[ ! -z $FILE && ! -z $PROTO_DIR ]]; then
     exit 1
 fi
 
-if [ -z $GEN_LANG ]; then
+if [ -z "$GEN_LANG" ]; then
     echo "Error: You must specify a language: ${SUPPORTED_LANGUAGES[@]}"
     printUsage
     exit 1
@@ -319,7 +319,7 @@ if [[ ! -z $GO_SOURCE_RELATIVE && ! -z $GO_MODULE_PREFIX ]]; then
 fi
 
 PLUGIN_LANG=$GEN_LANG
-if [ $PLUGIN_LANG == 'objc' ] ; then
+if [ "$PLUGIN_LANG" == 'objc' ] ; then
     PLUGIN_LANG='objective_c'
 fi
 
@@ -337,9 +337,9 @@ if [[ ! -d $OUT_DIR ]]; then
   # If a .jar is specified, protoc can output to the jar directly. So
   # don't create it as a directory.
   if [[ "$GEN_LANG" == "java" ]] && [[ $OUT_DIR == *.jar ]]; then
-    mkdir -p `dirname $OUT_DIR`
+    mkdir -p $(dirname $OUT_DIR)
   else
-    mkdir -p $OUT_DIR
+    mkdir -p "$OUT_DIR"
   fi
 fi
 
@@ -410,7 +410,7 @@ plugins=grpc+embedded\
         fi
         ;;
     *)
-        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=$(which grpc_${PLUGIN_LANG}_plugin)"
+        GEN_STRING="--grpc_out=$OUT_DIR --${GEN_LANG}_out=$OUT_DIR --plugin=protoc-gen-grpc=$(which grpc_"${PLUGIN_LANG}"_plugin)"
         ;;
 esac
 
@@ -435,7 +435,7 @@ if [[ $GEN_VALIDATOR == true && $GEN_LANG == "java" ]]; then
 fi
 
 if [[ $GEN_DOCS == true ]]; then
-    mkdir -p $OUT_DIR/doc
+    mkdir -p "$OUT_DIR"/doc
     GEN_STRING="$GEN_STRING --doc_opt=$DOCS_FORMAT --doc_out=$OUT_DIR/doc"
 fi
 
@@ -467,22 +467,22 @@ fi
 
 PROTO_INCLUDE="$PROTO_INCLUDE $EXTRA_INCLUDES"
 
-if [ ! -z $PROTO_DIR ]; then
+if [ ! -z "$PROTO_DIR" ]; then
     PROTO_INCLUDE="$PROTO_INCLUDE -I $PROTO_DIR"
     FIND_DEPTH=""
     if [[ $GEN_LANG == "go" ]]; then
         FIND_DEPTH="-maxdepth 1"
     fi
-    PROTO_FILES=(`find ${PROTO_DIR} ${FIND_DEPTH} -name "*.proto"`)
+    PROTO_FILES=($(find "${PROTO_DIR}" "${FIND_DEPTH}" -name "*.proto"))
 else
     PROTO_INCLUDE="-I . $PROTO_INCLUDE"
     PROTO_FILES=($FILE)
 fi
 
 # Run protoc
-protoc $PROTO_INCLUDE \
-    $GEN_STRING \
-    $LINT_STRING \
+protoc "$PROTO_INCLUDE" \
+    "$GEN_STRING" \
+    "$LINT_STRING" \
     ${PROTO_FILES[@]}
 
 # Python also needs __init__.py files in each directory to import.
@@ -492,30 +492,30 @@ protoc $PROTO_INCLUDE \
 if [[ $GEN_LANG == "python" ]]; then
     # Create __init__.py for everything in the OUT_DIR
     # (i.e. gen/pb_python/foo/bar/).
-    find $OUT_DIR -type d | xargs -I '{}' touch '{}/__init__.py'
+    find "$OUT_DIR" -type d | xargs -I '{}' touch '{}/__init__.py'
     # And everything above it (i.e. gen/__init__py")
-    d=`dirname $OUT_DIR`
+    d=$(dirname $OUT_DIR)
     while [[ "$d" != "." && "$d" != "/" ]]; do
         touch "$d/__init__.py"
-        d=`dirname $d`
+        d=$(dirname $d)
     done
 fi
 
 if [ $GEN_GATEWAY = true ]; then
     GATEWAY_DIR=${OUT_DIR}
-    mkdir -p ${GATEWAY_DIR}
+    mkdir -p "${GATEWAY_DIR}"
 
-    protoc $PROTO_INCLUDE \
-        --grpc-gateway_out=${GO_SOURCE_RELATIVE}logtostderr=true:$GATEWAY_DIR ${PROTO_FILES[@]} \
+    protoc "$PROTO_INCLUDE" \
+        --grpc-gateway_out=${GO_SOURCE_RELATIVE}logtostderr=true:"$GATEWAY_DIR" ${PROTO_FILES[@]} \
         --grpc-gateway_opt generate_unbound_methods=$GENERATE_UNBOUND_METHODS
 
     if [[ $OPENAPI_JSON == true ]]; then
-        protoc $PROTO_INCLUDE  \
-            --openapiv2_out=logtostderr=true,json_names_for_fields=true:$GATEWAY_DIR ${PROTO_FILES[@]} \
+        protoc "$PROTO_INCLUDE"  \
+            --openapiv2_out=logtostderr=true,json_names_for_fields=true:"$GATEWAY_DIR" ${PROTO_FILES[@]} \
             --openapiv2_opt generate_unbound_methods=$GENERATE_UNBOUND_METHODS
     else
-        protoc $PROTO_INCLUDE  \
-            --openapiv2_out=logtostderr=true,json_names_for_fields=false:$GATEWAY_DIR ${PROTO_FILES[@]} \
+        protoc "$PROTO_INCLUDE"  \
+            --openapiv2_out=logtostderr=true,json_names_for_fields=false:"$GATEWAY_DIR" ${PROTO_FILES[@]} \
             --openapiv2_opt generate_unbound_methods=$GENERATE_UNBOUND_METHODS
     fi
 fi

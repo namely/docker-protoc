@@ -5,7 +5,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/namely/protoc-all?style=flat-square)](https://hub.docker.com/r/namely/protoc-all)
 
 This repository contains support for various Docker images that wrap `protoc`,
-`prototool`, `grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
+`grpc_cli` commands with [gRPC](https://github.com/grpc/grpc) support
 in a variety of languages removing the need to install and manage these commands locally.
 It relies on setting a simple volume to the docker container,
 usually mapping the current directory to `/defs`, and specifying the file and
@@ -13,21 +13,20 @@ language you want to generate.
 
 ## Features
 
-*   Docker images for:
-    *   `protoc` with `namely/protoc` (automatically includes `/usr/local/include`)
-    *   [Uber's Prototool](https://github.com/uber/prototool) with `namely/prototool`
-    *   A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
-    *   `grpc_cli` with `namely/grpc-cli`
-    *   [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
-*   [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
-*   [Protobuf library artifacts](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf`.  NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
+* Docker images for:
+  * `protoc` with `namely/protoc` (automatically includes `/usr/local/include`)
+  * A custom generation script to facilitate common use-cases with `namely/protoc-all` (see below)
+  * `grpc_cli` with `namely/grpc-cli`
+  * [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) using a custom go-based server with `namely/gen-grpc-gateway`
+* [Google APIs](https://github.com/googleapis/googleapis) included in `/opt/include/google`
+* [Protobuf library artifacts](https://github.com/google/protobuf/tree/master/src/google/protobuf) included in `/opt/include/google/protobuf`.  NOTE: `protoc` would only need part of the path i.e. `-I /opt/include` if you import WKTs like so:
 
 ```proto
 import "google/protobuf/empty.proto";
 ...
 ```
 
-*   Support for all C-based gRPC libraries with Go and Java native libraries
+* Support for all C-based gRPC libraries with Go and Java native libraries
 
 If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) below.
 
@@ -37,7 +36,7 @@ If you're having trouble, see [Docker troubleshooting](#docker-troubleshooting) 
 
 ## Tag Conventions
 
-For `protoc`, `grpc_cli` and `prototool` a pattern of `<GRPC_VERSION>_<CONTAINER_VERSION>` is used for all images (or `<GRPC_VERSION>_<CONTAINER_VERSION>-rc.<PRERELEASE_NUMBER>`) for pre-releases).
+For `protoc`, `grpc_cli` and a pattern of `<GRPC_VERSION>_<CONTAINER_VERSION>` is used for all images (or `<GRPC_VERSION>_<CONTAINER_VERSION>-rc.<PRERELEASE_NUMBER>`) for pre-releases).
 Example is `namely/protoc-all:1.15_0` for gRPC version `1.15` (or `namely/protoc-all:1.15_0-rc.1` for a pre-release). The `latest` tag will always point to the most recent version.
 
 ## Usage
@@ -45,7 +44,7 @@ Example is `namely/protoc-all:1.15_0` for gRPC version `1.15` (or `namely/protoc
 Pull the container:
 
 ```sh
-$ docker pull namely/protoc-all
+docker pull namely/protoc-all
 ```
 
 After that, change working directory to the one that contains your `.proto` definition
@@ -54,8 +53,8 @@ files.
 So if you have a directory: `~/my_project/protobufs/` that has: `myproto.proto`, you'd want to run this:
 
 ```sh
-$ cd ~/my_project/protobufs
-$ docker run -v $PWD:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csharp, etc
+cd ~/my_project/protobufs
+docker run -v $PWD:/defs namely/protoc-all -f myproto.proto -l ruby #or go, csharp, etc
 ```
 
 ```powershell
@@ -100,7 +99,7 @@ $ docker run ... namely/protoc-all -f protorepo/catalog/catalog.proto -l go
 
 `--grpc-web-out <string>` to modify the `grpc-web_out=` options for web code generation
 
-`--grpc-out <string>` to modify the `grpc_out=` options for node and web code generation.  See https://www.npmjs.com/package/grpc-tools for more details.
+`--grpc-out <string>` to modify the `grpc_out=` options for node and web code generation.  See <https://www.npmjs.com/package/grpc-tools> for more details.
 
 ## gRPC Gateway
 
@@ -166,10 +165,10 @@ configuration. This will allow your gateway to receive requests from different o
 
 There are four values:
 
-*   `cors.allow-origin`: Value to set for Access-Control-Allow-Origin header.
-*   `cors.allow-credentials`: Value to set for Access-Control-Allow-Credentials header.
-*   `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
-*   `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
+* `cors.allow-origin`: Value to set for Access-Control-Allow-Origin header.
+* `cors.allow-credentials`: Value to set for Access-Control-Allow-Credentials header.
+* `cors.allow-methods`: Value to set for Access-Control-Allow-Methods header.
+* `cors.allow-headers`: Value to set for Access-Control-Allow-Headers header.
 
 For CORS, you will want to configure your `cors.allow-methods` to be the HTTP verbs set in your proto (i.e. `GET`, `PUT`, etc.), as well as `OPTIONS`, so that your service can handle the [preflight request](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request).
 
@@ -177,9 +176,9 @@ If you are not using CORS, you can leave these configuration values at their def
 
 ### GRPC Client Configuration
 
-*   `grpc.max-call-recv-msg-size`: Sets the maximum message size in bytes the client can receive.
+* `grpc.max-call-recv-msg-size`: Sets the maximum message size in bytes the client can receive.
 
-*   `grpc.max-call-send-msg-size`: Sets the maximum message size in bytes the client can send.
+* `grpc.max-call-send-msg-size`: Sets the maximum message size in bytes the client can send.
 
 ### Other Response Headers
 
